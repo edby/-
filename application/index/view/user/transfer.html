@@ -1,0 +1,75 @@
+{include file='common/userTop'}
+<link rel="stylesheet" href="__CSS__/move.css">
+<!--内容-->
+<main class="main">
+    <div class="main_box">
+        <div class="main_left">
+            <!--左侧用户信息&左侧会员中心导航栏-->
+            {include file='common/userMenu'}
+        </div>
+
+        <div class="main_right">
+            <p class="vip_hint">转账（请注意资金安全）：</p>
+            <div class="move_box">
+                <ul id="myTab" class="nav nav-tabs">
+                	{volist name='voucher' id='vo'}
+	                    <li {eq name='$vo.id' value='1'}class="active"{/eq}>
+	                        <a href="{$vo.href}" data-toggle="tab">{$vo.name}</a>
+	                    </li>
+                    {/volist}
+                </ul>
+
+                <div id="myTabContent" class="tab-content">
+                    <!--优惠券-->
+                    {volist name='voucher' id='vo'}
+	                    <div class="tab-pane fade{eq name='$vo.id' value='1'} in active{/eq}" id="{$vo.div_id}">
+	                        <div class="move_box">
+	                            <p>{$vo.name}转账数量：</p>
+	                            <input type="number" id="{$vo.id}_number" name="number" placeholder="请输入您的{$vo.name}转账数量" />
+	                        </div>
+	                        <div class="move_box">
+	                            <p>转账账户：</p>
+	                            <input type="text" id="{$vo.id}_account" name="account" placeholder="请输入您要转账的账户" />
+	                        </div>
+	                        <button type="button" onclick="move({$vo.id})">确定</button>
+	                    </div>
+                    {/volist}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{include file='common/bottom'}
+<script>
+    vipNav(3)
+</script>
+<script type='text/javascript'>
+function move(vid) {
+	layer.confirm('确定要转账吗？', {
+        btn: ['确定','取消']
+    }, function(){
+	    var data = {
+	    	uid:$('.user_name').attr('data-uid'),
+	    	vid:vid,
+	    	number:$('#'+vid+'_number').val(),
+	    	account:$('#'+vid+'_account').val(),
+	    };
+	    $.ajax({
+	    	type:'post',
+	    	url:'{:url("transfer")}',
+	    	data:data,
+	    	success:function(ret){
+	    		if(ret.code === 0){
+	    			layer.alert(ret.msg);
+	    		}else{
+	    			layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+	    				location.href = self.location.href;
+	    			});
+	    		}
+	    	}
+	    });
+    });
+}
+</script>
+

@@ -1,0 +1,119 @@
+{include file='common/userTop'}
+<link rel="stylesheet" href="__CSS__/fetch.css" />
+<!--内容-->
+<main class="main">
+    <div class="main_box">
+        <div class="main_left">
+            <!--左侧用户信息&左侧会员中心导航栏-->
+            {include file='common/userMenu'}
+        </div>
+
+        <div class="main_right">
+            <p class="vip_hint">
+                提现（请注意资金安全）：
+                <small>动态奖，福利奖提现时，20%自动转换为消费券</small>
+            </p>
+            <div class="fetch_box">
+                <ul id="myTab" class="nav nav-tabs">
+                    {volist name='list' id='vo'}
+	                    <li {eq name='$vo.bouns_type' value='1'}class='active'{/eq}>
+	                        <a href="{$vo.select}" data-toggle="tab">
+								{$vo.name}
+	                            <p>{$vo.short_name}余额：<span class="red">{$vo.bouns_number} 积分</span></p>
+	                        </a>
+	                    </li>
+                    {/volist}
+                </ul>
+				
+                <div id="myTabContent" class="tab-content">
+                    {volist name='list' id='vo'}
+	                    <div class="tab-pane fade{eq name='$vo.bouns_type' value='1'} in active{/eq}" id="{$vo.div_id}">
+	                        <div class="fetch_head">
+	                            <p>{$vo.short_name}余额
+	                                <span class="red">{$vo.bouns_number} 积分</span>
+	                            </p>
+	                            <small>满500提现且一个月只能提满两倍</small>
+	                        </div>
+	                        <div class="fetch_in">
+	                            <p>
+	                                <span>提现金额：</span>
+	                                <small data-toggle="modal" data-target="#myModal1">了解提现规则 >></small>
+	                            </p>
+	                            <input id='number_{$vo.id}' type="number" name='bouns_number' placeholder="请输入您的提现金额" />
+	                        </div>
+	                        <div class="fetch_acc">
+	                            <p>
+	                                <span>提现账户：</span>
+	                            </p>
+	                            <div class="bank">
+	                                <a href="{:url('bank')}">银行卡管理</a>
+	                            </div>
+	                            <div class="bank_card" data-card-id='{$vo.bank.id}'>
+	                                <p>{$vo.bank.bank_user}</p>
+	                                <p>{$vo.bank.bank_number}</p>
+	                                <p>
+	                                    <span>{$vo.bank.bank_name}</span>
+	                                    <span>{$vo.bank.bank_branch}</span>
+	                                </p>
+	                            </div>
+	                        </div>
+	                        <button type="button" onclick="withdraw({$vo.id})">确定{$vo.id}</button>
+	                    </div>
+                    {/volist}
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</main>
+
+<!--提现规则弹窗-->
+<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">{$page.name}</h4>
+            </div>
+            <p class="line"></p>
+            <div class="modal-body">
+                <div>{$page.content}</div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+{include file='common/bottom'}
+<script>
+    vipNav(2)
+</script>
+<script type='text/javascript'>
+// 判断买入数量输入格式
+$('input[type=number]').on('input',function(){
+	$(this).val($(this).val().match(/\d+\.?\d{0,2}/));
+});
+
+// 执行提现
+function withdraw(id){
+	var data = {
+		uid:$('.user_name').attr('data-uid'),
+		type:id,
+		bonus_number:$('#number_'+id).val(),
+		user_card_id:$('.bank_card').attr('data-card-id'),
+	}
+	$.ajax({
+		type:'post',
+		url:'{:url("do_withdraw")}',
+		data:data,
+		success:function(ret){
+			if(ret.code === 0){
+				layer.alert(ret.msg);
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+					location.href = self.location.href;
+				});
+			}
+		}
+	});
+}
+</script>

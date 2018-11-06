@@ -1,0 +1,123 @@
+{include file='common/userTop'}
+<style type='text/css'>
+.default_btn {float:right;margin-top:-50px;padding:3px;cursor:pointer;color:white;border:1px solid red;border-radius:8px;background-color:red;box-shadow: red 0px 0px 2px;}
+.default {float:right;margin-top:-50px;padding:3px;cursor:pointer;color:white;border:1px solid green;border-radius:8px;background-color:green;box-shadow: green 0px 0px 2px;}
+</style>
+<!--内容-->
+<main class="main">
+    <div class="main_box">
+        <div class="main_left">
+            <!--左侧用户信息&左侧会员中心导航栏-->
+            {include file='common/userMenu'}
+        </div>
+
+        <div class="main_right">
+            <p class="vip_hint edit_bank">银行卡（请注意资金安全）：</p>
+            <p class="vip_hint add_card">
+                <span onclick="back_bank()">银行卡</span>
+                <img src="__IMG__/next.png">
+                <span>添加银行卡</span>
+            </p>
+
+            <!--银行卡-->
+            <div class="edit_bank">
+            	{volist name='card' id='vo'}
+	                <div class="bank_box">
+	                    <p>{$vo.bank_user}</p>
+	                    <p>{$vo.bank_number}</p><span class='{$vo.default_class}' onclick="set_default({$vo.id},{$vo.uid},2)">{$vo.default_text}</span>
+	                    <p>
+	                        <span>{$vo.bank_name}</span>
+	                        <span>{$vo.bank_branch}</span>
+	                    </p>
+	                    <span class="bank_del" onclick="bank_del({$vo.id})">删除</span>
+	                </div>
+                {/volist}
+                <div class="add_bank">
+                    <button type="button" onclick="add_bank()">添加银行卡</button>
+                </div>
+            </div>
+
+            <!--添加银行卡-->
+            <div class="add_card">
+                <p>请输入银行卡信息：</p>
+                <form id='card_form'>
+	                <input type="text" name="bank_name" placeholder="请输入您的银行名称" />
+	                <input type="text" name="bank_user" placeholder="请输入您的账户名" />
+	                <input type="number" name="bank_number" placeholder="请输入您的银行卡号" />
+	                <input type="text" name="bank_branch" placeholder="请输入您的分名称" />
+	                <input type='hidden' name='uid' value='{$user.id}' />
+	                <button type="submit">保存</button>
+            	</form>
+            </div>
+        </div>
+    </div>
+</main>
+
+{include file='common/bottom'}
+<script>
+    vipNav(4)
+</script>
+<script type='text/javascript'>
+// 添加银行卡
+$('#card_form').find('button[type="submit"]').click(function(){
+	$.ajax({
+		type:'post',
+		url:'{:url("bank")}',
+		data:$('#card_form').serialize(),
+		success:function(ret){
+			if(ret.code === 0){
+				layer.alert(ret.msg);
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+					location.href = self.location.href;
+				});
+			}
+		}
+	});
+	return false;
+});
+
+// 设置为默认银行卡
+function set_default(id,uid,type){
+	layer.confirm('确定设置默认银行卡？', {
+        btn: ['确定','取消']
+    }, function(){
+		$.ajax({
+			type:'post',
+			url:'{:url("set_bank_default")}',
+			data:{id:id,uid:uid,type:type},
+			success:function(ret){
+				if(ret.code === 0){
+					layer.alert(ret.msg);
+				}else{
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = self.location.href;
+					});
+				}
+			}
+		});
+	});
+}
+
+// 解绑银行卡
+function bank_del(id) {
+    layer.confirm('确定解绑这张银行卡？', {
+        btn: ['确定','取消']
+    }, function(){
+        $.ajax({
+        	type:'post',
+        	url:'{:url("bank_untie")}',
+        	data:{id:id},
+        	success:function(ret){
+        		if(ret.code === 0){
+        			layer.msg(ret.msg);
+        		}else{
+        			layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = self.location.href;
+					});
+        		}
+        	}
+        });
+    });
+}
+</script>

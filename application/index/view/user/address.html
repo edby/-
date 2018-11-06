@@ -1,0 +1,168 @@
+{include file='common/userTop'}
+<style type='text/css'>
+.default_btn {float:right;margin-top:-50px;padding:3px;cursor:pointer;color:white;border:1px solid red;border-radius:8px;background-color:red;box-shadow: red 0px 0px 2px;}
+.default {float:right;margin-top:-50px;padding:3px;cursor:pointer;color:white;border:1px solid green;border-radius:8px;background-color:green;box-shadow: green 0px 0px 2px;}
+</style>
+<!--内容-->
+<main class="main">
+    <div class="main_box">
+        <div class="main_left">
+            <!--左侧用户信息&左侧会员中心导航栏-->
+            {include file='common/userMenu'}
+        </div>
+
+        <div class="main_right">
+            <p class="vip_hint address">地址管理（请确认地址正确）：</p>
+
+            <!--地址管理-->
+            <div class="address">
+                {volist name='address' id='vo'}
+	                <div class="bank_box">
+	                    <p>{$vo.username}</p>
+	                    <p>{$vo.tel}</p><span class='{$vo.default_class}' onclick="set_default({$vo.id},{$vo.uid},2)">{$vo.default_text}</span>
+	                    <p>{$vo.address}</p>
+	                    <span class="bank_del" onclick="address_edit({$vo.id})">编辑</span>
+	                    <span class="bank_del" onclick="address_del({$vo.id})">删除</span>
+	                </div>
+                {/volist}
+                <div class="add_bank">
+                    <button type="button" onclick="add_address()">添加地址</button>
+                </div>
+            </div>
+
+            <!--添加地址-->
+            <div class="add_address">
+                <p>请输入收货信息：</p>
+                <form id='add_addr'>
+	                <input type="text" name="username" placeholder="请输入您姓名" />
+	                <input type="number" name="tel" placeholder="请输入您的手机号" />
+	                <input type="text" name="address" placeholder="请输入您的收货地址" />
+	                <input type='hidden' name='uid' value='{$user.id}' />
+	                <button type="submit">保存</button>
+                </form>
+            </div>
+
+            <!--编辑地址-->
+            <div class="edit_address">
+                
+            </div>
+        </div>
+    </div>
+</main>
+
+{include file='common/bottom'}
+<script>
+    vipNav(6)
+</script>
+<script type='text/javascript'>
+// 添加地址
+$('#add_addr').find('button[type="submit"]').click(function(){
+	$.ajax({
+		type:'post',
+		url:'{:url("add_addr")}',
+		data:$('#add_addr').serialize(),
+		success:function(ret){
+			if(ret.code === 0){
+				layer.msg(ret.msg);
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+    				location.href = self.location.href;
+    			});
+			}
+		}
+	});
+	return false;
+});
+
+// 显示编辑地址
+function address_edit(id) {
+    var html = '';
+    $.ajax({
+    	type:'post',
+    	url:'{:url("edit_addr_info")}',
+    	data:{id:id},
+    	success:function(ret){
+    		if(ret.code === 0){
+    			layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+    				location.href = self.location.href;
+    			});
+    		}else{
+    			html += '<p>请输入收货信息：</p>';
+                html += '<form id="edit_addr">';
+	            html += '<input type="text" name="username" placeholder="请输入您姓名" value="'+ ret.data.username +'" />';
+	            html += '<input type="number" name="tel" placeholder="请输入您的手机号" value="'+ ret.data.tel +'" />';
+	            html += '<input type="text" name="address" placeholder="请输入您的收货地址" value="'+ ret.data.address +'" />';
+	            html += '<input type="hidden" name="id" value="'+ret.data.id+'" />';
+	            html += '<button type="submit">保存</button>';
+                html += '</form>';
+    		}
+    		$('.address').hide();
+    		$('.edit_address').html(html).show();
+    		
+    		// 执行编辑地址
+			$('#edit_addr').find('button[type="submit"]').click(function(){
+				$.ajax({
+					type:'post',
+					url:'{:url("edit_addr")}',
+					data:$('#edit_addr').serialize(),
+					success:function(ret){
+						if(ret.code === 0){
+							layer.msg(ret.msg);
+						}else{
+							layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+			    				location.href = self.location.href;
+			    			});
+						}
+					}
+				});
+				return false;
+			});
+    		
+    	}
+    });
+}
+
+// 设置为默认地址
+function set_default(id,uid,type){
+	layer.confirm('确定设置默认银行卡？', {
+        btn: ['确定','取消']
+    }, function(){
+		$.ajax({
+			type:'post',
+			url:'{:url("set_addr_default")}',
+			data:{id:id,uid:uid,type:type},
+			success:function(ret){
+				if(ret.code === 0){
+					layer.alert(ret.msg);
+				}else{
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = self.location.href;
+					});
+				}
+			}
+		});
+	});
+}
+
+// 删除地址
+function address_del(id) {
+    layer.confirm('确定删除该地址？', {
+        btn: ['确定','取消']
+    }, function(){
+        $.ajax({
+        	type:'post',
+        	url:'{:url("del_addr")}',
+        	data:{id:id},
+        	success:function(ret){
+        		if(ret.code === 0){
+					layer.msg(ret.msg);
+				}else{
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+	    				location.href = self.location.href;
+	    			});
+				}
+        	}
+        });
+    });
+}
+</script>

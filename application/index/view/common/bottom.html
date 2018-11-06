@@ -1,0 +1,29 @@
+
+		<!--底部-->
+		<div class="foot">
+			<img src="__IMG__/logo_zc.png" class="foot_img" />
+			<div class="foot_b">@2018.zhongchengguoji</div>
+		</div>
+		<!--优惠券-->
+		<div class="coupon">
+			<img src="__IMG__/yhq.png" class="yhq"/>
+			<img src="__IMG__/close.png" class="cls" onclick="cls()"/>
+		</div>
+		<div class="mask"></div>
+	</body>
+	<script>
+		function cls(){
+			$('.coupon,.mask').hide();
+		}
+		var stat = document.cookie.split(";")[0].split("=")[1];
+		setTimeout(function(){
+			document.cookie="sata=0";
+		},1500);
+		console.log(document.cookie)
+		if(stat == 1){
+			$('.coupon,.mask').fadeIn();
+		}else{
+			$('.coupon,.mask').hide();
+		}
+	</script>
+</html>

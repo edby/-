@@ -1,0 +1,54 @@
+{include file='common/userTop'}
+
+		<!--内容-->
+		<main class="main">
+			<div class="main_box">
+				<div class="main_left">
+					<!--左侧用户信息&左侧会员中心导航栏-->
+            		{include file='common/userMenu'}
+				</div>
+
+				<div class="main_right">
+					<ul class="pwd_right">
+						<li>
+							<p class="vip_hint">
+								设置安全密码（请妥善保管密码）：
+							</p>
+							<input id='pay_pwd' placeholder="请输入您的安全密码" name='payment_password' type="password" />
+							<font>温馨提示：安全密码必须包含大小写和数字，长度为8-14位，且不能与登录密码一致。</font>
+							<input id='repay_pwd' placeholder="请确认您的安全密码" name='re_payment_password' type="password" />
+							<button id='mod_pwd'>确认提交</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</main>
+
+{include file='common/bottom'}
+<script>
+	vipNav(5);
+</script>
+<script type='text/javascript'>
+$('#mod_pwd').click(function(){
+	var data = {
+		uid:$('.user_name').attr('data-uid'),
+		payment_password:$('#pay_pwd').val(),
+		re_payment_password:$('#repay_pwd').val(),
+	}
+	$.ajax({
+		type:'post',
+		url:'{:url("mod_pwd")}',
+		data:data,
+		success:function(ret){
+			if(ret.code === 0){
+				layer.msg(ret.msg);
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+    				location.href = self.location.href;
+    			});
+			}
+		}
+	});
+});
+</script>
+	

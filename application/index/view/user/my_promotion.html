@@ -1,0 +1,37 @@
+{include file='common/userTop'}
+
+<!--内容-->
+<main class="main">
+	<div class="main_box">
+		<div class="main_left">
+			<!--左侧用户信息&左侧会员中心导航栏-->
+    		{include file='common/userMenu'}
+		</div>
+
+		<div class="main_right">
+			<p class="vip_hint">
+				我的推广（分享成就财富）：
+			</p>
+			<div class="about_right">
+				<table class="table table-responsive promotion">
+					<tr>
+						<th>昵称</th>
+						<th>手机号</th>
+					</tr>
+					{volist name='promotion' id='vo'}
+						<tr>
+							<td>{$vo.real_name}</td>
+							<td>{$vo.tel}</td>
+						</tr>
+					{/volist}
+				</table>					
+			</div>
+		</div>
+	</div>
+</main>
+
+{include file='common/bottom'}
+<script>
+	vipNav(7)
+</script>
+

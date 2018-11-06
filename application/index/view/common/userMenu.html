@@ -1,0 +1,61 @@
+<!--左侧会员中心导航栏-->
+<div class="member">
+    <div class="member_box">
+        <img src="__IMG__/show1.jpg" class="portrait">
+        <span>
+            <div class="user_name" data-uid='{$user.id}'>
+                <span>{$user.real_name}</span>
+                <small>
+                    {$user.level_text}
+                    {switch $user.level}
+                    	{case 1}{/case}
+                    	{case 2}<img src="__IMG__/moon.png">{/case}
+                    	{case 3}<img src="__IMG__/moon.png"><img src="__IMG__/moon.png">{/case}
+                    	{case 4}<img src="__IMG__/moon.png"><img src="__IMG__/moon.png"><img src="__IMG__/moon.png">{/case}
+                    	{case 5}<img style='margin-top:-5px;margin-left:5px;' src="__IMG__/sun.png">{/case}
+                    {/switch}
+                </small>
+            </div>
+            <div class="user_phone">{$user.account}</div>
+            <button type="button">会员已激活</button>
+            {neq name='$user.is_set' value='1'}
+            	<div class="user_full" data-toggle="modal" data-target="#myModal">完善个人信息 >></div>
+        	{/neq}
+        </span>
+    </div>
+    <div class="user_detail">
+        <div>
+            绑定微信号：
+            <span>{$user.wechat_accout}</span>
+        </div>
+        <div>
+            绑定支付宝：
+            <span>{$user.alipay_accout}</span>
+        </div>
+        <div>
+            帐号状态：
+            <span class="blue">{$user.status_text}</span>
+        </div>
+        <div class="user_change">
+            <span onclick="user_change()">修改个人信息 >></span>
+            <small>（修改个人信息需要修改码）</small>
+        </div>
+    </div>
+    <div class="go_reg">
+        <span onclick="go_reg()">去帮新会员注册 >></span>
+    </div>
+</div>
+<div class="vip_nav">
+    <ul>
+        <li><a href="{:url('wallet')}">钱包</a></li>
+        <li><a href="{:url('bonus')}">奖金</a></li>
+        <li><a href="{:url('withdraw')}">提现</a></li>
+        <li><a href="{:url('transfer')}">转账</a></li>
+        <li><a href="{:url('bank')}">银行卡</a></li>
+        <li><a href="{:url('mod_pwd')}">修改密码</a></li>
+        <li><a href="{:url('address')}">地址管理</a></li>
+        <li><a href="{:url('my_promotion')}">我的推广</a></li>
+        <li><a href="{:url('about_us')}">关于我们</a></li>
+        <li><a href="#">退出登录</a></li>
+    </ul>
+</div>

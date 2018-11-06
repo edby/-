@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>首页</title>
+<link rel="stylesheet" href="__CSS__/common.css" />
+<link rel="stylesheet" href="__CSS__/zhongyu.css" />
+<link rel="stylesheet" href="__CSS__/bootstrap.css" />
+</head>
+
+<body>
+<!--头部-->
+<div class="top_nav">
+	<div class="container clearfix">
+		<div class="top_nav_l">
+			<img src="__IMG__/logo_zc.png" />
+		</div>
+		<ul class="top_nav_r clearfix">
+			{volist name='sidebar' id='vo'}
+				<li>
+					<a href="/{$vo.name}">{$vo.title}</a>
+				</li>
+			{/volist}
+		</ul>
+		{empty name='$account'}
+	        <div class="accout">
+	            <span>ZC</span>
+				<div class="accout_menu">
+	                <p><a href="{:url('Publics/login')}">登录</a></p>
+	                <p><a href="{:url('Publics/userreg')}">注册</a></p>
+	            </div>
+	        </div>
+	    {else/}
+	    	<div class="accout">
+	            <span>ZC</span>
+	            {$account}
+	            <div class="accout_menu">
+	                <p><a href="{:url('userCenter')}">会员中心</a></p>
+	                <p><a href="{:url('Publics/logout')}">退出登录</a></p>
+	            </div>
+	        </div>
+	    {/empty}
+	</div>
+</div>
+		

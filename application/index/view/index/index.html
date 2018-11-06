@@ -1,0 +1,246 @@
+{include file='common/indexTop'}
+		<!---->
+		<div class="top_ban">
+			<div class="top_ban_t">
+				<span>创新 金融 财富</span>
+			</div>
+			<div class="top_ban_m">
+				激活会员，开启财富之路
+			</div>
+			<div class="top_ban_b">
+				Vigorously-active member, Fuyu Emoto road
+			</div>
+		</div>
+		<!---->
+		<div class="trans">
+			<ul class="container tran_blc">
+				<li class="buy">
+					<p>买入</p>
+					<p>P U R C H A S E</p>
+				</li>
+				<li class="reser_buy">
+					<p>预约买入</p>
+					<p>RESERVATION LIST</p>
+				</li>
+				<li class="sell">
+					<p>卖出</p>
+					<p>D I S C O V E R Y</p>
+				</li>
+			</ul>
+		</div>
+		<!--优惠专区-->
+		<div class="headline">
+			<div>优惠专区</div>
+			<p>FAVORABLE ZONE</p>
+		</div>
+		<div class="cabinet1">
+        <div class="show1">
+            <img src="{$preferential[0]['detail_pic']}" onclick="item()">
+            <div class="buyBox">
+                <div>
+                    <p>售价：<span>{$preferential[0]['price']}</span> <span>积分</span></p>
+                    <span>优惠券可以免费兑换</span>
+                </div>
+                <button type="button" onclick="buy()">立即购买</button>
+            </div>
+        </div>
+        <div class="flex">
+            <div class="best">
+                <div class="best_title">BEST</div>
+                <div class="best_name">法国红酒</div>
+                <div class="best_subhead">
+                    <p>Most</p>
+                    <p>beautiful sunset</p>
+                </div>
+                <span>优惠劵可以直接免费兑换哦！</span>
+            </div>
+            <div class="show2">
+                <img src="{$preferential[1]['detail_pic']}" onclick="item()">
+                <div class="buyBox">
+                    <div>
+                        <p>售价：<span>{$preferential[1]['price']}</span> <span>积分</span></p>
+                        <span>优惠券可以免费兑换</span>
+                    </div>
+                    <button type="button" onclick="buy()">立即购买</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="cabinet2">
+        <div class="show3">
+            <img src="{$preferential[2]['detail_pic']}" onclick="item()">
+            <div class="buyBox">
+                <div>
+                    <p>售价：<span>{$preferential[2]['price']}</span> <span>积分</span></p>
+                    <span>优惠券可以免费兑换</span>
+                </div>
+                <button type="button" onclick="buy()">立即购买</button>
+            </div>
+        </div>
+        <div class="show3">
+            <img src="{$preferential[3]['detail_pic']}" onclick="item()">
+            <div class="buyBox">
+                <div>
+                    <p>售价：<span>{$preferential[3]['price']}</span> <span>积分</span></p>
+                    <span>优惠券可以免费兑换</span>
+                </div>
+                <button type="button" onclick="buy()">立即购买</button>
+            </div>
+        </div>
+        <div class="show3">
+            <img src="{$preferential[4]['detail_pic']}" onclick="item()">
+            <div class="buyBox">
+                <div>
+                    <p>售价：<span>{$preferential[4]['price']}</span> <span>积分</span></p>
+                    <span>优惠券可以免费兑换</span>
+                </div>
+                <button type="button" onclick="buy()">立即购买</button>
+            </div>
+        </div>
+    </div>
+    <p class="check_more"><a href="goods/preferential">查看更多</a></p>
+		<!--进行中的订单-->
+		<div class="headline" style="margin-bottom: 30px;">
+			<h1><span>进行中的订单</span></h1>
+			<p>PROGRESS MIDDLE CLASS</p>
+		</div>
+		<div class="container">
+			<table class="table-responsive table going_order">
+				<tr>
+					<th>订单号</th>
+					<th>匹配卖出订单</th>
+					<th>金额</th>
+					<th>创建时间</th>
+					<th>状态</th>
+					<th>最迟付款时间</th>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>201815895944</td>
+					<td>1600.00</td>
+					<td>2019-5-10 12:12</td>
+					<td class="cor_red">未付款</td>
+					<td>2018-10-17 12:20</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>201815895944</td>
+					<td>1600.00</td>
+					<td>2019-5-10 12:12</td>
+					<td class="cor_red">未付款</td>
+					<td>2018-10-17 12:20</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>201815895944</td>
+					<td>1600.00</td>
+					<td>2019-5-10 12:12</td>
+					<td class="cor_red">未付款</td>
+					<td>2018-10-17 12:20</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>201815895944</td>
+					<td>1600.00</td>
+					<td>2019-5-10 12:12</td>
+					<td class="cor_red">未付款</td>
+					<td>2018-10-17 12:20</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>201815895944</td>
+					<td>1600.00</td>
+					<td>2019-5-10 12:12</td>
+					<td class="cor_red">未付款</td>
+					<td>2018-10-17 12:20</td>
+				</tr>
+			</table>
+			<!--分页-->
+			<ul class="page clearfix">
+				<li><a href="#"><</a></li>
+				<li><a href="#" class="page_act">1</a></li>
+				<li><a href="#">2</a></li>
+				<li><a href="#">3</a></li>
+				<li><a href="#">4</a></li>
+				<li><a href="#">5</a></li>
+				<li><a href="#">></a></li>
+			</ul>
+		</div>
+		<!--申请订单列表-->
+		<div class="headline" style="margin-bottom: 30px;">
+			<h1><span>申请订单列表</span></h1>
+			<p>APPLICATION SUMMARY TABLE</p>
+		</div>
+		<div class="container">
+			<table class="table-responsive table going_order">
+				<tr>
+					<th>申请订单编号</th>
+					<th>申请人</th>
+					<th>金额</th>
+					<th>数量</th>
+					<th>状态</th>
+					<th>创建时间</th>
+					<th>其他</th>					
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>生生</td>
+					<td>1600.00</td>
+					<td>6688</td>
+					<td class="cor_red">未付款</td>
+					<td>2019-5-10 12:12</td>					
+					<td>详情</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>生生</td>
+					<td>1600.00</td>
+					<td>6688</td>
+					<td class="cor_red">未付款</td>
+					<td>2019-5-10 12:12</td>					
+					<td>详情</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>生生</td>
+					<td>1600.00</td>
+					<td>6688</td>
+					<td class="cor_red">未付款</td>
+					<td>2019-5-10 12:12</td>					
+					<td>详情</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>生生</td>
+					<td>1600.00</td>
+					<td>6688</td>
+					<td class="cor_red">未付款</td>
+					<td>2019-5-10 12:12</td>					
+					<td>详情</td>
+				</tr>
+				<tr>
+					<td>201815895944</td>
+					<td>生生</td>
+					<td>1600.00</td>
+					<td>6688</td>
+					<td class="cor_red">未付款</td>
+					<td>2019-5-10 12:12</td>					
+					<td>详情</td>
+				</tr>
+			</table>
+			<!--分页-->
+			<ul class="page clearfix">
+				<li><a href="#"><</a></li>
+				<li><a href="#" class="page_act">1</a></li>
+				<li><a href="#">2</a></li>
+				<li><a href="#">3</a></li>
+				<li><a href="#">4</a></li>
+				<li><a href="#">5</a></li>
+				<li><a href="#">></a></li>
+			</ul>
+		</div>
+
+{include file='common/bottom'}
+<script type="text/javascript" src="__JS__/jquery.min.js"></script>
+<script type="text/javascript" src="__JS__/bootstrap.min.js"></script>
+<script type="text/javascript" src="__JS__/common.js"></script>

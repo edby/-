@@ -1,0 +1,97 @@
+{include file='common/top'}
+<main>
+    <div class="cabinet_head">
+        <div>
+            <label>结算</label>
+            <p>提交订单</p>
+            <span>BEST</span>
+        </div>
+        <span>抓紧时间去结算哦</span>
+    </div>
+
+    <div class="clear_subhead">
+        <div class="clear_nav">
+            <div class="clearItem">结算订单</div>
+        </div>
+    </div>
+
+    <!--订单信息-->
+    <div class="clear_shop">
+        <div class="clearShop_box">
+            <img src="__IMG__/show1.jpg">
+            <div class="shop_name">
+                <p>法国梧桐Realmadrid红酒</p>
+                <span>红酒美味无限</span>
+            </div>
+            <div class="shop_price">
+                <s>
+                    <span>400</span>
+                    <span>消费券</span>
+                </s>
+                <p>
+                    <span>200</span>
+                    <span>消费券</span>
+                </p>
+            </div>
+            <div class="shop_num">
+                <div>
+                    <button type="button" onclick="clear_menus()">-</button>
+                    <input type="number" id="clearNum" min="1" max="5" value="1">
+                    <button type="button" onclick="clear_add()">+</button>
+                </div>
+                <span>限购5件</span>
+            </div>
+            <div class="total_price">
+                <span>200</span>
+                <dd>消费券</dd>
+            </div>
+        </div>
+    </div>
+
+    <!--收货信息-->
+    <div class="recipients">
+        <div class="rec_box">
+            <div class="rec_title">
+                <span>收货信息：</span>
+                <img src="__IMG__/next.png">
+            </div>
+            <div class="rec_details">
+                <span>张三</span>
+                <span>13300000001</span>
+                <span>河南省 郑州市 金水区花园路35号院</span>
+                <a href="#">编辑</a>
+            </div>
+        </div>
+        <div class="freight">
+            <span>运费：</span>
+            <p><span>10</span>元</p>
+        </div>
+    </div>
+    <div class="line"></div>
+
+    <!--底部合计-->
+    <div class="figure">
+        <div class="figure_box">
+            <span class="figure_total">合计：</span>
+            <p>
+                <span class="figure_price">200</span>
+                <span>消费券</span>
+            </p>
+            <span>（包含运费）</span>
+            <button type="button" onclick="submit_order()">提交订单</button>
+        </div>
+    </div>
+</main>
+
+
+<script type="text/javascript" src="__JS__/jquery.min.js" ></script>
+<script type="text/javascript" src="__JS__/bootstrap.min.js" ></script>
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script type="text/javascript" src="__JS__/common.js" ></script>
+<script type="text/javascript" src="__JS__/store.js"></script>
+<script type="text/javascript" src="__JS__/clear.js"></script>
+{include file='common/bottom'}
+<script>
+    setNav(1);
+</script>
+

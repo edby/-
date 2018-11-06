@@ -1,0 +1,201 @@
+{include file='common/top'}
+
+<main>
+    <!--面包屑导航-->
+    <div class="crumbs">
+        <div>
+            <a href="store.html">商城首页</a>
+            <img src="__IMG__/next.png">
+            <a href="feature.html">特色专区</a>
+            <img src="__IMG__/next.png">
+            <a href="#">红酒</a>
+            <img src="__IMG__/next.png">
+            <a href="#">法国梧桐红酒</a>
+        </div>
+    </div>
+    <div class="goods">
+        <!--左边大图-->
+        <div class="goods_left">
+            <div class="gallery">
+                <img src="{$pics[0]}" id="gallery">
+            </div>
+            <div class="thumb">
+                <!--<img src="__IMG__/show1.jpg" onclick="addShow(this)">-->
+                {volist name="pics" id="p" }
+                	<img src="{$p}" onclick="addShow(this)">
+                {/volist}
+            </div>
+        </div>
+        <!--右边操作-->
+        <div class="goods_right">
+            <div class="goods_names">法国梧桐Realmadrid红酒</div>
+            <div class="goods_price">
+                售价：
+                <label class="red">{$goods_detail.price}</label>
+                <small class="red">消费券</small>
+                <s>
+                    <span>{$goods_detail.original_price}</span>
+                    <span>消费券</span>
+                </s>
+            </div>
+            <div class="goods_num">
+                数量
+                <button type="button" id="minus">-</button>
+                <input type="number" oninput="input_number(this.value)" id="goodsNum" min="0">
+                <button type="button" id="add">+</button>
+                件（库存<span id="inventory">{$goods_detail.number}</span>件）
+            </div>
+            <div class="goods_btn">
+                <button type="button" class="bg_blue" onclick="post_order()">立即购买</button>
+                <button type="button" class="bg_red " onclick="toTrolley()">加入购物车</button>
+            </div>
+        </div>
+    </div>
+    <div class="line"></div>
+    <div class="item_subhead">
+        <ul id="myTab" class="nav nav-tabs">
+            <li class="active">
+                <a href="#home" data-toggle="tab">宝贝详情</a>
+            </li>
+            <li>
+                <a href="#test" data-toggle="tab">专享服务</a>
+            </li>
+        </ul>
+
+        <div id="myTabContent" class="tab-content">
+            <!--宝贝详情-->
+            <div class="tab-pane fade in active" id="home">
+                <div class="row explain">
+                    <div class="col-md-4">
+                        <p>厂名：<span>澳大利亚双掌酒庄</span></p>
+                        <p>配料表：<span>葡萄</span></p>
+                        <p>食品添加剂：<span>无</span></p>
+                        <p>葡萄酒等级：<span>澳大利亚产区</span></p>
+                        <p>饮酒场合：<span>自斟自饮</span></p>
+                        <p>包装种类：<span>裸瓶</span></p>
+                        <p>系列：<span>嬉皮园</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p>厂址：<span>澳大利亚厂家</span></p>
+                        <p>储藏方法：<span>阴凉避光</span></p>
+                        <p>套装规格：<span>单支</span></p>
+                        <p>葡萄品种：<span>西拉</span></p>
+                        <p>产地：<span>澳大利亚</span></p>
+                        <p>单瓶净含量：<span>750mL</span></p>
+                        <p>采摘年份：<span>2008-09</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p>联系方式：<span>13300000001</span></p>
+                        <p>保质期：<span>3600</span></p>
+                        <p>葡萄酒种类：<span>红葡萄酒</span></p>
+                        <p>糖分：<span>干葡萄酒（含糖量小于4克/升）</span></p>
+                        <p>醒酒时间：<span>15分钟（含）-30分钟（含）</span></p>
+                        <p>品牌：<span>Two hands</span></p>
+                        <p>净含量：<span>750mL</span></p>
+                    </div>
+                </div>
+                <div class="line"></div>
+                <div class="produced">
+                    <p>生产日期：<span>2008年09月25日 至 2008年09月25日</span></p>
+                </div>
+                <div class="line"></div>
+                <div class="item_details">
+                    <img src="{$goods_detail.detail_pic}">
+                    <div></div>
+                </div>
+            </div>
+            <!--专享服务-->
+            <div class="tab-pane fade" id="test">
+                <div class="row explain">
+                    <div class="col-md-4">
+                        <p>厂名：<span>澳大利亚双掌酒庄</span></p>
+                        <p>配料表：<span>葡萄</span></p>
+                        <p>食品添加剂：<span>无</span></p>
+                        <p>葡萄酒等级：<span>澳大利亚产区</span></p>
+                        <p>饮酒场合：<span>自斟自饮</span></p>
+                        <p>包装种类：<span>裸瓶</span></p>
+                        <p>系列：<span>嬉皮园</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p>厂址：<span>澳大利亚厂家</span></p>
+                        <p>储藏方法：<span>阴凉避光</span></p>
+                        <p>套装规格：<span>单支</span></p>
+                        <p>葡萄品种：<span>西拉</span></p>
+                        <p>产地：<span>澳大利亚</span></p>
+                        <p>单瓶净含量：<span>750mL</span></p>
+                        <p>采摘年份：<span>2008-09</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p>联系方式：<span>13300000001</span></p>
+                        <p>保质期：<span>3600</span></p>
+                        <p>葡萄酒种类：<span>红葡萄酒</span></p>
+                        <p>糖分：<span>干葡萄酒（含糖量小于4克/升）</span></p>
+                        <p>醒酒时间：<span>15分钟（含）-30分钟（含）</span></p>
+                        <p>品牌：<span>Two hands</span></p>
+                        <p>净含量：<span>750mL</span></p>
+                    </div>
+                </div>
+                <div class="line"></div>
+                <div class="produced">
+                    <p>生产日期：<span>2008年09月25日 至 2008年09月25日</span></p>
+                </div>
+                <div class="line"></div>
+                <div class="item_details">
+                    <img src="{$goods_detail.service_pic}">
+                    <div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+<script type="text/javascript" src="__JS__/jquery.min.js" ></script>
+<script type="text/javascript" src="__JS__/bootstrap.min.js" ></script>
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script type="text/javascript" src="__JS__/common.js" ></script>
+<script type="text/javascript" src="__JS__/store.js"></script>
+<script type="text/javascript" src="__JS__/item.js"></script>
+{include file='common/bottom'}
+<script>
+	//传递订单信息
+	function post_order()
+	{
+		var data = {
+			'gid':'{$goods_detail.id}',
+			'number':Number($("#goodsNum").val())
+		};
+		$.ajax({
+			type:"post",
+			data:data,
+			url:"product_order",
+			success:function(r)
+			{
+				console.log(r);
+			},
+			error:function(r)
+			{
+				console.log(r);
+			},
+			async:true
+		});
+	}
+	
+	function input_number(number)
+	{
+		console.log(Number($("#inventory").html()));
+		if(number>Number($("#inventory").html())){
+			layer.msg("购买数量有误！！");
+			$("#goodsNum").val({$goods_detail.number});
+			return false;
+		}
+		if(number<1){
+		    layer.msg("购买数量有误！！");
+            $("#goodsNum").val(1);
+		    return false;
+        }
+	}
+</script>
+<script>
+    setNav(1);
+</script>

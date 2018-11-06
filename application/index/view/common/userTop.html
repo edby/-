@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>全部分类</title>
+    <link rel="stylesheet" href="__CSS__/common.css" />
+    <link rel="stylesheet" href="__CSS__/zhongyu.css" />
+    <link rel="stylesheet" href="__CSS__/bootstrap.css" />
+    <link rel="stylesheet" href="__CSS__/vip.css">
+    
+    <script type="text/javascript" src="__JS__/jquery.min.js" ></script>
+	<script type="text/javascript" src="__JS__/bootstrap.min.js" ></script>
+	<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+	<script type="text/javascript" src="__JS__/common.js" ></script>
+	<script type="text/javascript" src="__JS__/vip.js"></script>
+    <script type='text/javascript'>
+		// 修改个人信息
+		function user_change() {
+	        layer.confirm('修改信息需要使用修改券！', {
+	            btn: ['修改信息','稍后再说'] //按钮
+	        }, function(){
+	        	var uid = $('.user_name').attr('data-uid');
+	        	$.ajax({
+	        		type:'post',
+	        		url:'{:url("user_vou")}',
+	        		data:{uid:uid,vid:3},
+	        		success:function(ret){
+	        			if(ret.code === 0){
+	        				layer.msg(ret.msg);
+	        			}else{
+	        				if(ret.num <= 0){
+	        					layer.confirm('修改券不足！', {
+						            btn: ['现在购买','稍后再说'] //按钮
+						        }, function(){
+						        	window.location.href = '{:url("goods/change")}';
+						        });
+	        				}else{
+	        					layer.close(layer.index);
+	        					$('#myModalLabel').html('修改个人信息');
+	        					$('#myModal').modal('show');
+	        				}
+	        			}
+	        		}
+	        	});
+	        });
+		}
+		
+		// 帮新会员注册
+		function go_reg() {
+		    window.location.href = '{:url("publics/userreg")}';
+		}
+		
+		// 去购买
+		function buy_tip(id) {
+			switch(id){
+				case 2:	// 手续费券
+					window.location.href = '{:url("goods/tip")}';
+					break;
+				case 3:	// 修改券
+					window.location.href = '{:url("goods/change")}';
+					break;
+				case 4:	// 激活券
+					window.location.href = '{:url("goods/activate")}';
+					break;
+				case 5:	// 入住券
+					window.location.href = '{:url("goods/enter")}';
+					break;
+			}
+		}
+    </script>
+</head>
+<body>
+<!--头部-->
+<div class="top_nav">
+    <div class="container clearfix">
+        <div class="top_nav_l">
+            <img src="__IMG__/logo_zc.png"/>
+        </div>
+        <ul class="top_nav_r clearfix">
+            {volist name='sidebar' id='vo'}
+				<li>
+					<a href="/{$vo.name}">{$vo.title}</a>
+				</li>
+			{/volist}
+        </ul>
+        {empty name='$account'}
+	        <div class="accout">
+	            <span>ZC</span>
+				<div class="accout_menu">
+	                <p><a href="{:url('Publics/login')}">登录</a></p>
+	                <p><a href="{:url('Publics/userreg')}">注册</a></p>
+	            </div>
+	        </div>
+	    {else/}
+	    	<div class="accout">
+	            <span>ZC</span>
+	            {$account}
+	            <div class="accout_menu">
+	                <p><a href="{:url('userCenter')}">会员中心</a></p>
+	                <p><a href="{:url('Publics/logout')}">退出登录</a></p>
+	            </div>
+	        </div>
+	    {/empty}
+    </div>
+</div>
+
+<!--完善个人信息弹窗-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">完善个人信息</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="full_detail">
+                    <li>
+                        <span>姓&emsp;名：</span>
+                        <input type="text" name="full" id="uName">
+                    </li>
+                    <li>
+                        <span>手机号：</span>
+                        <input type="number" name="full" id="uPhone">
+                    </li>
+                    <li>
+                        <span>微信号：</span>
+                        <input type="text" name="full" id="weChat">
+                    </li>
+                    <li>
+                        <span>支付宝：</span>
+                        <input type="text" name="full" id="aliPay">
+                    </li>
+                    <li>
+                        <div class="full_btn">
+                            <button type="button" class="btn btn-primary" onclick="full_detail()">确认提交</button>
+                            <p>请仔细确认个人信息，修改个人信息需要购买修改券</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>

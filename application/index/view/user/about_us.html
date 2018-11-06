@@ -1,0 +1,29 @@
+{include file='common/userTop'}
+
+<!--内容-->
+<main class="main">
+	<div class="main_box">
+		<div class="main_left">
+			<!--左侧用户信息&左侧会员中心导航栏-->
+    		{include file='common/userMenu'}
+		</div>
+
+		<div class="main_right">
+			<p class="vip_hint">
+				关于我们（强大的团队）：
+			</p>
+			<div class="about_right">
+				<h1>{$page.name}</h1>
+				<div class="about_right_body">
+					{$page.content}
+				</div>
+				
+			</div>
+		</div>
+	</div>
+</main>
+
+{include file='common/bottom'}
+<script>
+	vipNav(8)
+</script>

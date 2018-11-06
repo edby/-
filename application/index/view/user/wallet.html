@@ -1,0 +1,76 @@
+{include file='common/userTop'}
+<link rel="stylesheet" href="__CSS__/wallet.css">
+<!--内容-->
+<main class="main">
+    <div class="main_box">
+        <div class="main_left">
+            <!--左侧用户信息&左侧会员中心导航栏-->
+            {include file='common/userMenu'}
+        </div>
+
+        <div class="main_right">
+            <p class="vip_hint">钱包（请妥善保管您的资金）：</p>
+            <div class="wallet_box">
+                <span>总积分：</span>
+                <span class="wallet_num">XXX</span>
+                <small>（包含冻结区、解冻区积分）</small>
+            </div>
+            <div class="wallet_box">
+                <span>已解冻积分：</span>
+                <span class="wallet_num">XXX</span>
+            </div>
+            
+            {volist name='wallet.voucher' id='vo'}
+            	{eq name='$vo.is_sell' value='1'}
+		            <div class="walletBox">
+		                <div class="wallet_box">
+		                    <span>{$vo.name}：</span>
+		                    <span class="wallet_num">{$vo.number}张</span>
+		                </div>
+		                <button type="button" onclick="buy_tip({$vo.id})">去购买</button>
+		            </div>
+		        {else/}
+		        	<div class="wallet_box">
+		                <span>{$vo.name}：</span>
+		                <span class="wallet_num">{$vo.number}</span>
+		            </div>
+		        {/eq}
+            {/volist}
+            
+        </div>
+    </div>
+</main>
+
+{include file='common/bottom'}
+<script>
+    vipNav(0)
+</script>
+<script type='text/javascript'>
+// 提交完善个人信息
+function full_detail() {
+    layer.confirm('确定提交？', {
+        btn: ['确定','取消'] //按钮
+    }, function(){
+        var data = {
+        	real_name:$('#uName').val(),
+        	tel:$('#uPhone').val(),
+        	wechat_accout:$('#weChat').val(),
+        	alipay_accout:$('#aliPay').val(),
+        }
+        
+        $.ajax({
+        	type:'post',
+        	url:'{:url("editUser")}',
+        	data:data,
+        	success:function(ret){
+        		if(ret.code === 0){
+        			layer.alert(ret.msg);
+        		}else{
+        			$('#myModal').modal('hide');
+        			layer.msg(ret.msg);
+        		}
+        	}
+        });
+    });
+}
+</script>
