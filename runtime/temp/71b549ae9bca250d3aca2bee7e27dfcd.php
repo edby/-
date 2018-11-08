@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1541126359;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541126397;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541122096;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1541581999;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/static/ace/css/item.css" />
     <link rel="stylesheet" href="/static/ace/css/clear.css" />
     <link rel="stylesheet" href="/static/ace/css/shopCart.css" />
+    <link rel="stylesheet" href="/static/ace/css/userCenter.css">
 </head>
 <body>
 <!--头部-->
@@ -20,19 +21,30 @@
             <img src="/static/ace/img/logo_zc.png"/>
         </div>
         <ul class="top_nav_r clearfix">
-            <li><a href="#">首页</a></li>
-            <li><a href="#">众成商城</a></li>
-            <li><a href="#">交易中心</a></li>
-            <li><a href="#">中心矿机</a></li>
+            <?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $i = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+				<li>
+					<a href="/<?php echo $vo['name']; ?>"><?php echo $vo['title']; ?></a>
+				</li>
+			<?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
-        <div class="accout">
-            <span>ZC</span>
-            张三
-            <div class="accout_menu">
-                <p><a href="#">会员中心</a></p>
-                <p><a href="#">退出登录</a></p>
-            </div>
-        </div>
+		<?php if(empty($account) || (($account instanceof \think\Collection || $account instanceof \think\Paginator ) && $account->isEmpty())): ?>
+	        <div class="accout">
+	            <span>ZC</span>
+				<div class="accout_menu">
+	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
+	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
+	            </div>
+	        </div>
+	    <?php else: ?>
+	    	<div class="accout">
+	            <span>ZC</span>
+	            <?php echo $account; ?>
+	            <div class="accout_menu">
+	                <p><a href="<?php echo url('userCenter'); ?>">会员中心</a></p>
+	                <p><a href="<?php echo url('Publics/logout'); ?>">退出登录</a></p>
+	            </div>
+	        </div>
+	    <?php endif; ?>
     </div>
 </div>
 <!--商城导航栏-->
@@ -68,91 +80,115 @@
             <div class="allItem">全部商品</div>
             <div class="clearing">
                 <span>已选商品（不含运费）</span>
-                <p class="red"><span>200</span>消费券</p>
+                <p class="red"><span name = "total_money">-</span>消费券</p>
                 <button type="button" onclick="clearing()">结算</button>
             </div>
         </div>
     </div>
-    <!--顶部全选-->
-    <div class="shopNav">
-        <input type="checkbox" name="all" id="navAll1">
-        <label for="navAll1" class="navAll1"></label>
-        <span class="ctrl1">全选</span>
-        <span class="ctrl2">商品信息</span>
-        <span class="ctrl3">单价</span>
-        <span class="ctrl4">数量</span>
-        <span class="ctrl5">金额</span>
-        <span class="ctrl6">操作</span>
-    </div>
 
-    <!--商品详情-->
-    <div class="clear_shop">
-        <div class="clearShop_box">
-            <input type="checkbox" name="shop" id="shop1" value="0">
-            <label for="shop1" class="shop1"></label>
-            <img src="/static/ace/img/show1.jpg">
-            <div class="shop_name">
-                <p>法国梧桐Realmadrid红酒</p>
-                <span>红酒美味无限</span>
+    <form class="shop_table">
+        <table>
+            <thead>
+            <tr>
+                <th class="padding_l">
+                    <input type="checkbox" name="all" id="navAll0">
+                    <label for="navAll0" class="navAll1"></label>
+                </th>
+                <th>
+                    <span>全选</span>
+                    商品信息
+                </th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>金额</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php if(is_array($user_order) || $user_order instanceof \think\Collection || $user_order instanceof \think\Paginator): $key = 0; $__LIST__ = $user_order;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$order): $mod = ($key % 2 );++$key;?>
+            <tr>
+                <td class="padding_l">
+                    <input type="checkbox" name="shop" id="shop<?php echo $key; ?>" value="<?php echo $order['order_number']; ?>" onchange="check_(this)">
+                    <label for="shop<?php echo $key; ?>"></label>
+                </td>
+                <td class="flex">
+                    <img src="<?php echo $order['detail_pic']; ?>" class="goods_img">
+                    <div class="shop_name">
+                        <p><?php echo $order['name']; ?></p>
+                        <span><?php echo $order['remarks']; ?></span>
+                    </div>
+                </td>
+                <td>
+                    <div class="shop_price">
+                        <s>
+                            <span><?php echo $order['original_price']; ?></span>
+                            <span>消费券</span>
+                        </s>
+                        <p>
+                            <span><?php echo $order['price']; ?></span>
+                            <span>消费券</span>
+                        </p>
+                    </div>
+                </td>
+                <td>
+                    <div class="shop_num">
+                        <div>
+                            <input type="hidden" name = "order_num"  readonly value="<?php echo $order['order_number']; ?>">
+                            <input type="hidden" value="<?php echo $order['price']; ?>">
+                            <button type="button"  onclick="clear_menus(this,<?php echo $key; ?>)">-</button>
+                            <input type="number" class = "shop<?php echo $key; ?>" oninput="num(this,<?php echo $key; ?>)" name="number" value="<?php echo $order['g_number']; ?>">
+                            <button type="button" onclick="clear_add(this,<?php echo $key; ?>)">+</button>
+                            <input type="hidden" value="<?php echo $order['number']; ?>">
+                        </div>
+                        <span>限购<?php echo $order['number']; ?>件</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="total_price">
+                        <span  id="total<?php echo $key; ?>"><?php echo $order['money']; ?></span>
+                        <dd>消费券</dd>
+                    </div>
+                </td>
+                <td class="padding_r">
+                    <button type="button" class="delete" onclick="del()">删除</button>
+                </td>
+            </tr>
+            <?php endforeach; endif; else: echo "" ;endif; ?>
+            </tbody>
+        </table>
+    </form>
+    <center><?php echo $page; ?></center>
+    <!--收货信息-->
+    <div class="recipients">
+        <div class="rec_box">
+            <div class="rec_title">
+                <span>收货信息：</span>
+                <img src="/static/ace/img/next.png">
             </div>
-            <div class="shop_price">
-                <s>
-                    <span>400</span>
-                    <span>消费券</span>
-                </s>
-                <p>
-                    <span>200</span>
-                    <span>消费券</span>
-                </p>
+            <div class="rec_details">
+                <span>姓名：<?php echo $user_info[0]['username']; ?></span>
+                <span>电话：<?php echo $user_info[0]['tel']; ?></span>
+                <span>收货地址：<?php echo $user_info[0]['address']; ?></span>
+                <a href="#">编辑</a>
             </div>
-            <div class="shop_num">
-                <div>
-                    <button type="button" onclick="cart_menus(this)">-</button>
-                    <input type="number" id="shopNum1" min="1" max="5" value="1">
-                    <button type="button" onclick="cart_add(this)">+</button>
-                </div>
-                <span>限购5件</span>
-            </div>
-            <div class="total_price">
-                <span>200</span>
-                <dd>消费券</dd>
-            </div>
-            <button type="button" class="delete" onclick="del()">删除</button>
+        </div>
+        <div class="freight">
+            <span>运费：</span>
+            <p><span>10</span>元</p>
         </div>
     </div>
-    <!--商品详情-->
-    <div class="clear_shop">
-        <div class="clearShop_box">
-            <input type="checkbox" name="shop" id="shop2" value="1">
-            <label for="shop2" class="shop2"></label>
-            <img src="/static/ace/img/show1.jpg">
-            <div class="shop_name">
-                <p>法国梧桐Realmadrid红酒</p>
-                <span>红酒美味无限</span>
-            </div>
-            <div class="shop_price">
-                <s>
-                    <span>400</span>
-                    <span>消费券</span>
-                </s>
-                <p>
-                    <span>200</span>
-                    <span>消费券</span>
-                </p>
-            </div>
-            <div class="shop_num">
-                <div>
-                    <button type="button" onclick="cart_menus(this)">-</button>
-                    <input type="number" id="shopNum2" min="1" max="5" value="1">
-                    <button type="button" onclick="cart_add(this)">+</button>
-                </div>
-                <span>限购5件</span>
-            </div>
-            <div class="total_price">
-                <span>200</span>
-                <dd>消费券</dd>
-            </div>
-            <button type="button" class="delete" onclick="del()">删除</button>
+
+    <!--输入密码-->
+    <div class="payment">
+        <div class="payment_title">
+            <span>输入密码</span>
+            <img src="/static/ace/img/cancel.png" onclick="cancel_pay()">
+        </div>
+        <div class="payment_pwd">
+            <input type="password" id="pay_pwd">
+        </div>
+        <div class="payment_btn">
+            <button type="button" onclick="payment()">支付</button>
         </div>
     </div>
 
@@ -168,16 +204,26 @@
                 <span class="shopNum">已选商品<b>1</b>件</span>
                 <span>合计（不含运费）：</span>
                 <div class="clear_price">
-                    <span>200</span>
+                    <span name = "total_money">-</span>
                     <dd>消费券</dd>
                 </div>
-                <button type="button" onclick="clearing()">结算</button>
+                <button type="button" onclick="submit_order()">结算</button>
             </div>
         </div>
     </div>
 
 </main>
 
+<script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>
+<script type="text/javascript" src="/static/ace/js/bootstrap.min.js" ></script>
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+<script type="text/javascript" src="/static/ace/js/common.js" ></script>
+<script type="text/javascript" src="/static/ace/js/store.js"></script>
+<script type="text/javascript" src="/static/ace/js/shopCart.js"></script>
+<script type="text/javascript" src="/static/ace/js/clear.js"></script>
+<script>
+    setNav(1);
+</script>
 
 		<!--底部-->
 		<div class="foot">
@@ -192,7 +238,6 @@
 		<div class="mask"></div>
 	</body>
 	<script>
-		setNav(0);
 		function cls(){
 			$('.coupon,.mask').hide();
 		}
@@ -208,13 +253,4 @@
 		}
 	</script>
 </html>
-<script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>
-<script type="text/javascript" src="/static/ace/js/bootstrap.min.js" ></script>
-<script type="text/javascript" src="/static/layui/layui.js"></script>
-<script type="text/javascript" src="/static/ace/js/common.js" ></script>
-<script type="text/javascript" src="/static/ace/js/store.js"></script>
-<script type="text/javascript" src="/static/ace/js/shopCart.js"></script>
-<script>
-    setNav(1);
-</script>
 

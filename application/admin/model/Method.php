@@ -33,33 +33,10 @@ class Method extends Base
 			// 用户账号
 			$list[$k]['user_account'] = Db::name('user') -> where('id',$v['uid']) -> value('account');
 			
-			// 充值/提现类型
-			$type['type'] = 'method_type';
-			$type['value'] = $v['method_type'];
-			$list[$k]['method_type_text'] = Db::name('dict') -> where($type) -> value('key');
-			switch($v['method_type']){
-				case 1:
-					$list[$k]['method_type_btn'] = 'method_type_red';
-					break;
-				case 2:
-					$list[$k]['method_type_btn'] = 'method_type_green';
-					break;
-			}
+			// 用户银行卡信息
+			$list[$k]['user_card'] = Db::name('user_card') -> where('id',$v['uid']) -> find();
 			
-			// 充值/提现种类
-			$status['type'] = 'method_status';
-			$status['value'] = $v['status'];
-			$list[$k]['method_status_text'] = Db::name('dict') -> where($status) -> value('key');
-			switch($v['status']){
-				case 1:
-					$list[$k]['method_status_btn'] = 'method_status_fictitious';
-					break;
-				case 2:
-					$list[$k]['method_status_btn'] = 'method_status_rmb';
-					break;
-			}
-			
-			// 充值/提现审核
+			// 提现审核
 			$review['type'] = 'identity_status';
 			$review['value'] = $v['recharge_status'];
 			$list[$k]['review_text'] = Db::name('dict') -> where($review) -> value('key');

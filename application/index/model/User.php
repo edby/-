@@ -46,6 +46,8 @@ class User extends Base
             return array('code'=>0,'msg'=>'密码不正确');
         }
         session('uid', $info['id']);
+//        print_r($_SESSION);
+//        exit();
         session('account', $info['account']);
         return array('code'=>1,'msg'=>'登录成功','url'=>url('Index/index'));
     }

@@ -1,16 +1,16 @@
-<?php
-namespace app\admin\validate;
-use think\Validate;
+<?php
+namespace app\admin\validate;
+use think\Validate;
 class Userdetail extends Validate
 {
     /**
      * 验证规则
      */
-    protected $rule = [    	'real_name'	=>	'require',
+    protected $rule = [    	'real_name'	=>	'require',
     	'identity'	=>	'require',
     	'tel'		=>	'require',
         'status'	=>	'require',
-    ];
+    ];
     /**
      * 提示消息
      */
@@ -21,4 +21,4 @@ class Userdetail extends Validate
         'status.require'	=>	'请选择用户状态',
     ];
         
-}
+}

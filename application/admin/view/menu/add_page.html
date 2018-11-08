@@ -34,25 +34,10 @@
                 </div>
                 
                 <div class="form-group">
-                  <label class="col-sm-3 control-label no-padding-right"> 单页名称(En) </label>
-                  <div class="col-sm-9">
-                    <input name="en_name" type="text" class="col-xs-10 col-sm-5" placeholder="请填写英文标题" value="{$page.en_name}" />
-                  </div>
-                </div>
-                
-                <div class="form-group">
                   <label class="col-sm-3 control-label no-padding-right"> 单页内容 </label>
                   <br>
                   <div class="col-sm-10 col-lg-5" style="padding-right: 0px;">
                   	<script id="container" name="content" text="text/plain">{$page.content}</script>
-                	</div>
-                </div>
-                
-                <div class="form-group">
-                  <label class="col-sm-3 control-label no-padding-right"> 单页内容(En) </label>
-                  <br>
-                  <div class="col-sm-10 col-lg-5" style="padding-right: 0px;">
-                  	<script id="en_container" name="en_content" text="text/plain">{$page.en_content}</script>
                 	</div>
                 </div>
                 
@@ -88,7 +73,6 @@
 <script type="text/javascript">
     $(document).ready(function (){
         UE.getEditor('container');
-      	UE.getEditor('en_container');
     });
 </script>
 <script type="text/javascript">

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1541414191;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1541205422;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1541465241;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1541205422;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -285,6 +285,9 @@
 			</ul>
 		</div>
 
+<script type="text/javascript" src="/static/ace/js/jquery.min.js"></script>
+<script type="text/javascript" src="/static/ace/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/ace/js/common.js"></script>
 
 		<!--底部-->
 		<div class="foot">
@@ -314,6 +317,3 @@
 		}
 	</script>
 </html>
-<script type="text/javascript" src="/static/ace/js/jquery.min.js"></script>
-<script type="text/javascript" src="/static/ace/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/ace/js/common.js"></script>

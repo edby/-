@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:2:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\index.html";i:1541407527;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541126397;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:2:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\index.html";i:1541407527;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/static/ace/css/item.css" />
     <link rel="stylesheet" href="/static/ace/css/clear.css" />
     <link rel="stylesheet" href="/static/ace/css/shopCart.css" />
+    <link rel="stylesheet" href="/static/ace/css/userCenter.css">
 </head>
 <body>
 <!--头部-->
@@ -20,19 +21,30 @@
             <img src="/static/ace/img/logo_zc.png"/>
         </div>
         <ul class="top_nav_r clearfix">
-            <li><a href="#">首页</a></li>
-            <li><a href="#">众成商城</a></li>
-            <li><a href="#">交易中心</a></li>
-            <li><a href="#">中心矿机</a></li>
+            <?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $i = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+				<li>
+					<a href="/<?php echo $vo['name']; ?>"><?php echo $vo['title']; ?></a>
+				</li>
+			<?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
-        <div class="accout">
-            <span>ZC</span>
-            张三
-            <div class="accout_menu">
-                <p><a href="#">会员中心</a></p>
-                <p><a href="#">退出登录</a></p>
-            </div>
-        </div>
+		<?php if(empty($account) || (($account instanceof \think\Collection || $account instanceof \think\Paginator ) && $account->isEmpty())): ?>
+	        <div class="accout">
+	            <span>ZC</span>
+				<div class="accout_menu">
+	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
+	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
+	            </div>
+	        </div>
+	    <?php else: ?>
+	    	<div class="accout">
+	            <span>ZC</span>
+	            <?php echo $account; ?>
+	            <div class="accout_menu">
+	                <p><a href="<?php echo url('userCenter'); ?>">会员中心</a></p>
+	                <p><a href="<?php echo url('Publics/logout'); ?>">退出登录</a></p>
+	            </div>
+	        </div>
+	    <?php endif; ?>
     </div>
 </div>
 <!--商城导航栏-->

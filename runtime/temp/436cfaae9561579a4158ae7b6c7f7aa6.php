@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1541412743;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1541561277;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -94,7 +94,8 @@
         </div>
         <!--右边操作-->
         <div class="goods_right">
-            <div class="goods_names">法国梧桐Realmadrid红酒</div>
+            <div class="goods_names"><?php echo $goods_detail['name']; ?></div>
+            <input type="hidden" id="gid" value="<?php echo $goods_detail['gid']; ?>">
             <div class="goods_price">
                 售价：
                 <label class="red"><?php echo $goods_detail['price']; ?></label>
@@ -256,7 +257,7 @@
 	function post_order()
 	{
 		var data = {
-			'gid':'<?php echo $goods_detail['id']; ?>',
+			'gid':$("#gid").val(),
 			'number':Number($("#goodsNum").val())
 		};
 		$.ajax({
@@ -265,7 +266,25 @@
 			url:"product_order",
 			success:function(r)
 			{
-				console.log(r);
+			    var return_code = ["-2","-1","1"];
+			    r = JSON.parse(r);
+			    if(!return_code.indexOf(r['code'])){
+			        layer.confirm("返回数据错误！！",function (index) {
+                        window.reload();
+                    });
+                }
+			    if(r['code'] == -2){
+			        layer.confirm('未登录！请先登录！',function (index) {
+			            window.location.href = '/index/publics/login';
+                    })
+                }
+                if(r['code'] == -1){
+                    layer.msg(r['msg']);
+                }
+
+                if(r['code'] == 1){
+                    window.location.href = 'clear?type=buy&'+"ord="+r['data'];
+                }
 			},
 			error:function(r)
 			{
@@ -277,7 +296,7 @@
 	
 	function input_number(number)
 	{
-		console.log(Number($("#inventory").html()));
+		// console.log(Number($("#inventory").html()));
 		if(number>Number($("#inventory").html())){
 			layer.msg("购买数量有误！！");
 			$("#goodsNum").val(<?php echo $goods_detail['number']; ?>);

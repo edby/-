@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\classify.html";i:1541238383;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\classify.html";i:1541472647;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -124,7 +124,7 @@
     <div class="container">
         <?php if(is_array($goods_detail) || $goods_detail instanceof \think\Collection || $goods_detail instanceof \think\Paginator): $key = 0; $__LIST__ = $goods_detail;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$goods): $mod = ($key % 2 );++$key;?>
 		    <div class="show3 col-md-4">
-		        <a href="detail?id=<?php echo $goods['id']; ?>"><img src="<?php echo $goods['detail_pic']; ?>"></a>
+		        <a href="detail?id=<?php echo $goods['gid']; ?>"><img src="<?php echo $goods['detail_pic']; ?>"></a>
 		        <div class="buyBox">
 		            <div>
 		                <p>售价：<span><?php echo $goods['price']; ?></span> <span>消费券</span></p>

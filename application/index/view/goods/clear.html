@@ -16,37 +16,55 @@
     </div>
 
     <!--订单信息-->
-    <div class="clear_shop">
-        <div class="clearShop_box">
-            <img src="__IMG__/show1.jpg">
-            <div class="shop_name">
-                <p>法国梧桐Realmadrid红酒</p>
-                <span>红酒美味无限</span>
-            </div>
-            <div class="shop_price">
-                <s>
-                    <span>400</span>
-                    <span>消费券</span>
-                </s>
-                <p>
-                    <span>200</span>
-                    <span>消费券</span>
-                </p>
-            </div>
-            <div class="shop_num">
-                <div>
-                    <button type="button" onclick="clear_menus()">-</button>
-                    <input type="number" id="clearNum" min="1" max="5" value="1">
-                    <button type="button" onclick="clear_add()">+</button>
-                </div>
-                <span>限购5件</span>
-            </div>
-            <div class="total_price">
-                <span>200</span>
-                <dd>消费券</dd>
-            </div>
-        </div>
-    </div>
+    <form class="shop_table">
+        <table>
+            <tbody>
+            {volist name = "user_order" id = "order" key = "key"}
+            <tr>
+                <td class="flex padding_l">
+                    <img src="{$order['detail_pic']}" class="goods_img">
+                    <div class="shop_name">
+                        <p>{$order['name']}</p>
+                        <span>{$order['name']}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="shop_price">
+                        <s>
+                            <span>{$order['original_price']}</span>
+                            <span>消费券</span>
+                        </s>
+                        <p>
+                            <span>{$order['price']}</span>
+                            <span>消费券</span>
+                        </p>
+                    </div>
+                </td>
+                <td>
+                    <div class="shop_num">
+                        <div>
+                            <input type="hidden" name = "order_num"  readonly value="{$order['order_number']}">
+                            <input type="hidden" value="{$order['price']}">
+                            <button type="button"  onclick="clear_menus(this,{$key})">-</button>
+                            <input type="number" oninput="num(this,{$key})" name="number" value="{$order['g_number']}">
+                            <button type="button" onclick="clear_add(this,{$key})">+</button>
+                            <input type="hidden" value="{$order['number']}">
+                        </div>
+                        <span>限购{$order['number']}件</span>
+                    </div>
+                </td>
+                <td class="padding_r">
+                    <div class="total_price">
+                        <span id="total{$key}">{$order['money']}</span>
+                        <dd>消费券</dd>
+                    </div>
+                </td>
+            </tr>
+            {/volist}
+            </tbody>
+        </table>
+    </form>
+
 
     <!--收货信息-->
     <div class="recipients">
@@ -56,9 +74,9 @@
                 <img src="__IMG__/next.png">
             </div>
             <div class="rec_details">
-                <span>张三</span>
-                <span>13300000001</span>
-                <span>河南省 郑州市 金水区花园路35号院</span>
+                <span>姓名：{$user_info[0]['username']}</span>
+                <span>电话：{$user_info[0]['tel']}</span>
+                <span>收货地址：{$user_info[0]['address']}</span>
                 <a href="#">编辑</a>
             </div>
         </div>
@@ -83,6 +101,19 @@
     </div>
 </main>
 
+<!--输入密码-->
+<div class="payment">
+    <div class="payment_title">
+        <span>输入密码</span>
+        <img src="__IMG__/cancel.png" onclick="cancel_pay()">
+    </div>
+    <div class="payment_pwd">
+        <input type="password" id="pay_pwd">
+    </div>
+    <div class="payment_btn">
+        <button type="button" onclick="payment()">支付</button>
+    </div>
+</div>
 
 <script type="text/javascript" src="__JS__/jquery.min.js" ></script>
 <script type="text/javascript" src="__JS__/bootstrap.min.js" ></script>

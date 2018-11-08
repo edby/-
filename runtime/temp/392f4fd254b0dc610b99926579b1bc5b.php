@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\feature.html";i:1541397242;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541126397;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541122096;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\feature.html";i:1541398393;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/static/ace/css/item.css" />
     <link rel="stylesheet" href="/static/ace/css/clear.css" />
     <link rel="stylesheet" href="/static/ace/css/shopCart.css" />
+    <link rel="stylesheet" href="/static/ace/css/userCenter.css">
 </head>
 <body>
 <!--头部-->
@@ -20,19 +21,30 @@
             <img src="/static/ace/img/logo_zc.png"/>
         </div>
         <ul class="top_nav_r clearfix">
-            <li><a href="#">首页</a></li>
-            <li><a href="#">众成商城</a></li>
-            <li><a href="#">交易中心</a></li>
-            <li><a href="#">中心矿机</a></li>
+            <?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $i = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+				<li>
+					<a href="/<?php echo $vo['name']; ?>"><?php echo $vo['title']; ?></a>
+				</li>
+			<?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
-        <div class="accout">
-            <span>ZC</span>
-            张三
-            <div class="accout_menu">
-                <p><a href="#">会员中心</a></p>
-                <p><a href="#">退出登录</a></p>
-            </div>
-        </div>
+		<?php if(empty($account) || (($account instanceof \think\Collection || $account instanceof \think\Paginator ) && $account->isEmpty())): ?>
+	        <div class="accout">
+	            <span>ZC</span>
+				<div class="accout_menu">
+	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
+	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
+	            </div>
+	        </div>
+	    <?php else: ?>
+	    	<div class="accout">
+	            <span>ZC</span>
+	            <?php echo $account; ?>
+	            <div class="accout_menu">
+	                <p><a href="<?php echo url('userCenter'); ?>">会员中心</a></p>
+	                <p><a href="<?php echo url('Publics/logout'); ?>">退出登录</a></p>
+	            </div>
+	        </div>
+	    <?php endif; ?>
     </div>
 </div>
 <!--商城导航栏-->
@@ -97,7 +109,7 @@
     <!--折扣-->
     <div class="cabinet3">
         <div class="show4">
-            <img src="<?php echo $feature[0]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[0]['id']; ?>"><img src="<?php echo $feature[0]['detail_pic']; ?>"></a>
             <div class="buyBox">
                 <div>
                     <p>售价：<span><?php echo $feature[0]['price']; ?></span> <span>消费券</span></p>
@@ -108,7 +120,7 @@
             </div>
         </div>
         <div class="show4">
-            <img src="<?php echo $feature[1]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[1]['id']; ?>"><img src="<?php echo $feature[1]['detail_pic']; ?>"></a>
             <div class="buyBox">
                 <div>
                     <p>售价：<span><?php echo $feature[1]['price']; ?></span> <span>消费券</span></p>
@@ -121,7 +133,7 @@
     </div>
     <div class="cabinet4">
         <div class="show5">
-            <img src="<?php echo $feature[2]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[2]['id']; ?>"><img src="<?php echo $feature[2]['detail_pic']; ?>"></a>
             <div class="buyBox">
                 <div class="flex4">
                     <div>
@@ -150,7 +162,7 @@
     <!--特惠-->
     <div class="cabinet1">
         <div class="show1">
-            <img src="<?php echo $feature[3]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[3]['id']; ?>"><img src="<?php echo $feature[3]['detail_pic']; ?>"></a>
             <div class="buyBox">
                 <div>
                     <p>售价：<span><?php echo $feature[3]['price']; ?></span> <span>消费券</span></p>
@@ -160,7 +172,7 @@
         </div>
         <div class="flex">
             <div class="show2">
-                <img src="<?php echo $feature[4]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[4]['id']; ?>"><img src="<?php echo $feature[4]['detail_pic']; ?>"></a>
                 <div class="buyBox">
                     <div>
                         <p>售价：<span><?php echo $feature[4]['price']; ?></span> <span>消费券</span></p>
@@ -178,7 +190,7 @@
     </div>
     <div class="cabinet2">
         <div class="show3">
-            <img src="<?php echo $feature[5]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[5]['id']; ?>"><img src="<?php echo $feature[5]['detail_pic']; ?>"></a>
             <div class="buyBox">
                 <div>
                     <p>售价：<span><?php echo $feature[5]['price']; ?></span> <span>消费券</span></p>
@@ -187,7 +199,7 @@
             </div>
         </div>
         <div class="show3">
-            <img src="<?php echo $feature[6]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[6]['id']; ?>"><img src="<?php echo $feature[6]['detail_pic']; ?>"></a>
             <div class="buyBox">
                 <div>
                     <p>售价：<span><?php echo $feature[6]['price']; ?></span> <span>消费券</span></p>
@@ -196,7 +208,7 @@
             </div>
         </div>
         <div class="show3">
-            <img src="<?php echo $feature[7]['detail_pic']; ?>" onclick="item()">
+        	<a href="detail?id=<?php echo $feature[7]['id']; ?>"><img src="<?php echo $feature[7]['detail_pic']; ?>"></a>
             <div class="buyBox">
                 <div>
                     <p>售价：<span><?php echo $feature[7]['price']; ?></span> <span>消费券</span></p>
@@ -235,7 +247,6 @@
 		<div class="mask"></div>
 	</body>
 	<script>
-		setNav(0);
 		function cls(){
 			$('.coupon,.mask').hide();
 		}

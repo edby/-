@@ -88,7 +88,7 @@ class Shop extends Base
      */
     public function preferential($map,$p){
     	
-    	$list = Db::name('goods') -> alias('g') -> join('goods_detail d','g.id=d.gid') -> field('g.*,d.*,d.id as did') -> where($map) -> page($p,self::PAGE_LIMIT) -> select();
+    	$list = Db::name('goods') -> alias('g') -> join('goods_detail d','g.id=d.gid','LEFT') -> field('d.id as did,d.*,g.*') -> where($map) -> order('g.id DESC') -> page($p,self::PAGE_LIMIT) -> select();
     	$count = Db::name('goods') -> where($map) -> count();
     	$request= Request::instance();
     	$page = boot_page($count, self::PAGE_LIMIT, self::PAGE_SHOW, $p,$request -> action());
@@ -111,7 +111,7 @@ class Shop extends Base
      */
     public function feature($map,$p){
     	
-    	$list = Db::name('goods') -> alias('g') -> join('goods_detail d','g.id=d.gid') -> field('g.*,d.*,d.id as did') -> where('g.area_type=2') -> select();
+    	$list = Db::name('goods') -> alias('g') -> join('goods_detail d','g.id=d.gid','LEFT') -> field('d.id as did,d.*,g.*') -> where('g.area_type=2') -> order('g.id DESC') -> page($p,self::PAGE_LIMIT) -> select();
     	$count = Db::name('goods') -> where($map) -> count();
     	$request= Request::instance();
     	$page = boot_page($count, self::PAGE_LIMIT, self::PAGE_SHOW, $p,$request -> action());
@@ -135,11 +135,12 @@ class Shop extends Base
     public function get_goods_detail($id){
     	$goods = Db::name('goods_detail') -> alias('d') -> join('goods g','g.id=d.gid') -> where('d.gid',$id) -> find();
     	$goods['pictures'] = explode(';',$goods['picture']);
+    	
     	return $goods;
     }
     
     /**
-     * model 向优惠专区添加/修改商品
+     * model 向 优惠专区/特色专区 添加/修改 商品
      */
     public function addGoods($data){
     	 if(!$data['area_type']){
@@ -169,6 +170,9 @@ class Shop extends Base
       	 if(!$data['type']){
       	 	return ['code' => 0,'msg' => '请输入规格型号!'];
       	 }
+      	 if(!$data['period']){
+      	 	return ['code' => 0,'msg' => '请输入保质期!'];
+      	 }
       	 if(!$data['tel']){
       	 	return ['code' => 0,'msg' => '请输入联系方式!'];
       	 }
@@ -178,9 +182,14 @@ class Shop extends Base
       	 if(!$data['detail_pic']){
       	 	return ['code' => 0,'msg' => '请上传详情图!'];
       	 }
-      	 if(!$data['service_pic']){
-      	 	return ['code' => 0,'msg' => '请上传专享服务图!'];
-      	 }
+	    if(!$data['service_pic']){
+		    return ['code' => 0,'msg' => '请上传专享服务图!'];
+	    }
+//	    收益比
+
+	    if(!$data['profit_rate']){
+		    return ['code' => 0,'msg' => '请输入收益比（0 ~ 10）!'];
+	    }
     	
     	$area = $data['area_type'];
     	if(!$data['id']){	// 插入数据

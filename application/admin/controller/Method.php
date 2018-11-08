@@ -19,16 +19,10 @@ class Method extends Admin
 			$map['account'] = array('like','%'.$keywords.'%');
 		}
 		
-		// 搜索充值/提现类型
-		if(input('type')){
-			$map['method_type'] = input('type');
-			$this -> assign('get_type',input('type'));
-		}
-		
-		// 搜索充值/提现种类
-		if(input('status')){
-			$map['status'] = input('status');
-			$this -> assign('get_status',input('type'));
+		// 奖金类型
+		if(input('bonus')){
+			$map['bonus'] = input('bonus');
+			$this -> assign('get_bonus',input('type'));
 		}
 		
 		// 搜索审核状态
@@ -37,16 +31,11 @@ class Method extends Admin
 			$this -> assign('get_review',input('review'));
 		}
 		
-		// 财务类型
-		$type_where['type'] = 'method_type';
-		$type_where['state'] = 1;
-		$type = Db::name('dict') -> where($type_where) -> field('key,value') -> select();
-		$this -> assign('type',$type);
-		// 币种
-		$status_where['type'] = 'method_status';
-		$status_where['state'] = 1;
-		$status = Db::name('dict') -> where($status_where) -> field('key,value') -> select();
-		$this -> assign('status',$status);
+		// 奖金类型
+		$bonus_where['type'] = 'bouns_type';
+		$bonus_where['state'] = 1;
+		$bonus = Db::name('dict') -> where($bonus_where) -> field('key,value') -> select();
+		$this -> assign('bonus',$bonus);
 		// 审核状态
 		$veview_where['type'] = 'identity_status';
 		$vaview_where['state'] = 1;

@@ -10,9 +10,7 @@ class Page extends Validate
      */
     protected $rule = [
         'name'  =>  'require',
-        'en_name'  =>  'require',
         'content'  =>  'require',
-        'en_content'  =>  'require',
     ];
     
     /**
@@ -20,9 +18,7 @@ class Page extends Validate
      */
     protected $message = [
         'name.require'  =>  '请输入单页名称!',
-        'en_name.require' =>  '请输入英文单页名称!',
         'content.require'  =>  '请输入单页内容!',
-        'en_content.require'  =>   '请输入英文单页内容!',
     ];
     
 }

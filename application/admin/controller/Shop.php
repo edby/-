@@ -96,7 +96,7 @@ class Shop extends Admin
     /**
      * controller 特色专区
      */
-    public function feature(){
+    public function feature($p = 1){
     	$map['area_type'] = 2;
     	$this -> assign('goods',model('Shop') -> feature($map,$p));
     	return $this -> fetch();

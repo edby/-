@@ -2,6 +2,8 @@
 namespace app\index\controller;
 
 use app\common\controller\Base;
+use app\index\model\GoodsOrder;
+use think\Build;
 use think\Db;
 use think\Exception;
 use think\Request;
@@ -9,9 +11,15 @@ use app\index\model\Goods as GoodsModel;
 use app\index\model\GoodClassify;
 class Goods extends Base
 {
-	
+
+
 	/**
-	 * controller 商城首页
+	 *
+	 * 获取优惠专区和特色专区的数据
+	 * @return mixed
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
 	 */
 	 public function index(){
 		$page_size = 5;
@@ -33,7 +41,7 @@ class Goods extends Base
 	}
 	
 	/**
-     * 接收前台ajax请求，将数据返回前台
+     * 输出上品的分类
 	 * controller 商品分类
 	 */
 	public function classify(){
@@ -60,7 +68,13 @@ class Goods extends Base
 	}
 
 
-
+	/**
+	 *
+	 * 根据类别获取商品并分页
+	 * @param $classify
+	 * @param $page
+	 * @throws \think\exception\DbException
+	 */
 	public function get_goods_by_type($classify,$page)
     {
 		$page_size = 6;
@@ -135,28 +149,174 @@ class Goods extends Base
 //            }
     }
 
+
+	/**
+	 *
+	 * 处理该订单信息，生成订单号
+	 * @return false|string
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 */
     public function product_order()
     {
+//    	未接收到购买信息
+//	    print_r($_POST);
+//	    exit();
     	if(!$_POST){
 			$r = [
 				'code'=>-1,
-				'msg'=>'生成订单失败！',
+				'msg'=>'提交失败！',
 				'data'=>''
 			];
 			return json_encode($r);
 	    }
-	    print_r($_POST);
-    	exit;
+//      数据库未读取到商品信息
+//	    print_r($_POST);
+//	    print_r(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->select());
+//    	echo Db::name('sn_goods')->getLastSql();
+//    	exit();
+	    if(sizeof(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->select())<1){
+	    	$r = [
+	    		'code'=>-1,
+			    'msg'=>'商品信息错误！'
+		    ];
+	    	return json_encode($r);
+	    }
+//      未登录
+	    if(!$_SESSION['think']['uid']){
+	    	$r = [
+	    		'code'=>-2,
+			    'msg'=>'未登录！请先登录！'
+		    ];
+	    	return json_encode($r);
+	    }
+	    $gid = $_POST['gid'];
+//	    商品信息
+	    $googd_info = Db::table('sn_goods_detail')->where(['gid'=>$gid])->find();
+//	    print_r($googd_info);
+//	    exit();
+	    $uid = $_SESSION['think']['uid'];
+	    $number = $_POST['number'];
+//	    print_r($gid);
+//		print_r($uid);
+//	    print_r($number);
+	    $goods = new GoodsOrder();
+//	    商品id
+	    $order['gid'] = $gid;
+//	    买家id
+	    $order['buy_uid'] = $uid;
+//	    创建时间
+	    $order['create_time'] = time();
+//	    店铺id
+	    $order['sell_sid'] = Db::table('sn_goods')->where(['id'=>$gid])->field('shop_id')->select();
+	    $order['sell_sid'] = $order['sell_sid'][0]['shop_id'];
+//	    商品单价
+	    $order['g_price'] = $googd_info['price'];
+//	    购买数量
+	    $order['g_number'] = $number;
+//	    总价
+	    $order['money'] = $order['g_price'] * $order['g_number'];
+//	    支付状态
+	    $order['order_status'] = 1;
+//	    订单号
+		$order['order_number'] = generateOrderNumber();
+	    if($goods->insert($order)){
+//		    print_r($order);
+		    $r = [
+		        'code'=>1,
+			    'data'=>$order['order_number'],
+		    ];
+
+	    }else{
+	    	$r = [
+	    		'code'=>-1,
+			    'msg'=>'生成订单信息失败！'
+		    ];
+	    }
+	    return json_encode($r);
+
+
+
+
 
     }
 
-    /**
-	 * controller 商品详情
+
+	/**
+	 *
+	 * 订单结算页面
+	 * @return mixed
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 */
+    public function clear()
+    {
+    	if(!($_POST||$_GET)){
+//    		未接收到数据，自动后退
+			echo "<script>window.history = -1;</script>";
+	    }
+//	    从直接购买传递过来的
+    	if($_GET['type'] == 'buy'){
+		    $user_info = Db::table('sn_user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+		    $user_order = Db::table('sn_goods_order')->alias('a')->join('sn_goods_detail b','a.gid = b.gid')->where(['order_number'=>$_GET['ord'],'buy_uid'=>$_SESSION['think']['uid']])->select();
+//		    echo Db::name('goods_order')->getLastSql();
+
+		    $this->assign('user_info',$user_info);
+		    $this->assign('user_order',$user_order);
+
+//			pre($user_order);
+//			pre($user_info);
+//		    从购物车传递过来的
+	    }else if(isset($_POST['type']) && ($_POST['type'] == "car")){
+			$list = $_POST['data'];
+			foreach ($list as $k=>$v){
+				$arr[] = $v[0];
+			}
+			$string = implode(',',$arr);
+		    $user_info = Db::table('sn_user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+		    $user_order = Db::table('sn_goods_order')->alias('a')->join('sn_goods_detail b','a.gid = b.gid')->where('order_number','in',$string)->where(['buy_uid'=>$_SESSION['think']['uid']])->select();
+		    $this->assign('user_info',$user_info);
+		    $this->assign('user_order',$user_order);
+	    }else{
+    		echo "接收数据错误！";
+    		exit();
+	    }
+
+    	return $this->fetch();
+    }
+
+
+	/**
+	 *
+	 * 处理订单结算
+	 * @return bool
+	 */
+    public function do_clear()
+    {
+    	$r = [
+    		'code'=>1,
+		    'msg'=>''
+	    ];
+
+    	pre($_POST);
+		return json_encode($r);
+    }
+
+
+	/**
+	 *
+	 * 根据传递过来的id，渲染商品详情
+	 * @return false|mixed|string
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
 	 */
 	public function detail(){
 		if(!$_GET['id']){
 			return json_encode(['r'=>'未接收到特定数据']);
-			exit;
+//			exit;
 		}
 //		print_r($_GET['id']);
 		$goods_detail = Db::name('goods_detail')->where(['gid'=>$_GET['id']])->find();
@@ -204,20 +364,30 @@ class Goods extends Base
 		
 		return $this -> fetch();
 	}
-	
+
+
 	/**
-	 * controller 结算
-	 */
-	public function clear(){
-		
-		return $this -> fetch();
-	}
-	
-	/**
-	 * controller 购物车
+	 *
+	 * 购物车内容显示
+	 * @return mixed
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
 	 */
 	public function car(){
-		
+		$page_size = 4;
+		$user_info = Db::table('sn_user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+		$user_order = Db::table('sn_goods_order')->alias('a')->join('sn_goods_detail b','a.gid = b.gid')->where(['buy_uid'=>$_SESSION['think']['uid'],'order_status'=>1])->paginate($page_size);
+
+		$page = $user_order->render();
+//	    echo Db::name('sn_goods_order')->getLastSql();
+
+//	    pre($user_order);
+//	    pre($user_info);
+//	    exit;
+		$this->assign('page',$page);
+		$this->assign('user_info',$user_info);
+		$this->assign('user_order',$user_order);
 		return $this -> fetch();
 	}
 }

@@ -26,7 +26,7 @@ class Base extends Controller
         // 判断是否登陆
         $this -> assign('account',$_SESSION['think']['account']);
 		
-        $this->assign('info',db('user')->where('id',$id)->find());
+		$this->assign('info',db('user')->where('id',$id)->find());
         $this->assign('rule2',$rule2);
         $this->assign('rule',$rule);
         // 调用导航

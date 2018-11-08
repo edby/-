@@ -1,0 +1,117 @@
+{include file='common/top'}
+<main>
+    <div class="cabinet_head">
+        <div>
+            <label>结算</label>
+            <p>提交订单</p>
+            <span>BEST</span>
+        </div>
+        <span>抓紧时间去结算哦</span>
+    </div>
+
+    <div class="clear_subhead">
+        <div class="clear_nav">
+            <div class="clearItem">结算订单</div>
+        </div>
+    </div>
+
+    <!--订单信息-->
+    <form class="shop_table">
+        <table>
+            <tbody>
+            {volist name = "user_order" id = "order" key = "key"}
+            <tr>
+                <td class="flex padding_l">
+                    <img src="{$order['detail_pic']}" class="goods_img">
+                    <div class="shop_name">
+                        <p>{$order['name']}</p>
+                        <span>{$order['name']}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="shop_price">
+                        <s>
+                            <span>{$order['original_price']}</span>
+                            <span>消费券</span>
+                        </s>
+                        <p>
+                            <span>{$order['price']}</span>
+                            <span>消费券</span>
+                        </p>
+                    </div>
+                </td>
+                <td>
+                    <div class="shop_num">
+                        <div>
+                            <input type="hidden" value="{$order['price']}">
+                            <button type="button" onclick="clear_menus(this,{$key})">-</button>
+                            <input type="number" oninput="num(this,{$key})" value="1">
+                            <button type="button" onclick="clear_add(this,{$key})">+</button>
+                            <input type="hidden" value="{$order['number']}">
+                        </div>
+                        <span>限购{$order['number']}件</span>
+                    </div>
+                </td>
+                <td class="padding_r">
+                    <div class="total_price">
+                        <span id="total{$key}">{$order['money']}</span>
+                        <dd>消费券</dd>
+                    </div>
+                </td>
+            </tr>
+            {/volist}
+            </tbody>
+        </table>
+    </form>
+
+
+    <!--收货信息-->
+    <div class="recipients">
+        <div class="rec_box">
+            <div class="rec_title">
+                <span>收货信息：</span>
+                <img src="__IMG__/next.png">
+            </div>
+            <div class="rec_details">
+                <span>姓名：{$user_info[0]['username']}</span>
+                <span>电话：{$user_info[0]['tel']}</span>
+                <span>收货地址：{$user_info[0]['address']}</span>
+                <a href="#">编辑</a>
+            </div>
+        </div>
+        <div class="freight">
+            <span>运费：</span>
+            <p><span>10</span>元</p>
+        </div>
+    </div>
+    <div class="line"></div>
+
+    <!--底部合计-->
+    <div class="figure">
+        <div class="figure_box">
+            <span class="figure_total">合计：</span>
+            <p>
+                <span class="figure_price">200</span>
+                <span>消费券</span>
+            </p>
+            <span>（包含运费）</span>
+            <button type="button" onclick="submit_order()">提交订单</button>
+        </div>
+    </div>
+</main>
+
+
+<script type="text/javascript" src="__JS__/jquery.min.js" ></script>
+<script type="text/javascript" src="__JS__/bootstrap.min.js" ></script>
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script type="text/javascript" src="__JS__/common.js" ></script>
+<script type="text/javascript" src="__JS__/store.js"></script>
+<script type="text/javascript" src="__JS__/clear.js"></script>
+{include file='common/bottom'}
+<script>
+    setNav(1);
+</script>
+<script>
+
+</script>
+
