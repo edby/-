@@ -2,8 +2,12 @@
 namespace app\admin\controller;
 
 use app\common\controller\AdminBase;
+use app\index\model\Goods;
+use think\Exception;
 use think\Request;
 use think\Db;
+use app\admin\model\GoodsDetail;
+
 
 class Shop extends Admin
 {
@@ -74,10 +78,14 @@ class Shop extends Admin
 		$this -> assign('pagename','添加商品');
 		return $this -> fetch();
 	}
-    
-    /**
-     * controller 优惠专区修改商品
-     */
+
+
+	/**
+	 *
+	 * 编辑优惠专区商品
+	 * @param $id
+	 * @return mixed|\think\response\Json
+	 */
     public function edit_preferential_goods($id){
     	if(Request::instance() -> isPost()){
 			return json(model('Shop') -> addGoods(input('post.')));
@@ -92,18 +100,60 @@ class Shop extends Admin
 		$this -> assign('pagename','修改商品');
 		return $this -> fetch('add_preferential_goods');
     }
-    
-    /**
-     * controller 特色专区
-     */
+
+
+	/**
+	 *
+	 * 显示特色专区
+	 * @param int $p
+	 * @return mixed
+	 */
     public function feature($p = 1){
     	$map['area_type'] = 2;
     	$this -> assign('goods',model('Shop') -> feature($map,$p));
     	return $this -> fetch();
     }
-	
+
 	/**
-	 * controller 特色专区添加商品
+	 * 改变商品审核状态
+	 * @return array|bool|string|true
+	 */
+    public function validate()
+    {
+
+    	$r = [
+    		'code'=>1,
+		    'msg'=>'改变审核状态',
+	    ];
+    	if(!($_POST && ($_POST['gid']))){
+		    $r = [
+			    'code'=>-1,
+			    'msg'=>'数值传递出错！',
+		    ];
+		    return json_encode($r);
+	    }
+    	$this_goods = Db::name('goods_detail')->where(['gid'=>$_POST['gid']])->find();
+    	if(!$this_goods){
+			$r = [
+				'code'=>-1,
+				'msg'=>'未查询到该数据！',
+			];
+			return json_encode($r);
+	    }
+		if(Db::name('goods_detail')->where(['gid'=>$_POST['gid']])->update(['status'=>$_POST['type']=='pass'?'3':'2'])){
+			$r = [
+				'code'=>1,
+				'msg'=>'已修改审核状态',
+			];
+			return json_encode($r);
+		}
+    	return json_encode($r);
+    }
+
+
+	/**
+	 * 特色专区添加商品
+	 * @return mixed|\think\response\Json
 	 */
 	public function add_feature_goods(){
 		if(Request::instance() -> isPost()){
@@ -118,11 +168,13 @@ class Shop extends Admin
 		$this -> assign('pagename','添加商品');
 		return $this -> fetch();
 	}
-	
-	/**
-     * controller 特色专区修改商品
-     */
 
+
+	/**
+	 * 编辑特色专区商品信息
+	 * @param $id
+	 * @return mixed|\think\response\Json
+	 */
     public function edit_feature_goods($id){
     	if(Request::instance() -> isPost()){
 			return json(model('Shop') -> addGoods(input('post.')));
@@ -182,5 +234,61 @@ class Shop extends Admin
     		}
     	}
     	return json($ret);
+    }
+
+	/**
+	 * 删除商品，   权限为，普通商家和超管
+	 * @return false|string
+	 */
+    public function feature_del()
+    {
+    	$r = [
+    		'code'=>-1,
+    		'msg'=>'初始化信息传递'
+	    ];
+//		pre($_POST);
+    	if(!$_POST){
+		    $r = [
+			    'code'=>1,
+			    'msg'=>'传输数据错误'
+		    ];
+		    return json_encode($r);
+	    }
+//开启事务
+	    Db::startTrans();
+	    try{
+
+	    	$this_goods_detail = GoodsDetail::get(['gid'=>$_POST['id']]);
+	    	$this_goods = Goods::get(['id'=>$_POST['id']]);
+	    	if($this_goods_detail){
+	    	    $this_goods_detail->delete();
+		    }else{
+	    		throw new Exception("cant find this id");
+		    }
+		    if($this_goods){
+		    	$this_goods->delete();
+		    }else{
+		    	throw new Exception("cant find this id");
+		    }
+//			提交
+
+			Db::commit();
+			$r = [
+				'code'=>1,
+				'msg'=>'删除成功',
+			];
+	    }catch (\Exception $e){
+//	    	回滚
+			Db::rollback();
+			$r = [
+				'code'=>-1,
+				'msg'=>"删除失败,事务已回滚"
+			];
+	    }
+	    return json_encode($r);
+
+//    	return json_encode($r);
+////    	echo "删除商品";
+//    	exit();
     }
 }

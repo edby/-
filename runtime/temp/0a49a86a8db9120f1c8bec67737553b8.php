@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:81:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\add_feature_goods.html";i:1541586420;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1532051872;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:81:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\add_feature_goods.html";i:1541640586;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1532051872;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -163,7 +163,7 @@ select{
                 <div class="form-group">
                   <label class="col-sm-3 control-label no-padding-right"> 收益比 </label>
                   <div class="col-sm-9">
-                    <input name="original_price" type="text" class="col-xs-10 col-sm-5" placeholder="请填写原价" value="<?php echo $goods['original_price']; ?>" />
+                    <input name="profit_rate" type="number" min="0" max="1" step="0.01" class="col-xs-10 col-sm-5" placeholder="请填写收益比" value="<?php echo $goods['profit_rate']; ?>" />
                   </div>
                 </div>
                 
@@ -383,7 +383,7 @@ $(".form-post").find('button:submit').click(function() {
       },
       1000);
     }else{
-        return false;
+        // return false;
       setTimeout(function() {
         location.href = data.url;
       },

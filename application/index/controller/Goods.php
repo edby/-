@@ -81,7 +81,7 @@ class Goods extends Base
 //
 		$configs = ['query'=>['classify'=>$classify]];
 //		print_r($configs);
-		$goods = Db::name('goods_detail')->where(['cid'=>$classify])->paginate($page_size,false,$configs);
+		$goods = Db::name('goods_detail')->where(['cid'=>$classify])->where(['status'=>3])->paginate($page_size,false,$configs);
 		$pages = $goods->render();
 		$this->assign('pages',$pages);
 		$this->assign('goods_detail',$goods);
@@ -176,7 +176,7 @@ class Goods extends Base
 //	    print_r(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->select());
 //    	echo Db::name('sn_goods')->getLastSql();
 //    	exit();
-	    if(sizeof(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->select())<1){
+	    if(sizeof(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->where(['status'=>3])->select())<1){
 	    	$r = [
 	    		'code'=>-1,
 			    'msg'=>'商品信息错误！'
@@ -319,11 +319,13 @@ class Goods extends Base
 //			exit;
 		}
 //		print_r($_GET['id']);
-		$goods_detail = Db::name('goods_detail')->where(['gid'=>$_GET['id']])->find();
+		$goods_detail = Db::name('goods_detail')->where(['gid'=>$_GET['id']])->where(['status'=>3])->find();
 //		echo Db::name('sn_goods_detail')->getLastSql();
 //		var_dump($goods_detail);
 //		exit();
-
+		if(!$goods_detail){
+			echo "<script>history.go(-1);</script>";
+		}
 		$pictures = explode(';',$goods_detail['picture']);
 //		print_r($pictures);
 //		exit;

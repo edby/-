@@ -65,7 +65,8 @@
                       <th>库存</th>
                       <th>商品分类</th>
                       <th>添加时间</th>
-                      <th>操作</th>
+                      <th>收益比</th>
+                      <th colspan="3">操作</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -78,9 +79,21 @@
                         <td> {$vo.number}</td>
                         <td> {$vo.class_name}</td>
                         <td> {$vo.create_date}</td>
-                        <td>
+                        <td> {$vo.profit_rate}</td>
+                        <td style="display: block">
                         	<a class="btn btn-sm btn-success" href="{:url('edit_feature_goods',array('id'=>$vo['id']))}" >修改</a>
-                          <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteInfo(this,{$vo.id})">删除</a>
+                            <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteInfo(this,{$vo.id})">删除</a>
+                            {if condition = "($_SESSION['think']['user_type'] eq 0) && ($vo.status eq 1)"}
+                            <!--超级管理员显示审核按钮-->
+                                <button class="btn btn-success btn-sm" onclick="verify(this,{$vo.id},'agree')">通过</button>
+                                <button class="btn btn-danger btn-sm" onclick="verify(this,{$vo.id},'disagree')">拒绝</button>
+                            {elseif condition = "($_SESSION['think']['user_type'] eq 2) && ($vo.status eq 1)"}
+                            <!--普通商家显示审核中按钮，点击无效-->
+                                <button class="btn btn-success btn-sm" onclick="javascript:layer.msg('待审核')">审核中</button>
+                            {else}
+                            <!--显示已通过与已拒绝-->
+                                <button class="btn  btn-sm" >{$vo.status=="3"?"已通过":"<span style='color: red'>已拒绝</span>"}</button>
+                            {/if}
                         </td>
                       </tr>
                     {/volist}
@@ -148,19 +161,52 @@ function sort(id,type){
 	});
 }
 
+function verify(obj,id,type) {
+    if(!obj||!id||!type){
+        layer.msg("提交信息错误！");
+        return false;
+    }
+    var data = {
+        'gid':id,
+        'type':type=='agree'?'pass':'reject'
+    }
+    $.ajax({
+        url:"validate",
+        type: "post",
+        data:data,
+        success:function (r) {
+            r = JSON.parse(r);
+            if(r['code'] == 1){
+                layer.msg(r['msg']);
+                window.location.href = '';
+            }
+        },
+        error:function (r) {
+            console.log(r);
+        }
+    })
+
+
+}
+
 // 删除商品
 function deleteInfo(obj,id){
 	layer.confirm('确定要删除吗？<br>该轮播图所有的信息都将被完全删除，不可恢复！', {
 		btn: ['确定','关闭'] //按钮
 	}, function(){
 		$.post("{:url('feature_del')}", {id: id}).success(function(data) {
-			if (data.code == 0) {
+			// console.log(data);return false;
+            data = JSON.parse(data);
+		    if (data.code == 0) {
 				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
+					// return false;
+				    location.href=self.location.href;
+
 				});
 			}else{
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
+				layer.alert(data.msg, {icon: data.code,time: 1500},function(){
+					// return false;
+				    location.href=self.location.href;
 				});
 			}
 		})

@@ -33,11 +33,10 @@ class Admin extends Base
              if(false == ($info = db('user')->where(['username'=>$data['username']])->find())){
                 return array('status'=>0,'info'=>'账号不存在！');
              }else{
-                 session('user_type', 1);
+                 session('user_type', $info['user_type']);
              }
-            
         }else{
-            session('user_type', 0);
+            session('user_type', $info['user_type']);
         }
         if($info['status'] == 0){
             return array('status'=>0,'info'=>'账号被禁用！');

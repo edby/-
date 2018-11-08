@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\feature.html";i:1541670451;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1532051872;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:76:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\preferential.html";i:1541070915;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1532051872;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -125,7 +125,7 @@ select{
             <div class="row">
             	
             	<div class="col-xs-12" style="margin-bottom:10px;">
-                <form action="<?php echo url('feature'); ?>" method="get" class="form-inline" role="form">
+                <form action="<?php echo url('preferential'); ?>" method="get" class="form-inline" role="form">
                   <div class="form-group">
                     <label>关键词：</label>
                     <input name="keywords" type="text" class="form-control search" placeholder="商品名">
@@ -139,7 +139,7 @@ select{
                     </select>
                   </div>&nbsp;&nbsp;
                   <button type="submit" class="btn btn-sm btn-primary">查询</button>
-                  <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add_feature_goods'); ?>" >添加商品</a>
+                  <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add_preferential_goods'); ?>" >添加商品</a>
                   <button type="reset" class="btn btn-sm btn-danger hidden-xs" style="float:right;margin-right:10px;">清空查询条件</button>
                 </form>
               </div>
@@ -155,8 +155,7 @@ select{
                       <th>库存</th>
                       <th>商品分类</th>
                       <th>添加时间</th>
-                      <th>收益比</th>
-                      <th colspan="3">操作</th>
+                      <th>操作</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -169,21 +168,9 @@ select{
                         <td> <?php echo $vo['number']; ?></td>
                         <td> <?php echo $vo['class_name']; ?></td>
                         <td> <?php echo $vo['create_date']; ?></td>
-                        <td> <?php echo $vo['profit_rate']; ?></td>
-                        <td style="display: block">
-                        	<a class="btn btn-sm btn-success" href="<?php echo url('edit_feature_goods',array('id'=>$vo['id'])); ?>" >修改</a>
-                            <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteInfo(this,<?php echo $vo['id']; ?>)">删除</a>
-                            <?php if(($_SESSION['think']['user_type'] == 0) && ($vo['status'] == 1)): ?>
-                            <!--超级管理员显示审核按钮-->
-                                <button class="btn btn-success btn-sm" onclick="verify(this,<?php echo $vo['id']; ?>,'agree')">通过</button>
-                                <button class="btn btn-danger btn-sm" onclick="verify(this,<?php echo $vo['id']; ?>,'disagree')">拒绝</button>
-                            <?php elseif(($_SESSION['think']['user_type'] == 2) && ($vo['status'] == 1)): ?>
-                            <!--普通商家显示审核中按钮，点击无效-->
-                                <button class="btn btn-success btn-sm" onclick="javascript:layer.msg('待审核')">审核中</button>
-                            <?php else: ?>
-                            <!--显示已通过与已拒绝-->
-                                <button class="btn  btn-sm" ><?php echo $vo['status']=="3"?"已通过":"<span style='color: red'>已拒绝</span>"; ?></button>
-                            <?php endif; ?>
+                        <td>
+                        	<a class="btn btn-sm btn-success" href="<?php echo url('edit_preferential_goods',array('id'=>$vo['id'])); ?>" >修改</a>
+                          <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteInfo(this,<?php echo $vo['id']; ?>)">删除</a>
                         </td>
                       </tr>
                     <?php endforeach; endif; else: echo "" ;endif; ?>
@@ -225,7 +212,7 @@ select{
 <script src="/static/ace/js/ace/ace.sidebar.js"></script> 
 <script src="/static/ace/js/layer/layer.js"></script>
 <script type="text/javascript">
-  $('a[href="/Admin/Shop/feature"]').parents().filter('li').addClass('open active');
+  $('a[href="/Admin/Shop/preferential"]').parents().filter('li').addClass('open active');
   <?php if(input('get.keywords')): ?>
     $('input[name="keywords"]').val('<?php echo $_GET["keywords"]; ?>');
   <?php endif; ?>
@@ -235,7 +222,7 @@ select{
 //清除查询条件
 jQuery(function($){
 	$(document).on('click','button:reset',function(){
-		location.href = '<?php echo url("feature"); ?>';
+		location.href = '<?php echo url("preferential"); ?>';
 	})
 });
 
@@ -254,52 +241,19 @@ function sort(id,type){
 	});
 }
 
-function verify(obj,id,type) {
-    if(!obj||!id||!type){
-        layer.msg("提交信息错误！");
-        return false;
-    }
-    var data = {
-        'gid':id,
-        'type':type=='agree'?'pass':'reject'
-    }
-    $.ajax({
-        url:"validate",
-        type: "post",
-        data:data,
-        success:function (r) {
-            r = JSON.parse(r);
-            if(r['code'] == 1){
-                layer.msg(r['msg']);
-                window.location.href = '';
-            }
-        },
-        error:function (r) {
-            console.log(r);
-        }
-    })
-
-
-}
-
 // 删除商品
 function deleteInfo(obj,id){
 	layer.confirm('确定要删除吗？<br>该轮播图所有的信息都将被完全删除，不可恢复！', {
 		btn: ['确定','关闭'] //按钮
 	}, function(){
-		$.post("<?php echo url('feature_del'); ?>", {id: id}).success(function(data) {
-			// console.log(data);return false;
-            data = JSON.parse(data);
-		    if (data.code == 0) {
+		$.post("<?php echo url('preferential_del'); ?>", {id: id}).success(function(data) {
+			if (data.code == 0) {
 				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					// return false;
-				    location.href=self.location.href;
-
+					location.href=self.location.href;
 				});
 			}else{
-				layer.alert(data.msg, {icon: data.code,time: 1500},function(){
-					// return false;
-				    location.href=self.location.href;
+				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
+					location.href=self.location.href;
 				});
 			}
 		})

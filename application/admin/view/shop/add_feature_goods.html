@@ -73,7 +73,7 @@
                 <div class="form-group">
                   <label class="col-sm-3 control-label no-padding-right"> 收益比 </label>
                   <div class="col-sm-9">
-                    <input name="original_price" type="text" class="col-xs-10 col-sm-5" placeholder="请填写原价" value="{$goods.original_price}" />
+                    <input name="profit_rate" type="number" min="0" max="1" step="0.01" class="col-xs-10 col-sm-5" placeholder="请填写收益比" value="{$goods.profit_rate}" />
                   </div>
                 </div>
                 
@@ -292,6 +292,7 @@ $(".form-post").find('button:submit').click(function() {
       },
       1000);
     }else{
+        // return false;
       setTimeout(function() {
         location.href = data.url;
       },

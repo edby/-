@@ -138,11 +138,18 @@ class Shop extends Base
     	
     	return $goods;
     }
-    
-    /**
-     * model 向 优惠专区/特色专区 添加/修改 商品
-     */
+
+
+	/**
+	 *
+	 * model层，向特色专区添加商品，修改商品
+	 * @param $data
+	 * @return array
+	 * @throws \think\Exception
+	 * @throws \think\exception\PDOException
+	 */
     public function addGoods($data){
+//    	pre($data);exit;
     	 if(!$data['area_type']){
     	 	return ['code' => 0,'msg' => '未获取专区信息!'];
     	 }
@@ -228,6 +235,15 @@ class Shop extends Base
     		// 修改商品详情表
     		$id = $data['id'];
     		$data['cid'] = $data['class_id'];
+//			pre($_SESSION);
+//			exit();
+//				pre($_SESSION);
+    		if(!(isset($_SESSION['think']['user_type']) && ($_SESSION['think']['user_type'] == 0))){
+//			    unset($data['profit_rate']);
+//			    普通商家修改后，审核状态修改为待审核
+    		}
+			    $data['status'] = 1;
+
     		if($data['picture']){
     			$is_array = is_array($data['picture']);
     			if($is_array){
@@ -243,6 +259,9 @@ class Shop extends Base
     		unset($data['class_id']);
     		unset($data['shop_id']);
     		$result = Db::name('goods_detail') -> where('gid',$id) -> update($data);
+//    		echo Db::name('sn_goods_detail')->getLastSql();
+//    		pre($result);
+//    		exit();
     	}
     	
     	if($condition === 1 || $result){
