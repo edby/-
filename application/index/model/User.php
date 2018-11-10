@@ -39,9 +39,9 @@ class User extends Base
         if(false == ($info = $this->where(['account'=>$data['account']])->find()) ){
             return array('code'=>0,'msg'=>'账号不存在!');
         }
-        if($info['status'] == 2){
-            return array('code'=>0,'msg'=>'禁止登录!');
-        }
+//        if($info['status'] == 2){
+//            return array('code'=>0,'msg'=>'禁止登录!');
+//        }
         if($info['password'] != encrypt(trim($data['password'])) ){
             return array('code'=>0,'msg'=>'密码不正确');
         }
@@ -49,7 +49,7 @@ class User extends Base
 //        print_r($_SESSION);
 //        exit();
         session('account', $info['account']);
-        return array('code'=>1,'msg'=>'登录成功','url'=>url('Index/index'));
+        return array('code'=>1,'msg'=>'登录成功','data'=>$info['status'],'url'=>url('Index/index'));
     }
 	
 	/**

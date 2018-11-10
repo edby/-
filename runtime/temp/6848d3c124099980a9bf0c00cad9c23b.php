@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1541731830;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1541729990;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1541811816;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1541729990;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -262,17 +262,17 @@
 					</div>
 					<div class="modal-body">
 						<div class="clearfix time_sel">
-							<span class="time_sel_act">1天</span>
-							<span>2天</span>
-							<span>3天</span>
-							<span>4天</span>
-							<span>5天</span>
-							<span>关闭</span>
+							<span data-timing='1'>1天</span>
+							<span data-timing='2'>2天</span>
+							<span data-timing='3'>3天</span>
+							<span data-timing='4'>4天</span>
+							<span data-timing='5'>5天</span>
+							<span class="time_sel_act" data-timing='0'>关闭</span>
 						</div>
 						<p>积分必须是2000的整数倍</p>
 					</div>
 					<div class="modal-footer">
-                		<button type="button" class="btn_red">确定</button>
+                		<button type="button" class="btn_red" onclick='set_timing()'>确定</button>
 						<button type="button" class="btn_red2" data-dismiss="modal">取消</button>
 					</div>
 				</div>
@@ -396,6 +396,32 @@ function trade_buy(){
 				}
 			}
 		});
+	});
+}
+
+// 点击设置预约
+function set_timing(){
+	// 获取预约天数
+	if($('.time_sel span').hasClass('time_sel_act')){
+		var timing = $('.time_sel_act').data('timing');
+	}
+	var data = {
+		uid:$('.trans').data('id'),
+		timing:timing
+	}
+	$.ajax({
+		type:'post',
+		url:'<?php echo url("set_timing"); ?>',
+		data:data,
+		success:function(ret){
+			if(ret.code === 0){
+				layer.msg(ret.msg);
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+					location.href = self.location.href;
+				});
+			}
+		}
 	});
 }
 
@@ -534,7 +560,7 @@ function sell_list(page){
 		data:data,
 		success:function(ret){
 			if(ret.code === 0){
-				sell_html = '<tr class="no_data"><td colspan="5">暂无数据</td></tr>';
+				sell_html = '<tr class="no_data"><td colspan="6">暂无数据</td></tr>';
 			}else{
 				$.each(ret.sell,function(k,v){
 					sell_html += '<tr><td>'+v.id+'</td>';

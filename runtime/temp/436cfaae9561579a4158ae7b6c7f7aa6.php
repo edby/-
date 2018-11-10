@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1541733186;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1541817670;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -284,7 +284,8 @@
                     })
                 }
                 if(r['code'] == -1){
-                    layer.msg(r['msg']);
+                    layer.alert(r['msg']);
+                    return false;
                 }
 
                 if(r['code'] == 1){

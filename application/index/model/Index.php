@@ -61,6 +61,24 @@ class Index extends Base
 	}
 	
 	/**
+	 * model 设置豫约买入
+	 */
+	public function setTiming($data){
+		if(!$data['uid']){
+			return ['code' => 0,'msg' => '未获取用户信息!'];
+		}
+		if(!$data['timing']){
+			return ['code' => 0,'msg' => '未获取设置信息!'];
+		}
+		$result = Db::name('user') -> where('id',$data['uid']) -> update(['timing' => $data['timing']]);
+		if($result){
+			return ['code' => 1,'msg' => '设置成功!'];
+		}else{
+			return ['code' => 0,'msg' => '设置失败!'];
+		}
+	}
+	
+	/**
 	 * model 卖出列表(layui分页)
 	 */
 	public function sellList($data){

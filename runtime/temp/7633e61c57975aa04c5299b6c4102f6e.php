@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:1:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\publics\login.html";i:1541468328;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:1:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\publics\login.html";i:1541817028;}*/ ?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -42,7 +42,11 @@
 			success:function(ret){
 				if(ret.code === 0){
 					layer.msg(ret.msg);
-				}else{
+				}else if (ret['data'] == 2){
+                    layer.alert("该账户已禁止交易，请购买激活券后进行交易",function (index) {
+                        location.href = "/index/Goods/activate";
+                    });
+				}else {
 				    // console.log(ret);
 				    // return false
 					layer.msg(ret.msg,{icon:ret.code,time:2000},function(){

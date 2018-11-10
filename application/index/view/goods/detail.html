@@ -186,7 +186,8 @@
                     })
                 }
                 if(r['code'] == -1){
-                    layer.msg(r['msg']);
+                    layer.alert(r['msg']);
+                    return false;
                 }
 
                 if(r['code'] == 1){

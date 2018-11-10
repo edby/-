@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\activate.html";i:1541753413;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541752912;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\activate.html";i:1541838096;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -119,11 +119,28 @@
                 售价：
                 <span>200 积分</span>
             </p>
-            <button type="button" onclick="ticket()">立即购买</button>
+            <button type="button" onclick="javascript:$('.payment').show();">立即购买</button>
         </div>
     </div>
 </main>
-
+<!--输入密码-->
+<div class="payment">
+    <div class="payment_title">
+        <span>输入密码</span>
+        <img src="/static/ace/img/cancel.png" onclick="cancel_pay()">
+    </div>
+    <div class="payment_pwd">
+        <input type="password" id="pay_pwd">
+    </div>
+    <div class="payment_btn">
+        <button type="button" onclick="ticket()">支付</button>
+    </div>
+</div>
+<script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>
+<script type="text/javascript" src="/static/ace/js/bootstrap.min.js" ></script>
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+<script type="text/javascript" src="/static/ace/js/common.js" ></script>
+<script type="text/javascript" src="/static/ace/js/store.js"></script>
 
 		<!--底部-->
 		<div class="foot">
@@ -131,7 +148,6 @@
 			<div class="foot_b">@2018.zhongchengguoji</div>
 		</div>
 		<!--优惠券-->
-		{$}
 		<div class="coupon">
 			<img src="/static/ace/img/yhq.png" class="yhq"/>
 			<img src="/static/ace/img/close.png" class="cls" onclick="cls()"/>
@@ -154,11 +170,6 @@
 		}
 	</script>
 </html>
-<script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>
-<script type="text/javascript" src="/static/ace/js/bootstrap.min.js" ></script>
-<script type="text/javascript" src="/static/layui/layui.js"></script>
-<script type="text/javascript" src="/static/ace/js/common.js" ></script>
-<script type="text/javascript" src="/static/ace/js/store.js"></script>
 <script>
     setNav(1);
     setStoreNav(2);

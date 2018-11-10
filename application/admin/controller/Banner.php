@@ -29,9 +29,7 @@ class Banner extends Admin
         
         $this -> assign("state", model("Common/Dict") -> showList('common_state'));
         $this -> assign("list", model('Banner') -> bannerList($map, $p));
-
-//        print_r()
-
+        
         return $this -> fetch();
     }
 	
@@ -68,12 +66,10 @@ class Banner extends Admin
      */
     public function add(){
     	$this -> assign('pagename','添加轮播图');
-//        print_r($_POST);exit;
+        
         if(Request::instance() -> isPost()){
-//        	print_r($_POST);exit;
             return json(model('Banner') -> saveInfo(input('post.')));
         }else{
-//        	print_r($info);
         	return $this -> fetch();
         }
         
@@ -84,10 +80,9 @@ class Banner extends Admin
      * @param  string $id ID
      */
     public function edit($id){
-//    	print_r($id);
     	$this -> assign('pagename','修改轮播图');
-    	$this -> assign('infos',model('Banner') -> modInfo($id));
-//    	print_r(model('Banner') -> modInfo($id));
+    	$this -> assign('info',model('Banner') -> modInfo($id));
+    	
         if (Request::instance() -> isPost()) {
             return json(model('Banner') -> saveInfo(input('post.')));
         }else{

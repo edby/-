@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\tip.html";i:1541125850;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\tip.html";i:1541815213;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -71,36 +71,34 @@
 
 
 <main>
+
     <!--banner图-->
-    <div id="myCarousel" class="carousel slide">
-        <!-- 轮播（Carousel）指标 -->
-        <ol class="carousel-indicators">
-            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-            <li data-target="#myCarousel" data-slide-to="1"></li>
-            <li data-target="#myCarousel" data-slide-to="2"></li>
-        </ol>
-        <!-- 轮播（Carousel）项目 -->
-        <div class="carousel-inner">
-            <div class="item active">
-                <img src="/static/ace/img/banner1.png" alt="First slide">
-            </div>
-            <div class="item">
-                <img src="/static/ace/img/banner1.png" alt="Second slide">
-            </div>
-            <div class="item">
-                <img src="/static/ace/img/banner1.png" alt="Third slide">
-            </div>
+<div id="myCarousel" class="carousel slide">
+    <!-- 轮播（Carousel）指标 -->
+    <ol class="carousel-indicators">
+        <?php if(is_array($banner) || $banner instanceof \think\Collection || $banner instanceof \think\Paginator): $key = 0; $__LIST__ = $banner;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$b_leader): $mod = ($key % 2 );++$key;?>
+        <li data-target="#myCarousel" data-slide-to="<?php echo $key-1; ?>" class="<?php echo $key==1?'active':''; ?>"></li>
+        <?php endforeach; endif; else: echo "" ;endif; ?>
+    </ol>
+    <!-- 轮播（Carousel）项目 -->
+    <div class="carousel-inner">
+        <?php if(is_array($banner) || $banner instanceof \think\Collection || $banner instanceof \think\Paginator): $key = 0; $__LIST__ = $banner;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$b): $mod = ($key % 2 );++$key;?>
+        <div class="item <?php echo $key==1?' active':' '; ?>">
+            <img src="<?php echo $b['link']; ?>" alt="Third slide">
         </div>
-        <!-- 轮播（Carousel）导航 -->
-        <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
+        <?php endforeach; endif; else: echo "" ;endif; ?>
+
     </div>
+    <!-- 轮播（Carousel）导航 -->
+    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
 
     <div class="cabinet_head">
         <div>
@@ -128,6 +126,11 @@
     </div>
 </main>
 
+<script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>
+<script type="text/javascript" src="/static/ace/js/bootstrap.min.js" ></script>
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+<script type="text/javascript" src="/static/ace/js/common.js" ></script>
+<script type="text/javascript" src="/static/ace/js/store.js"></script>
 
 		<!--底部-->
 		<div class="foot">
@@ -157,11 +160,6 @@
 		}
 	</script>
 </html>
-<script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>
-<script type="text/javascript" src="/static/ace/js/bootstrap.min.js" ></script>
-<script type="text/javascript" src="/static/layui/layui.js"></script>
-<script type="text/javascript" src="/static/ace/js/common.js" ></script>
-<script type="text/javascript" src="/static/ace/js/store.js"></script>
 <script>
     setNav(1);
     setStoreNav(2);

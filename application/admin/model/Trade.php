@@ -26,7 +26,7 @@ class Trade extends Base
 			$map['uid'] = array('in',trim($seller_id,','));
 		}
 		
-		$list = Db::name('trade_buy') -> where($map) -> order('id DESC') -> page($p,self::PATH_LIMIT) -> select();
+		$list = Db::name('trade_buy') -> where($map) -> order('matching ASC,id ASC') -> page($p,self::PATH_LIMIT) -> select();
 		$count = Db::name('trade_buy') -> where($map) -> count();
 		$request = Request::instance();
 		$page = boot_page($count,self::PATH_LIMIT,self::PATH_SHOW,$p,$request -> action());
@@ -60,7 +60,11 @@ class Trade extends Base
 			
 			// 日期
 			$list[$k]['start_date'] = date('Y-m-d H:i:s',$v['start_time']);
-			$list[$k]['end_date'] = date('Y-m-d H:i:s',$v['end_time']);
+			if($v['end_date']){
+				$list[$k]['end_date'] = date('Y-m-d H:i:s',$v['end_time']);
+			}else{
+				$list[$k]['end_date'] = '-';
+			}
 		}
 		
 		$return['list'] = $list;
@@ -161,7 +165,10 @@ class Trade extends Base
 				$in_sell_order['trade_buy_id'] = $data['trade_buy_id'];	// 交易买入表ID
 				$in_sell_order['trade_sell_ids'] = $v;	// 交易卖出表ID
 				$in_sell_order['trade_type'] = 1;	// 交易类型 1出售 2求购
-				Db::name('order') -> insert($in_sell_order);
+				$get_order_id = Db::name('order') -> insertGetId($in_sell_order);
+				
+				// 在 交易卖出表 中添加订单编号
+				Db::name('trade_sell') -> where('id',$v) -> update(['order_id' => $get_order_id]);
 			}
 			
 			// 在订单表中插入 买入 数据
@@ -173,7 +180,10 @@ class Trade extends Base
 			$in_buy_order['trade_buy_id'] = $data['trade_buy_id'];	// 交易买入表ID
 			$in_buy_order['trade_sell_ids'] = $trade_sell_ids;	// 交易卖出表ID(可能匹配多个)
 			$in_buy_order['trade_type'] = 2;	// 交易类型 1出信 2求购
-			Db::name('order') -> insert($in_buy_order);
+			$get_order_id = Db::name('order') -> insertGetId($in_buy_order);
+			
+			// 在 交易买入表 中添加订单编号
+			Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> update(['order_id' => $get_order_id]);
 			
 			$condition = 1;
 			Db::commit();
@@ -204,7 +214,7 @@ class Trade extends Base
 			$map['uid'] = array('in',trim($seller_id,','));
 		}
 		
-		$list = Db::name('trade_sell') -> where($map) -> order('matching DESC,id DESC') -> page($p,self::PATH_LIMIT) -> select();
+		$list = Db::name('trade_sell') -> where($map) -> order('matching ASC,id ASC') -> page($p,self::PATH_LIMIT) -> select();
 		$count = Db::name('trade_sell') -> where($map) -> count();
 		$request = Request::instance();
 		$page = boot_page($count,self::PATH_LIMIT,self::PATH_SHOW,$p,$request -> action());
@@ -238,7 +248,11 @@ class Trade extends Base
 			
 			// 日期
 			$list[$k]['start_date'] = date('Y-m-d H:i:s',$v['start_time']);
-			$list[$k]['end_date'] = date('Y-m-d H:i:s',$v['end_time']);
+			if($v['end_date']){
+				$list[$k]['end_date'] = date('Y-m-d H:i:s',$v['end_time']);
+			}else{
+				$list[$k]['end_date'] = '-';
+			}
 		}
 		
 		$return['list'] = $list;

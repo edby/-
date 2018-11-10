@@ -4,6 +4,7 @@ namespace app\index\controller;
 use app\admin\model\Banner;
 use app\common\controller\Base;
 use app\index\model\GoodsOrder;
+use app\index\model\UserVou;
 use think\Build;
 use think\Db;
 use think\Exception;
@@ -188,6 +189,19 @@ class Goods extends Base
 			];
 			return json_encode($r);
 	    }
+//	    print_r($_SESSION);
+	    $user_info = Db::name('user')->where(['id'=>$_SESSION['think']['uid']])->find();
+//    	echo Db::name('user')->getLastSql();
+//    	print_r($user_info);
+//    	exit();
+	    if($user_info['status'] == 2){
+			$r = [
+				'code'=>-1,
+				'msg'=>'您的账户已被限制交易，请购买激活券激活后进行交易'
+			];
+	        return json_encode($r);
+	    }
+
 //      数据库未读取到商品信息
 //	    print_r($_POST);
 //	    print_r(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->select());
@@ -306,19 +320,84 @@ class Goods extends Base
 
 
 	/**
-	 *
-	 * 处理订单结算
-	 * @return bool
+	 * 订单付款功能
+	 * @return false|string
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
 	 */
     public function do_clear()
     {
+
+//    	print_r($_POST);
+//    	exit();
     	$r = [
     		'code'=>1,
-		    'msg'=>''
+		    'msg'=>'处理订单初始化'
 	    ];
+		$user_info = Db::name('user_bouns')->where(['id'=>$_SESSION['think']['uid']])->select();
+		if(!$user_info){
+			$r = [
+				'code'=>-1,
+				'msg'=>'用户信息不存在'
+			];
+			return json_encode($r);
+			exit();
+		}
+	    Db::startTrans();
+	    try {
+		    foreach ($_POST['data'] as $item)
+		    {
+//		    	订单状态
+			    $goods_order = Db::name('goods_order')->where(['order_number' => $item[0]])->find();
+				if(!$goods_order){
+					throw new Exception("cant find order id".$item[0]);
+				}
+//				当前用户状态：
+			    $user_info = Db::name('user')->where(['id'=>$_SESSION['think']['uid'],'status'=>1])->where(['payment_password'=>md5($_POST['pwd'])])->find();
+//				echo Db::name('user')->getLastSql();
+//				exit();
+				if(!$user_info){
+					throw new Exception("用户密码错误或已被禁用");
+				}
+				$item_money = $goods_order['g_price'] * $item[1];
 
-    	pre($_POST);
-		return json_encode($r);
+//				用户余额账户
+				$user_money = Db::name('user_bouns')->where(['uid'=>$_SESSION['think']['uid']])->order('bouns_type asc')->select();
+				if(!$user_money){
+					throw new Exception("cant find user account about money");
+				}
+//				    遍历用户三个类型的奖金，依次扣款
+			    $times = 1;
+				foreach ($user_money as $money_type){
+//					  依次扣除静态奖金、动态奖、福利奖
+					if($money_type['bouns_number'] < $item_money){
+						$money_type['bouns_number'] = 0;
+						$item_money -= $money_type['bouns_number'];
+						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
+					}else{
+						$money_type['bouns_number'] -= $item_money;
+						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
+						break;
+					}
+					if(($times==3)&&($item_money>0)){
+						throw new Exception("user blance is low!");
+					}
+					$times++;
+				}
+			    if(!(Db::name('goods_order')->where(['order_number' => $item[0]])->update(['order_status'=>2]))){
+					throw new Exception('change order fail');
+			    }
+		    }
+		    Db::commit();
+	    }catch (\Exception $e){
+	    	Db::rollback();
+			$r = [
+			'code'=>-1,
+			'msg'=>$e->getMessage()
+			];
+		}
+			return json_encode($r);
     }
 
 
@@ -360,7 +439,71 @@ class Goods extends Base
 		$this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
-	
+
+	public function buy_active()
+	{
+		$r = [
+			'code'=>1,
+			'msg'=>$_POST
+		];
+		//				用户余额账户
+		$user_money = Db::name('user_bouns')->where(['uid'=>$_SESSION['think']['uid']])->order('bouns_type asc')->select();
+		if(!$user_money){
+			throw new Exception("cant find user account about money");
+		}
+		Db::startTrans();
+		try{
+//				    遍历用户三个类型的奖金，依次扣款
+			$times = 1;
+			$item_money = 200;
+			foreach ($user_money as $money_type){
+	//					  依次扣除静态奖金、动态奖、福利奖
+				if($money_type['bouns_number'] < $item_money){
+					$money_type['bouns_number'] = 0;
+					$item_money -= $money_type['bouns_number'];
+					Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
+				}else{
+					$money_type['bouns_number'] -= $item_money;
+					Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
+					break;
+				}
+				if(($times==3)&&($item_money>0)){
+					throw new Exception("user blance is low!");
+				}
+				$times++;
+			}
+			$Active_order = new GoodsOrder();
+			$active_order['cid'] = 1;
+			$active_order['gid'] = 1;
+			$active_order['g_number'] = 1;
+			$active_order['buy_uid'] = $_SESSION['think']['uid'];
+			$active_order['sell_sid'] = 1;
+			$active_order['order_number'] = generateOrderNumber();
+			$active_order['order_status'] = 2;
+			$active_order['create_time'] = time();
+			$active_order['g_price'] = $item_money;
+			$active_order['money'] = $item_money;
+			$active_order['addr'] = '购买激活券';
+//			var_dump($active_order);
+//			exit();
+			if(!$Active_order->insert($active_order)){
+				throw new Exception("添加订单失败");
+			}
+			if(!(Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>4])->setInc('number'))){
+				throw new Exception("修改激活券状态失败");
+			}
+			Db::commit();
+		}catch (\Exception $e){
+			Db::rollback();
+			$r = [
+				'code'=>-1,
+				'msg'=>$e->getMessage(),
+			];
+		}
+		return json_encode($r);
+	}
+
+
 	/**
 	 * controller 修改券
 	 */
