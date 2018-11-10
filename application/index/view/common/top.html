@@ -21,9 +21,13 @@
         </div>
         <ul class="top_nav_r clearfix">
             {volist name='sidebar' id='vo'}
-				<li>
-					<a href="/{$vo.name}">{$vo.title}</a>
-				</li>
+            <li>
+                {if condition ="($key eq 2) OR ($key eq 3)"}
+                <a onclick="javascript:layer.alert('功能待开发',{time:2000,title:'温馨提示'})" style="cursor:pointer" >{$vo.title}</a>
+                {else}
+                <a href="/{$vo.name}" >{$vo.title}</a>
+                {/if}
+            </li>
 			{/volist}
         </ul>
 		{empty name='account'}
@@ -39,7 +43,7 @@
 	            <span>ZC</span>
 	            {$account}
 	            <div class="accout_menu">
-	                <p><a href="{:url('userCenter')}">会员中心</a></p>
+	                <p><a href="{:url('User/wallet')}">会员中心</a></p>
 	                <p><a href="{:url('Publics/logout')}">退出登录</a></p>
 	            </div>
 	        </div>
@@ -50,10 +54,10 @@
 <div class="store_nav">
     <div class="store_nav_box">
         <ul class="store_nav_r">
-            <li><a href="store.html">商城首页</a></li>
-            <li><a href="allSale.html">全部分类</a></li>
+            <li><a href="/index/goods/index">商城首页</a></li>
+            <li><a href="/index/goods/classify">全部分类</a></li>
             <li><a href="activate.html">激活券</a></li>
-            <li><a href="discounts.html">优惠专区</a></li>
+            <li><a href="/index/goods/preferential">优惠专区</a></li>
             <li><a href="feature.html">特色专区</a></li>
         </ul>
         <div>

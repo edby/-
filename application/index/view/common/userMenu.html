@@ -33,13 +33,19 @@
             <span>{$user.alipay_accout}</span>
         </div>
         <div>
-            帐号状态：
+		帐号状态：
             <span class="blue">{$user.status_text}</span>
         </div>
-        <div class="user_change">
-            <span onclick="user_change()">修改个人信息 >></span>
-            <small>（修改个人信息需要修改码）</small>
+        <div>
+		邀请码：
+            <span class="blue">{$user.invitation_code}</span>
         </div>
+        {eq name='$user.is_set' value='1'}
+	        <div class="user_change">
+	            <span onclick="user_change()">修改个人信息 >></span>
+	            <small>（修改个人信息需要修改码）</small>
+	        </div>
+        {/eq}
     </div>
     <div class="go_reg">
         <span onclick="go_reg()">去帮新会员注册 >></span>
@@ -56,6 +62,6 @@
         <li><a href="{:url('address')}">地址管理</a></li>
         <li><a href="{:url('my_promotion')}">我的推广</a></li>
         <li><a href="{:url('about_us')}">关于我们</a></li>
-        <li><a href="#">退出登录</a></li>
+        <li><a href="{:url('Publics/logout')}">退出登录</a></li>
     </ul>
 </div>

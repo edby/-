@@ -20,8 +20,8 @@
 					</tr>
 					{volist name='promotion' id='vo'}
 						<tr>
-							<td>{$vo.real_name}</td>
-							<td>{$vo.tel}</td>
+							<td>{notempty name='$vo.real_name'}{$vo.real_name}{else/}-{/notempty}</td>
+							<td>{$vo.account}</td>
 						</tr>
 					{/volist}
 				</table>					

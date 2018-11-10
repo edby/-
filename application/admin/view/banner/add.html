@@ -29,15 +29,15 @@
                 <div class="form-group">
                   <label class="col-sm-3 control-label no-padding-right"> 轮播图标题 </label>
                   <div class="col-sm-9">
-                    <input name="title" type="text" class="col-xs-10 col-sm-5" placeholder="请填写轮播图标题" value="{$info.title}" />
+                    <input name="title" type="text" class="col-xs-10 col-sm-5" placeholder="请填写轮播图标题" value="{$infos.title}" />
                   </div>
                 </div>
                 
                 <div class="form-group">
                     <label class="col-sm-3 control-label no-padding-right"> 轮播图 </label>
                     <div class="col-sm-3 col-lg-3" style="padding-right: 0px;">
-                        <input name="link" type="text" class="form-control" readonly placeholder="这里轮播图上传地址" value="{$info.link}" /><br />
-                        <img name ="link" width="500px" height="139px"  hidden="" id="url-view" {if condition='isset($info.link)'}src='{$info.link}' style='display:inline;'{/if} />
+                        <input name="link" type="text" class="form-control" readonly placeholder="这里轮播图上传地址" value="{$infos.link}" /><br />
+                        <img name ="link" width="500px" height="139px"  hidden="" id="url-view" {if condition='isset($infos.link)'}src='{$infos.link}' style='display:inline;'{/if} />
                     </div>
                     <div class="col-sm-2 col-lg-2" style="padding-left: 0px;">
                         <a href="javascript:void(0);" class="btn btn-sm btn-success" id="test1" data-type="headimg">图片上传</a>
@@ -51,8 +51,8 @@
 											<label>
 												<input name="state" type="radio" class="ace status_radio" value='1' 
 													<?php
-														if(isset($info['state'])){
-															if($info['state'] == 1){
+														if(isset($infos['state'])){
+															if($infos['state'] == 1){
 																echo "checked='checked'";
 															}
 														}else{
@@ -65,7 +65,7 @@
 										</div>
 										<div class="radio">
 											<label>
-												<input name="state" type="radio" class="ace status_radio" value='2' {if condition='$info.state == 2'}checked='checked'{/if}}/>
+												<input name="state" type="radio" class="ace status_radio" value='2' {if condition='$infos.state == 2'}checked='checked'{/if}}/>
 												<span class="lbl"> 禁用</span>
 											</label>
 										</div>
@@ -76,7 +76,7 @@
                 <div class="alert alert-danger" style="display:none;"></div>
                 <div class="clearfix form-actions">
                   <div class="col-md-offset-3 col-md-9">
-                  	<input name="id" class="hidden" type="text" value="{$info.id}">
+                  	<input name="id" class="hidden" type="text" value="{$infos.id}"  >
                     <button class="btn btn-info" type="submit" id="btn"> <i class="ace-icon fa fa-check bigger-110"></i> 保存 </button>
                   </div>
                 </div>
@@ -133,7 +133,6 @@ layui.use('upload', function(){
 $('a[href="/Admin/Banner/index"]').parents().filter('li').addClass('open active');
 //提交表单
 $(".form-post").find('button:submit').click(function() {
-	
   $.post("{:url('add')}", $(".form-post").serialize()).success(function(data) {
     $('#btn').text('正在保存').attr('disabled', "true");
     if (data.status === 0) {
@@ -145,7 +144,7 @@ $(".form-post").find('button:submit').click(function() {
       1000);
     }else{
       setTimeout(function() {
-        location.href = data.url;
+          history.go(-1);
       },
       1000);
     }

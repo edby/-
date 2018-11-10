@@ -35,22 +35,52 @@
 	                    </div>
                     {/volist}
                 </div>
+                
+                <!--转账记录-->
+                <div class="fund_record">
+                    <p>转账记录：</p>
+                    <form class="record">
+                        <table>
+                            <thead>
+	                            <tr>
+	                                <th>创建时间</th>
+	                                <th>种类</th>
+	                                <th>数量</th>
+	                                <th>接收人</th>
+	                            </tr>
+                            </thead>
+                            <tbody id='transfer_list' data-count='{$count}'>
+	                            
+                            </tbody>
+                        </table>
+                    </form>
+                    <ul id='transfer_page' class="page" style='width:auto;'>
+                        
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </main>
 
 {include file='common/bottom'}
+<link rel="stylesheet" href="__LAYUI__/css/layui.css" media="all" />
+<script type='text/javascript' src="__LAYUI__/layui.js"></script>
+<script type='text/javascript' src="__JS__/layer/layer.js"></script>
 <script>
     vipNav(3)
 </script>
 <script type='text/javascript'>
+// 获取用户ID
+var uid = $('.user_name').attr('data-uid');
+
+// 执行转账
 function move(vid) {
 	layer.confirm('确定要转账吗？', {
         btn: ['确定','取消']
     }, function(){
 	    var data = {
-	    	uid:$('.user_name').attr('data-uid'),
+	    	uid:uid,
 	    	vid:vid,
 	    	number:$('#'+vid+'_number').val(),
 	    	account:$('#'+vid+'_account').val(),
@@ -70,6 +100,57 @@ function move(vid) {
 	    	}
 	    });
     });
+}
+
+// 转账分页功能
+var page;
+$(document).ready(function(){
+	// 读取转账分页
+	transfer_list();
+	layui.use('laypage', function(){
+	  var logpage = layui.laypage;
+	  // 执行一个laypage实例
+	  logpage.render({
+	    elem: 'transfer_page', 	// 注意，这里的 msg_page 是 ID，不用加 # 号
+	    count: $('#transfer_list').attr('data-count'), 			// 数据总数，从服务端得到
+	    curr: page,
+		limit: 8,
+	    layout: ['count','prev','page','next','refresh', 'skip'],
+	    jump: function(obj,first){
+	      page = obj.curr;
+	      if(!first){
+	      	transfer_list(page);
+	      }
+	    }
+	  });
+	});
+});
+// 调用转账分页
+function transfer_list(page){
+	var data = {
+		uid:uid,
+		page:page,
+	}
+	var transfer_html = '';
+	$.ajax({
+		type:'post',
+		async:false, 
+		url:'{:url("transfer_list")}',
+		data:data,
+		success:function(ret){
+			if(ret.code === 0){
+				transfer_html = '<tr class="no_data"><td colspan="4">暂无数据</td></tr>';
+			}else{
+				$.each(ret.transfer,function(k,v){
+					transfer_html += '<tr><td>'+v.create_date+'</td>';
+	                transfer_html += '<td>'+v.vou_name+'</td>';
+	                transfer_html += '<td>'+v.number+'</td>';
+	                transfer_html += '<td>'+v.target_user_account+'</td></tr>';
+				})
+			}
+			$('#transfer_list').html(transfer_html);
+		}
+	});
 }
 </script>
 

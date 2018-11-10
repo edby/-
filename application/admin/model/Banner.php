@@ -42,6 +42,8 @@ class Banner extends Base
         $return['list'] = $list;
         $return['count'] = $count;
         $return['page'] = boot_page($return['count'], self::PAGE_LIMIT, self::PAGE_SHOW, $p,$request->action());
+//        print_r($return);
+//        exit();
         return $return;
     }
 	
@@ -115,7 +117,8 @@ class Banner extends Base
      * @param  array $data 传入信息
      */
     public function saveInfo($data){
-    	
+
+    	$r = null;
     	// 判断轮播图标题是否为空
     	if(!$data['title']){
     		return ['status' => 0,'info' => '请填写轮播图标题!'];
@@ -125,27 +128,49 @@ class Banner extends Base
     	if(!$data['link']){
     		return ['status' => 0,'info' => '请上传轮播图!'];
     	}
-    	
+
         if(array_key_exists('id',$data)){
             $id = $data['id'];
             if(!empty($id)){
                 $where = true;
+                if(Db::name('banner')->where(['id'=>$id])->update($data)){
+                	$r = [
+                		'code'=>-1,
+		                'msg'=>'修改已保存'
+	                ];
+                	return json_encode($r);
+                }
             }else{
                 $where = false;
                 $data['sort'] = time();
             }
+//            print_r($data);
+//            exit();
         }else{
             $where = false;
             $data['sort'] = time();
         }
-             
-        $Banner = new Banner;
-        $result = $Banner -> allowField(true) -> isUpdate($where) -> save($data);
-        if(false === $result){
-            return ['status'=>0,'info'=>$AuthGroup->getError()];
-        }else{
-            return array('status' => 1, 'info' => '保存成功', 'url' => url('index'));
+            unset($data['id']);
+        Db::startTrans();
+        try{
+            $Banner = new Banner();
+            $Banner->save($data);
+            Db::commit();
+            $r = [
+            	'code'=>1,
+	            'msg'=>'添加成功！'
+            ];
+        }catch (\Exception $e){
+			Db::rollback();
+			$r = [
+				'code'=>-1,
+				'msg'=>'添加失败！'
+			];
         }
+			return json_encode($r);
+
+//        echo Db::name('banner')->getLastSql();
+//        exit;
     }
 	
     /**

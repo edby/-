@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>买单详情</title>
+		<link rel="stylesheet" href="css/common.css" />
+		<link rel="stylesheet" href="css/zhongyu.css" />
+		<link rel="stylesheet" href="css/bootstrap.css" />
+	</head>
+	<body class="bac_ebf1ff">
+		<!--头部-->
+		<div class="top_nav">
+			<div class="container clearfix">
+				<div class="top_nav_l">
+					<img src="img/logo_zc.png" />
+				</div>
+				<ul class="top_nav_r clearfix">
+					<li>
+						<a href="#">首页</a>
+					</li>
+					<li>
+						<a href="#">众成商城</a>
+					</li>
+					<li>
+						<a href="#">交易中心</a>
+					</li>
+					<li>
+						<a href="#">中心矿机</a>
+					</li>
+				</ul>
+				<div class="accout">
+					<span>ZC</span> 张三
+					<div class="accout_menu">
+						<p>
+							<a href="#">会员中心</a>
+						</p>
+						<p>
+							<a href="#">退出登录</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--匹配订单-->
+		<div class="container" style="min-height: 580px;">
+			<div class="order_tit clearfix">
+				<h1>匹配订单</h1>
+				<span class="order_tit_1">订单详情</span>
+				<span class="order_tit_2">BEST</span>
+				<span class="order_tit_3">查看订单详情</span>
+			</div>
+			<div class="payer">
+				<p class="clearfix">
+					<span class="col-md-3">打款人：李三三(156898565454)</span>
+					<span class="col-md-3">总预付款：420</span>
+					<span class="col-md-3">付款状态：<font class="cor_red">未完成</font></span>
+					<span class="col-md-3">备注：无</span>
+				</p>
+				<div class="payer_sm">打款最迟时间：2018-10-17 19:52:02 每天早上8点~12点完成并需要确认</div>
+			</div>
+			<ul class="payee">
+				<li>
+					<p>
+						<span>收款人：张三(156898565454)</span>
+						<span>收款时间：2018-10-17 19:52:02</span>
+					</p>
+					<div class="clearfix">
+						<div class="col-md-2" style="margin-top: 15px;">选择付款方式：</div>
+						<div class="col-md-6">
+							<div class="ali_wx">
+								<span>
+									<img src="img/order_wxz.png"/>
+									支付宝：18339836666
+								</span>
+								<span>
+									<img src="img/order_wxz.png"/>
+									微信号：18339836666
+								</span>
+							</div>
+							<div>
+								<img src="img/order_wxz.png"/>
+								银行卡：工商银行 张三 630183259933801
+							</div>
+						</div>
+						<div class="col-md-2" style="position: relative;">
+							<input accept="image/*" type="file" name="file" class="filed">
+							<img src="img/upload.png" class="upload_btn"/>
+						</div>
+						<div class="col-md-2"><button>确认提交</button></div>
+					</div>
+					<div class="need_pay">需要付款：<font class="cor_red">200(已付款)</font></div>
+				</li>
+				<li>
+					<p>
+						<span>收款人：张三(156898565454)</span>
+						<span>收款时间：2018-10-17 19:52:02</span>
+					</p>
+					<div class="clearfix">
+						<div class="col-md-2" style="margin-top: 15px;">选择付款方式：</div>
+						<div class="col-md-6">
+							<div class="ali_wx">
+								<span>
+									<img src="img/order_wxz.png"/>
+									支付宝：18339836666
+								</span>
+								<span>
+									<img src="img/order_wxz.png"/>
+									微信号：18339836666
+								</span>
+							</div>
+							<div>
+								<img src="img/order_wxz.png"/>
+								银行卡：工商银行 张三 630183259933801
+							</div>
+						</div>
+						<div class="col-md-2" style="position: relative;">
+							<input accept="image/*" type="file" name="file" class="filed">
+							<img src="img/upload.png" class="upload_btn"/>
+						</div>
+						<div class="col-md-2"><button>确认提交</button></div>
+					</div>
+					<div class="need_pay">需要付款：<font class="cor_red">200(已付款)</font></div>
+				</li>
+			</ul>
+		</div>	
+		<!--底部-->
+		<div class="foot">
+			<img src="img/logo_zc.png" class="foot_img" />
+			<div class="foot_b">@2018.zhongchengguoji</div>
+		</div>		
+	</body>
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/common.js"></script>
+	<script type="text/javascript" src="layui/layui.all.js" ></script>
+	<script>
+		setNav(0);
+		$('.payee li .col-md-6 img').click(function(){
+			$(this).attr('src','img/order_xz.png');
+			$(this).parents('li').find('.col-md-6 img').not($(this)).attr('src','img/order_wxz.png');
+		})
+		layui.use('upload', function() {
+			var upload = layui.upload; 		//执行实例
+			var uploadInst = upload.render({
+				elem: '.filed', 			//绑定元素	
+				data: {
+					type: 'order'
+				},
+				url: '', //上传接口
+				done: function(res) { //上传完毕回调
+					$(img).attr('src', res.msg);
+					//window.sessionStorage.setItem('imgval', res.msg);
+				},
+				error: function(res) { //请求异常回调
+					layer.msg(res.data.msg);
+				}
+			});
+		});
+	</script>
+</html>

@@ -11,12 +11,9 @@ class Trade extends Base
 	const PATH_SHOW = 10;	// 显示分页菜单数量
 	
 	/**
-	 * model 挂单列表
+	 * model 交易买入列表
 	 */
-	public function tradeList($map,$p){
-		
-		$request = Request::instance();
-		
+	public function tradeBuy($map,$p){
 		// 搜索挂卖人名称
 		if($map['account']){
 			$user['account'] = $map['account'];
@@ -29,134 +26,227 @@ class Trade extends Base
 			$map['uid'] = array('in',trim($seller_id,','));
 		}
 		
-//		// 条件数据(PEA)
-//      $data['cur_pea_icon'] = Db::name('currency') -> where('id=2') -> value('icon');		// PEA 图标
-//      $pea_buy_where['trade_status'] = 1;
-//      $pea_buy_where['cur_id'] = 2;
-//      $pea_buy_where['trade_type'] = 2;
-//      $data['cur_pea_buy_all_num'] = Db::name('trade') -> where($pea_buy_where) -> sum('number');
-//      $data['cur_pea_buy_all_price'] = Db::name('trade') -> where($pea_buy_where) -> field('number,price') -> sum('number * price');
-//      $pea_sell_where['trade_status'] = 1;
-//      $pea_sell_where['cur_id'] = 2;
-//      $pea_sell_where['trade_type'] = 1;
-//      $data['cur_pea_sell_all_num'] = Db::name('trade') -> where($pea_sell_where) -> sum('number');
-//      $data['cur_pea_sell_all_price'] = Db::name('trade') -> where($pea_sell_where) -> field('number,price') -> sum('number * price');
-		
-		// 挂单币种统计
-		$cur_info = Db::name('currency') -> field('id,name,icon') -> select();
-		foreach($cur_info as $k => $v){
-			// 求购统计
-			$cur_buy_where['trade_status'] = 1;
-        	$cur_buy_where['cur_id'] = $v['id'];
-        	$cur_buy_where['trade_type'] = 2;
-        	$cur_info[$k]['cur_buy_all_num'] = Db::name('trade') -> where($cur_buy_where) -> sum('number');
-        	$cur_info[$k]['cur_buy_all_price'] = Db::name('trade') -> where($cur_buy_where) -> field('number,price') -> sum('number * price');
-        	
-        	// 出售统计
-        	$cur_sell_where['trade_status'] = 1;
-        	$cur_sell_where['cur_id'] = $v['id'];
-        	$cur_sell_where['trade_type'] = 1;
-        	$cur_info[$k]['cur_sell_all_num'] = Db::name('trade') -> where($cur_sell_where) -> sum('number');
-        	$cur_info[$k]['cur_sell_all_price'] = Db::name('trade') -> where($cur_sell_where) -> field('number,price') -> sum('number * price');
-		}
-		
-		$list = $this -> where($map) -> order('id DESC') -> page($p,self::PATH_LIMIT) -> select() -> toArray();
-		$count = $this -> where($map) -> count();
+		$list = Db::name('trade_buy') -> where($map) -> order('id DESC') -> page($p,self::PATH_LIMIT) -> select();
+		$count = Db::name('trade_buy') -> where($map) -> count();
+		$request = Request::instance();
+		$page = boot_page($count,self::PATH_LIMIT,self::PATH_SHOW,$p,$request -> action());
 		foreach($list as $k => $v){
-			// 挂卖人名称
-			$list[$k]['user_name'] = Db::name('user') -> where('id',$v['uid']) -> value('account');
+			// 买入人账号
+			$list[$k]['account'] = Db::name('user') -> where('id',$v['uid']) -> value('account');
 			
-			// 挂卖状态
-			$where['type'] = 'trade_status';
-			$where['value'] = $v['trade_status'];
-			$list[$k]['trade_status_text'] = Db::name('dict') -> where($where) -> value('key');
-			switch($v['trade_status']){
+			// 买入款类
+			$dict_where['type'] = 'class_type';
+			$dict_where['value'] = $v['class'];
+			$list[$k]['class_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+			
+			// 买入状态
+			$dict_where['type'] = 'trade_status';
+			$dict_where['value'] = $v['buy_status'];
+			$list[$k]['buy_status_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+			switch($v['buy_status']){
+				case 1:
+					$list[$k]['buy_status_button'] = 'trade_status_link';
+					break;
 				case 2:
-					$list[$k]['trade_status_button'] = 'trade_status_active';	// 交易中
+					$list[$k]['buy_status_button'] = 'trade_status_active';
 					break;
 				case 3:
-					$list[$k]['trade_status_button'] = 'trade_status_visited';	// 交易完成
+					$list[$k]['buy_status_button'] = 'trade_status_visited';
 					break;
 				case 4:
-					$list[$k]['trade_status_button'] = 'trade_status_hover';	// 交易取消
-					break;
-				default :
-					$list[$k]['trade_status_button'] = 'trade_status_link';		// 挂卖中
-			}
-			
-			// 虚拟币
-			$list[$k]['cur_name'] = Db::name('currency') -> where('id',$v['cur_id']) -> value('name');
-			
-			// 交易类型
-			$where['type'] = 'trade_type';
-			$where['value'] = $v['trade_type'];
-			$list[$k]['trade_type_text'] = Db::name('dict') -> where($where) -> value('key');
-			switch($v['trade_type']){
-				case 1:
-					$list[$k]['trade_type_button'] = 'trade_type_green';
-					break;
-				case 2:
-					$list[$k]['trade_type_button'] = 'trade_type_red';
+					$list[$k]['buy_status_button'] = 'trade_status_hover';
 					break;
 			}
+			
+			// 日期
+			$list[$k]['start_date'] = date('Y-m-d H:i:s',$v['start_time']);
+			$list[$k]['end_date'] = date('Y-m-d H:i:s',$v['end_time']);
 		}
 		
-		$return['data'] = $cur_info;
 		$return['list'] = $list;
 		$return['count'] = $count;
-		$return['page'] = boot_page($count,self::PATH_LIMIT,self::PATH_SHOW,$p,$request -> action());
-		
+		$return['page'] = $page;
 		return $return;
 	}
 	
 	/**
-	 * model 驳回挂单信息
+	 * model 交易买入绑定卖出列表
 	 */
-	public function tradeReject($id){
-		if(!$id){
-			return ['code' => 0,'msg' => '未获取挂单信息!'];
+	public function bindSellList($trade_buy_id,$sell_where,$p){
+		// 获取要绑定的买入信息
+		$trade_buy = Db::name('trade_buy') -> where('id',$trade_buy_id) -> find();
+		// 搜索挂卖人名称
+		if($sell_where['account']){
+			$user['account'] = $sell_where['account'];
+			$user_seller_id = Db::name('user') -> field('id') -> where($user) -> select();
+			$seller_id = '';
+			foreach($user_seller_id as $k => $v){
+				$seller_id .= $v['id'].',';
+			}
+			unset($sell_where['account']);
+			$sell_where['uid'] = array('in',trim($seller_id,','));
 		}
-		$info = $this -> where('id',$id) -> field('uid,number,price,trade_type,cur_id') -> find();
+		$sell_where['matching'] = 1;
+		
+		// 获取相应的须绑定的卖出信息
+		$sell_where['sell_status'] = 1;
+		$list = Db::name('trade_sell') -> where($sell_where) -> where('number <= '.$trade_buy['number']) -> order('id DESC') -> select();
+		$count = Db::name('trade_sell') -> where($sell_where) -> where('number <= '.$trade_buy['number']) -> count();
+		$request = Request::instance();
+		$page = boot_page($count,self::PATH_LIMIT,self::PATH_SHOW,$p,$request -> action());
+		foreach($list as $k => $v){
+			// 卖出人账号
+			$list[$k]['account'] = Db::name('user') -> where('id',$v['uid']) -> value('account');
+			
+			// 奖金类型
+			$dict_where['type'] = 'bouns_type';
+			$dict_where['value'] = $v['bonus_type'];
+			$list[$k]['bonus_type_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+			
+			// 日期
+			$list[$k]['start_date'] = date('Y-m-d H:i:s',$v['start_time']);
+			$list[$k]['end_date'] = date('Y-m-d H:i:s',$v['end_time']);
+		}
+		$return['trade_buy'] = $trade_buy;
+		$return['list'] = $list;
+		$return['count'] = $count;
+//		$return['page'] = $page;
+		return $return;
+	}
+	
+	/**
+	 * model 执行绑定
+	 */
+	public function doBind($data){
+		if(!$data['trade_buy_id']){
+			return ['code' => 0,'msg' => '未获取买单信息!'];
+		}
+		if(!$data['number']){
+			return ['code' => 0,'msg' => '未获取买单数量!'];
+		}
+		if($data['need_number'] != 0){
+			return ['code' => 0,'msg' => '数值信息错误!'];
+		}
+		if(!$data['trade_sell_ids']){
+			return ['code' => 0,'msg' => '未获取卖单信息!'];
+		}else{
+			$trade_sell_ids = trim($data['trade_sell_ids'],',');
+		}
+		
+		Db::startTrans();
 		$condition = 0;
-		switch($info['trade_type']){
-			case 1:	// 出售
-				Db::startTrans();
-				try{
-					$where['uid'] = $info['uid'];
-					$where['cur_id'] = $info['cur_id'];
-					$number = $info['number'];
-					// 返回用户出售时提前扣出的USDT
-					Db::name('user_cur') -> where($where) -> setInc('number',$number);
-					$this -> where('id',$id) -> delete();
-					$condition = 1;
-					Db::commit();
-				}catch(\Exception $e){
-					Db::rollback();
-				}
-				break;
-			case 2:	// 求购
-				$del = $this -> where('id',$id) -> delete();
-				if($del){
-					$condition = 1;
-				}
-				break;
+		try{
+			// 修改 交易买入表 信息
+			$trade_buy_mod['trade_sell_ids'] = $trade_sell_ids;
+			$trade_buy_mod['matching'] = 2;
+			Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> update($trade_buy_mod);
+			
+			// 修改 交易卖出表 信息
+			$arr_trade_sell_ids = explode(',',$trade_sell_ids);
+			$sell_uids = '';
+			foreach($arr_trade_sell_ids as $k => $v){
+				$trade_sell_mod['trade_buy_id'] = $data['trade_buy_id'];
+				$trade_sell_mod['matching'] = 2;
+				Db::name('trade_sell') -> where('id',$v) -> update($trade_sell_mod);
+				
+				// 获取卖出人ID
+				$sell_uids .= Db::name('trade_sell') -> where('id',$v) -> value('uid').',';
+				
+				// 在订单表中插入 卖出 数据
+				$in_sell_order['order'] = generateOrderNumber();	// 订单编号
+				$in_sell_order['order_number'] = Db::name('trade_sell') -> where('id',$v) -> value('number');	// 交易数量
+				$in_sell_order['buyer_id'] = Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> value('uid');	// 买家ID
+				$in_sell_order['seller_ids'] = Db::name('trade_sell') -> where('id',$v) -> value('uid');	// 卖家ID
+				$in_sell_order['create_time'] = time();	// 创建时间
+				$in_sell_order['trade_buy_id'] = $data['trade_buy_id'];	// 交易买入表ID
+				$in_sell_order['trade_sell_ids'] = $v;	// 交易卖出表ID
+				$in_sell_order['trade_type'] = 1;	// 交易类型 1出售 2求购
+				Db::name('order') -> insert($in_sell_order);
+			}
+			
+			// 在订单表中插入 买入 数据
+			$in_buy_order['order'] = generateOrderNumber();	// 订单编号
+			$in_buy_order['order_number'] = $data['number'];	// 交易数量
+			$in_buy_order['buyer_id'] = Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> value('uid');	// 买家ID
+			$in_buy_order['seller_ids'] = trim($sell_uids,',');	// 卖家ID(可能匹配多个)
+			$in_buy_order['create_time'] = time();	// 创建时间
+			$in_buy_order['trade_buy_id'] = $data['trade_buy_id'];	// 交易买入表ID
+			$in_buy_order['trade_sell_ids'] = $trade_sell_ids;	// 交易卖出表ID(可能匹配多个)
+			$in_buy_order['trade_type'] = 2;	// 交易类型 1出信 2求购
+			Db::name('order') -> insert($in_buy_order);
+			
+			$condition = 1;
+			Db::commit();
+		}catch(\exception $e){
+			Db::rollback();
 		}
 		
 		if($condition === 1){
-			return ['code' => 1,'msg' => '驳回成功!'];
+			return ['code' => 1,'msg' => '匹配成功!','url' => url('trade_buy')];
 		}else{
-			return ['code' => 0,'msg' => '驳回失败!'];
+			return ['code' => 0,'msg' => '匹配失败!'];
 		}
 	}
 	
 	/**
-	 * model 获取币种信息
+	 * model 交易卖出列表
 	 */
-	public function get_cur_type(){
-		// $cur_where['id'] = array('neq',1);
-		$result = Db::name('currency') -> where($cur_where) -> field('id,name') -> select();
-		return $result;
+	public function tradeSell($map,$p){
+		// 搜索挂卖人名称
+		if($map['account']){
+			$user['account'] = $map['account'];
+			$user_seller_id = Db::name('user') -> field('id') -> where($user) -> select();
+			$seller_id = '';
+			foreach($user_seller_id as $k => $v){
+				$seller_id .= $v['id'].',';
+			}
+			unset($map['account']);
+			$map['uid'] = array('in',trim($seller_id,','));
+		}
+		
+		$list = Db::name('trade_sell') -> where($map) -> order('matching DESC,id DESC') -> page($p,self::PATH_LIMIT) -> select();
+		$count = Db::name('trade_sell') -> where($map) -> count();
+		$request = Request::instance();
+		$page = boot_page($count,self::PATH_LIMIT,self::PATH_SHOW,$p,$request -> action());
+		foreach($list as $k => $v){
+			// 卖出人账号
+			$list[$k]['account'] = Db::name('user') -> where('id',$v['uid']) -> value('account');
+			
+			// 奖金类型
+			$dict_where['type'] = 'bouns_type';
+			$dict_where['value'] = $v['bonus_type'];
+			$list[$k]['bonus_type_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+			
+			// 卖出状态
+			$dict_where['type'] = 'trade_status';
+			$dict_where['value'] = $v['sell_status'];
+			$list[$k]['sell_status_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+			switch($v['sell_status']){
+				case 1:
+					$list[$k]['sell_status_button'] = 'trade_status_link';
+					break;
+				case 2:
+					$list[$k]['sell_status_button'] = 'trade_status_active';
+					break;
+				case 3:
+					$list[$k]['sell_status_button'] = 'trade_status_visited';
+					break;
+				case 4:
+					$list[$k]['sell_status_button'] = 'trade_status_hover';
+					break;
+			}
+			
+			// 日期
+			$list[$k]['start_date'] = date('Y-m-d H:i:s',$v['start_time']);
+			$list[$k]['end_date'] = date('Y-m-d H:i:s',$v['end_time']);
+		}
+		
+		$return['list'] = $list;
+		$return['count'] = $count;
+		$return['page'] = $page;
+		return $return;
 	}
+	
 }
 
 

@@ -45,9 +45,61 @@
 	        });
 		}
 		
+		// 提交完善/修改个人信息
+		function full_detail() {
+		    layer.confirm('确定提交？', {
+		        btn: ['确定','取消'] //按钮
+		    }, function(){
+		        var data = {
+		        	real_name:$('#uName').val(),
+		        	tel:$('#uPhone').val(),
+		        	wechat_accout:$('#weChat').val(),
+		        	alipay_accout:$('#aliPay').val(),
+		        }
+		        
+		        $.ajax({
+		        	type:'post',
+		        	url:'{:url("editUser")}',
+		        	data:data,
+		        	success:function(ret){
+		        		if(ret.code === 0){
+		        			layer.alert(ret.msg);
+		        		}else{
+		        			$('#myModal').modal('hide');
+		        			layer.msg(ret.msg);
+		        		}
+		        	}
+		        });
+		    });
+		}
+		
 		// 帮新会员注册
 		function go_reg() {
-		    window.location.href = '{:url("publics/userreg")}';
+			layer.confirm('帮新会员注册需要使用激活券!',{
+				btn: ['激活会员','稍后再说']
+			},function(){
+				var uid = $('.user_name').attr('data-uid');
+				$.ajax({
+					type:'post',
+					url:'{:url("user_vou")}',
+					data:{uid:uid,vid:4},
+					success:function(ret){
+	        			if(ret.code === 0){
+	        				layer.msg(ret.msg);
+	        			}else{
+	        				if(ret.num <= 0){
+	        					layer.confirm('激活券不足！', {
+						            btn: ['现在购买','稍后再说'] //按钮
+						        }, function(){
+						        	window.location.href = '{:url("goods/activate")}';
+						        });
+	        				}else{
+	        					window.location.href = '{:url("user/userreg")}';
+	        				}
+	        			}
+	        		}
+				});
+			});
 		}
 		
 		// 去购买
@@ -96,7 +148,7 @@
 	            <span>ZC</span>
 	            {$account}
 	            <div class="accout_menu">
-	                <p><a href="{:url('userCenter')}">会员中心</a></p>
+	                <p><a href="{:url('User/wallet')}">会员中心</a></p>
 	                <p><a href="{:url('Publics/logout')}">退出登录</a></p>
 	            </div>
 	        </div>

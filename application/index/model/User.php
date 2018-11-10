@@ -90,6 +90,7 @@ class User extends Base
     	if(!$data['account']){
     		return ['code' => 0,'msg' => '请输入手机号码!'];
     	}
+    	// 判断密码
     	if(!$data['password'] || !$data['repassword']){
     		return ['code' => 0,'msg' => '请输入密码!'];
     	}else{
@@ -105,7 +106,16 @@ class User extends Base
 	       		}
 	       	}
     	}
-    	
+    	// 判断邀请码
+    	if(!$data['invitation_code']){
+    		return ['code' => 0,'msg' => '请输入您的邀请码!'];
+    	}else{
+    		$exist_user = Db::name('user') -> where('invitation_code',$data['invitation_code']) -> find();
+    		if(!$exist_user){
+    			return ['code' => 0,'msg' => '邀请码错误!'];
+    		}
+    		$data['parent_id'] = $exist_user['id'];
+    	}
     	// 判断用户名
     	if($data['account']){
     		$exist_account = Db::name('user') -> where('account',$data['account']) -> find();
@@ -113,6 +123,13 @@ class User extends Base
 				return ['code' => 0,'msg' => '用户账号已存在!'];
 			}
     	}
+    	// 判断邀请券
+    	$user_vou_where['uid'] = session('uid');
+    	$user_vou_where['vid'] = 4;
+    	$user_vou_number = Db::name('user_vou') -> where($user_vou_where) -> value('number');
+        if($user_vou_number <= 0){
+        	return ['code' => 0,'msg' => '您的的邀请券不足,请先购买!'];
+        }
         
         $data['password'] = encrypt(trim($data['password']));
         $data['invitation_code'] = make_coupon_card();
@@ -124,6 +141,9 @@ class User extends Base
 		Db::startTrans();
 		$condition = 0;
 		try{
+			// 扣除用户的 激活券
+    		Db::name('user_vou') -> where($user_vou_where) -> setDec('number');
+			
 			// 注册用户
 			$result_id = Db::name('user') -> insertGetId($data);
 			
@@ -144,6 +164,23 @@ class User extends Base
 				Db::name('user_bouns') -> insert($bouns_in);
 			}
 			
+			// 通过邀请码判断上级用户等级
+			$child_count = Db::name('user') -> where('parent_id',session('uid')) -> count();
+			if($child_count >= 5 && $child_count < 10){	// 县级
+				Db::name('user') -> where('id',session('uid')) -> update(['level' => 2]);
+			}else if($child_count >= 10 && $child_count < 15){	// 市级
+				Db::name('user') -> where('id',session('uid')) -> update(['level' => 3]);
+			}else if($child_count >= 15){	// 省级
+				Db::name('user') -> where('id',session('uid')) -> update(['level' => 4]);
+			}
+			// 董市团队
+			$child_level_where['parent_id'] = session('uid');
+			$child_level_where['level'] = 4;
+			$child_level_count = Db::name('user') -> where($child_level_where) -> count();
+			if($child_level_count >= 5){
+				Db::name('user') -> where('id',$data['parent_id']) -> update(['level' => 5]);
+			}
+			
 			Db::commit();
 			$condition = 1;
 		}catch(\exception $e){
@@ -151,7 +188,7 @@ class User extends Base
 		}
 		
 		if($condition === 1){
-			return ['code' => 1,'msg' => '注册成功!','url' => url('login')];
+			return ['code' => 1,'msg' => '注册成功!','url' => url('my_promotion')];
 		}else{
 			return ['code' => 0,'msg' => '注册失败!'];
 		}
@@ -232,6 +269,15 @@ class User extends Base
      */
     public function editUser($data)
     {
+    	// 查询用户为修改情况下的 修改券 是否为空
+    	$user_vou_where['uid'] = session('uid');
+    	$user_vou_where['vid'] = 3;
+    	$user_vou_number = Db::name('user_vou') -> where($user_vou_where) -> value('number');
+    	$user_is_set = Db::name('user') -> where('id',$user_vou_where['uid']) -> value('is_set');
+        if($user_vou_number <= 0 && ($user_is_set === 1)){
+        	return ['code' => 0,'msg' => '您的的修改券不足,请先购买!'];
+        }
+    	
     	Db::startTrans();
     	$condition = 0;
     	try{
@@ -413,11 +459,11 @@ class User extends Base
 					break;
 			}
 			
-			// 用户的银行卡
-			$user_card_where['uid'] = $uid;
-			$user_card_where['default'] = 2;
-			$bouns[$k]['bank'] = Db::name('user_card') -> where($user_card_where) -> find();
-			$bouns[$k]['bank']['bank_number'] = substr_replace($v['bank_number'],'********',4,12);
+//			// 用户的银行卡
+//			$user_card_where['uid'] = $uid;
+//			$user_card_where['default'] = 2;
+//			$bouns[$k]['bank'] = Db::name('user_card') -> where($user_card_where) -> find();
+//			$bouns[$k]['bank']['bank_number'] = substr_replace($v['bank_number'],'********',4,12);
 		}
 		
 		return $bouns;
@@ -432,57 +478,187 @@ class User extends Base
 	}
 	
 	/**
-	 * model 点击提现
+	 * model 点击提现(卖出)
 	 */
 	public function doWithdraw($data){
 		if(!$data['uid']){
 			return ['code' => 0,'msg' => '未获取用户信息!'];
 		}
-		if(!$data['type']){
+		if(!$data['bonus_type']){
 			return ['code' => 0,'msg' => '未获取提现类型!'];
 		}
-		if(!$data['bonus_number']){
+		if(!$data['number']){
 			return ['code' => 0,'msg' => '请填写提现数额!'];
-		}else{
-			if(!is_int($data['bonus_number']/100)){
-				return ['code' => 0,'msg' => '提现须为100的倍数!'];
-			}
 		}
-		if(!$data['user_card_id']){
-			return ['code' => 0,'msg' => '请选择提现账户!'];
+		// 判断用户账户中的奖金是否足够
+		$user_bouns_where['uid'] = $data['uid'];
+		$user_bouns_where['bouns_type'] = $data['bonus_type'];
+		$enough = Db::name('user_bouns') -> where($user_bouns_where) -> value('bouns_number');
+		if($enough < $data['number']){
+			return ['code' => 0,'msg' => '账户中的奖金不足!'];
+		}
+		$data['start_time'] = time();
+		
+		// 插入 用户卖出交易表 条件
+		$in_trade_sell['uid'] = $data['uid'];
+		$in_trade_sell['bonus_type'] = $data['bonus_type'];
+		$in_trade_sell['start_time'] = time();
+		
+		// 根据 静态/动态/福利 奖金的不同判断 提现/卖出 条件
+		switch($data['bonus_type']){
+			case 1:	// 静态奖金条件
+				if(!is_int($data['number']/100)){
+					return ['code' => 0,'msg' => '提现须为100的倍数!'];
+				}
+				// 判断下一次交易的预付款是否已支付
+				$sell_where['uid'] = $data['uid'];
+				$sell_where['bonus_type'] = $data['bonus_type'];
+				$last_sell_time = Db::name('trade_sell') -> where($sell_where) -> order('start_time DESC') -> value('start_time');	// 获取最后一次 提现/卖出 的时间
+				if(!$last_sell_time){	// 如果用户为第一次提现则为0
+					$last_sell_time = 0;
+					// 提现数量
+					$in_trade_sell['number'] = $data['number'];
+					break;
+				}
+				$last_buy_where['uid'] = $data['uid'];	// 当前 提现/卖出 用户ID
+				$last_buy_where['class'] = 1;			// 买入款类 1首款 2尾款
+				$time = time();
+				// 查询最后一次 提现/卖出 的时间和当前时间之间是否存在付款交易
+				$between_count = Db::name('trade_buy') -> where($last_buy_where) -> whereTime('start_time','between',[$last_sell_time,$time]) -> count();
+				if(!$between_count){
+					return ['code' => 0,'msg' => '请先交易!'];
+				}else{
+					$last_buy_where['buy_status'] = array('neq',1);	// 交易状态 1未付款 2已付款 3未确认 4已完成
+					$between_count_pay = Db::name('trade_buy') -> where($last_buy_where) -> whereTime('start_time','between',[$last_sell_time,$time]) -> count();
+					if(!$between_count_pay){
+						return ['code' => 0,'msg' => '请先支付您最近一次的预付款!'];
+					}
+				}
+				// 提现数量
+				$in_trade_sell['number'] = $data['number'];
+				break;
+			
+			case 2:	// 动态奖金条件
+				if(!is_int($data['number']/500)){
+					return ['code' => 0,'msg' => '提现须为500的倍数!'];
+				}
+				// 判断用户是否为本月第一次 卖出/提现
+				$beginThismonth = mktime(0,0,0,date('m'),1,date('Y'));				// 获取本月起始时间戳
+				$endThismonth = mktime(23,59,59,date('m'),date('t'),date('Y'));		// 获取本月结束时间戳
+				$sell_where['uid'] = $data['uid'];
+				$sell_where['bonus_type'] = $data['bonus_type'];
+				$have_withdraw = Db::name('trade_sell') -> where($sell_where) -> whereTime('start_time','between',[$beginThismonth,$endThismonth]) -> count();
+				if($have_withdraw > 1){
+					return ['code' => 0,'msg' => '动态奖金一个月只能提现一次!'];
+				}
+				// 判断是否超出可提现数值
+				$buy_where['uid'] = $data['uid'];
+				$buy_where['buy_status'] = 4;
+				$all_trade_num = Db::name('trade_buy') -> where($buy_where) -> whereTime('end_time','between',[$beginThismonth,$endThismonth]) -> sum('number');
+				$withdraw_number = $all_trade_num * 2;
+				if($withdraw_number > $data['number']){
+					return ['code' => 0,'msg' => '您已出超本月可提现数量!'];
+				}
+				// 买入次数小于3次时,提现动态奖金的20%转为消费券,大于等于3次时判断用户邀请人数:1人40%,2人30%,3人(和3人以上)20%
+				$trade_sell_count = Db::name('trade_sell') -> where($sell_where) -> count();
+				// 判断实际 提现/卖出 数量和转为消费券数量
+				if($trade_sell_count <= 2){
+					$in_trade_sell['vou_number'] = $data['number'] * 0.2;
+					$in_trade_sell['number'] = $data['number'] - $in_trade_sell['vou_number'];
+				}else{
+					$invitation_num = Db::name('user') -> where('parent_id',$data['uid']) -> count();
+					switch($invitation_num){
+						case 0:
+							$in_trade_sell['vou_number'] = $data['number'] * 0.5;
+							$in_trade_sell['number'] = $data['number'] - $in_trade_sell['vou_number'];
+							break;
+						case 1:
+							$in_trade_sell['vou_number'] = $data['number'] * 0.4;
+							$in_trade_sell['number'] = $data['number'] - $in_trade_sell['vou_number'];
+							break;
+						case 2:
+							$in_trade_sell['vou_number'] = $data['number'] * 0.3;
+							$in_trade_sell['number'] = $data['number'] - $in_trade_sell['vou_number'];
+							break;
+						default:
+							$in_trade_sell['vou_number'] = $data['number'] * 0.2;
+							$in_trade_sell['number'] = $data['number'] - $in_trade_sell['vou_number'];
+					}
+				}
+				break;
+			
+			case 3:	// 福利奖金条件
+				if(!is_int($data['number']/500)){
+					return ['code' => 0,'msg' => '提现须为500的倍数!'];
+				}
+				$in_trade_sell['vou_number'] = $data['number'] * 0.2;
+				$in_trade_sell['number'] = $data['number'] - $in_trade_sell['vou_number'];
+				break;
 		}
 		
-		
-		/*
-		$data['service_charge'] = $data['cur_num'] - $data['service_charge'];
-		$data['cur_num'] = '-'.$data['cur_num'];
-		$data['cur_id'] = 1;
-		$data['status'] = 1;
-		$data['method_type'] = 2;
-		$data['recharge_status'] = 1;
-		$data['create_time'] = time();
-		unset($data['payment_password']);
-		$withdraw_id = Db::name('method') -> insertGetId($data);
-		$data = Db::name('method') -> where('id',$withdraw_id) -> field('id,wallet_adress,cur_num,recharge_status,create_time') -> find();
-		// 日期
-		$data['create_date'] = date('Y-m-d H:i:s',$data['create_time']);
-		// 提现状态
-		$dict_where['type'] = 'identity_status';
-		$dict_where['value'] = $data['recharge_status'];
-		$data['recharge_status_text'] = Db::name('dict') -> where($dict_where) -> value('key');
-		// 实际到账
-		if($data['recharge_status'] === 2){
-			$data['actual'] = trim($data['recharge_status'],'-') - $data['service_charge'];
-		}else{
-			$data['actual'] = 0;
+		// 执行 提现/卖出
+		Db::startTrans();
+		$condition = 0;
+		try{
+			// 插入 用户卖出交易表 
+			Db::name('trade_sell') -> insert($in_trade_sell);
+			// 减去用户账户中相应的奖金
+			Db::name('user_bouns') -> where($user_bouns_where) -> setDec('bouns_number',$data['number']);
+			// 增加用户账户中相应的冻结奖金
+			Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$data['number']);
+			
+			$condition = 1;
+			Db::commit();
+		}catch(\exception $e){
+			Db::rollback();
 		}
 		
-		if($data){
-			return ['code' => 1,'msg' => '申请提现成功!','en_msg' => 'Apply for withdrawal!','data' => $data];
+		if($condition === 1){
+			return ['code' => 1,'msg' => '卖出成功!'];
 		}else{
-			return ['code' => 0,'msg' => '申请提现失败!','en_msg' => 'Application withdrawal failed!'];
+			return ['code' => 0,'msg' => '卖出失败!'];
 		}
-		*/
+		
+	}
+	
+	/**
+	 * model 查询提现记录条数
+	 */
+	public function withdrawCount($uid){
+		// 查询用户提现记录条数
+		$count = Db::name('trade_sell') -> where('uid',$uid) -> count();
+		return $count;
+	}
+	
+	/**
+	 * model 提现列表分页(layui分页)
+	 */
+	public function withdrawList($data){
+		if($data['page']){
+			$page_start = $data['page'] * 8 - 8;
+		}else{
+			$page_start = 0;
+		}
+		$page_end = 8;
+		$sell = Db::name('trade_sell') -> where('uid',$data['uid']) -> order('id DESC') -> limit($page_start,$page_end) -> select();
+		foreach($sell as $k => $v){
+			// 创建时间
+			$sell[$k]['start_date'] = date('Y-m-d H:i:s',$v['start_time']);
+			// 奖金类型
+			$dict_where['type'] = 'bouns_type';
+			$dict_where['value'] = $v['bonus_type'];
+			$dict_where['state'] = 1;
+			$sell[$k]['bouns_type_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+			// 交易状态
+			$dict_where['type'] = 'trade_status';
+			$dict_where['value'] = $v['sell_status'];
+			$sell[$k]['sell_status_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+		}
+		if($sell){
+			return ['code' => 1,'sell' => $sell];
+		}else{
+			return ['code' => 0];
+		}
 	}
 	
 	/**
@@ -519,6 +695,42 @@ class User extends Base
 			}
 		}
 		return $voucher;
+	}
+	
+	/**
+	 * model 查询转账记录条数
+	 */
+	public function transferCount($uid){
+		// 查询用户提现记录条数
+		$count = Db::name('transfer') -> where('uid',$uid) -> count();
+		return $count;
+	}
+	
+	/**
+	 * model 转账列表分页(layui分页)
+	 */
+	public function transferList($data){
+		if($data['page']){
+			$page_start = $data['page'] * 8 - 8;
+		}else{
+			$page_start = 0;
+		}
+		$page_end = 8;
+		$transfer = Db::name('transfer') -> where('uid',$data['uid']) -> order('create_time DESC') -> limit($page_start,$page_end) -> select();
+		foreach($transfer as $k => $v){
+			// 创建时间
+			$transfer[$k]['create_date'] = date('Y-m-d H:i:s',$v['create_time']);
+			// 券类型
+			$transfer[$k]['vou_name'] = Db::name('voucher') -> where('id',$v['vid']) -> value('name');
+			// 目标用户名
+			$transfer[$k]['target_user_account'] = Db::name('user') -> where('id',$v['target_id']) -> value('account');
+			
+		}
+		if($transfer){
+			return ['code' => 1,'transfer' => $transfer];
+		}else{
+			return ['code' => 0];
+		}
 	}
 	
 	/**
@@ -559,6 +771,14 @@ class User extends Base
 			// 为目标用户账户添加相应的数量
 			$vou_where['uid'] = $exist['id'];
 			Db::name('user_vou') -> where($vou_where) -> setInc('number',$data['number']);
+			
+			// 在转账记录中添加数据
+			$in_transfer['uid'] = $data['uid'];
+			$in_transfer['target_id'] = $exist['id'];
+			$in_transfer['vid'] = $data['vid'];
+			$in_transfer['number'] = $data['number'];
+			$in_transfer['create_time'] = time();
+			Db::name('transfer') -> insert($in_transfer);
 			
 			Db::commit();
 			$condition = 1;
@@ -714,11 +934,11 @@ class User extends Base
 			switch($v['default']){
 				case 1:
 					$list[$k]['default_class'] = 'default';
-					$list[$k]['default_text'] = '设置为默认卡';
+					$list[$k]['default_text'] = '设置为默认地址';
 					break;
 				default:
 					$list[$k]['default_class'] = 'default_btn';
-					$list[$k]['default_text'] = '默认银行卡';
+					$list[$k]['default_text'] = '默认地址';
 			}
 		}
 		return $list;

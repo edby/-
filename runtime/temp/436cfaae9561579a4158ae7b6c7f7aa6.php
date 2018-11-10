@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1541561277;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541157962;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1541733186;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,9 +22,13 @@
         </div>
         <ul class="top_nav_r clearfix">
             <?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $i = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-				<li>
-					<a href="/<?php echo $vo['name']; ?>"><?php echo $vo['title']; ?></a>
-				</li>
+            <li>
+                <?php if(($key == 2) OR ($key == 3)): ?>
+                <a onclick="javascript:layer.alert('功能待开发',{time:2000,title:'温馨提示'})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
+                <?php else: ?>
+                <a href="/<?php echo $vo['name']; ?>" ><?php echo $vo['title']; ?></a>
+                <?php endif; ?>
+            </li>
 			<?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
 		<?php if(empty($account) || (($account instanceof \think\Collection || $account instanceof \think\Paginator ) && $account->isEmpty())): ?>
@@ -40,7 +44,7 @@
 	            <span>ZC</span>
 	            <?php echo $account; ?>
 	            <div class="accout_menu">
-	                <p><a href="<?php echo url('userCenter'); ?>">会员中心</a></p>
+	                <p><a href="<?php echo url('User/wallet'); ?>">会员中心</a></p>
 	                <p><a href="<?php echo url('Publics/logout'); ?>">退出登录</a></p>
 	            </div>
 	        </div>
@@ -51,10 +55,10 @@
 <div class="store_nav">
     <div class="store_nav_box">
         <ul class="store_nav_r">
-            <li><a href="store.html">商城首页</a></li>
-            <li><a href="allSale.html">全部分类</a></li>
+            <li><a href="/index/goods/index">商城首页</a></li>
+            <li><a href="/index/goods/classify">全部分类</a></li>
             <li><a href="activate.html">激活券</a></li>
-            <li><a href="discounts.html">优惠专区</a></li>
+            <li><a href="/index/goods/preferential">优惠专区</a></li>
             <li><a href="feature.html">特色专区</a></li>
         </ul>
         <div>
@@ -268,6 +272,7 @@
 			{
 			    var return_code = ["-2","-1","1"];
 			    r = JSON.parse(r);
+			    // console.log(r);return false;
 			    if(!return_code.indexOf(r['code'])){
 			        layer.confirm("返回数据错误！！",function (index) {
                         window.reload();

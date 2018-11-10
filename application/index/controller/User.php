@@ -9,6 +9,27 @@ use think\Session;
 class User extends Base
 {
 	
+    /**
+     * controller 去帮新会员注册
+     */
+    public function userreg()
+    {
+        if (Request::instance()->isPost()) {
+            return json(model('User') -> userReg(input('post.')));
+        }
+        // 获取用户ID
+		$uid = is_login($uid);
+		$this -> assign('user',model('User') -> userInfo($uid));
+        return $this -> fetch();
+    }
+	
+	/**
+	 * controller 注册获取手机验证码
+	 */
+	public function get_verify($account){
+		return json(model('User') -> getVerify(input('post.')));
+	}
+	
 	/**
 	 * controller 个人中心
 	 */
@@ -24,7 +45,7 @@ class User extends Base
 	}
 	
 	/**
-	 * controller 完善/个性个人信息
+	 * controller 完善/修改个人信息
 	 */
 	public function editUser(){
 		if(Request::instance() -> isPost()){
@@ -78,6 +99,7 @@ class User extends Base
 		$this -> assign('user',model('User') -> userInfo($uid));
 		$this -> assign('list',model('User') -> withdraw($uid));
 		$this -> assign('page',model('User') -> withdrawRule());
+		$this -> assign('count',model('User') -> withdrawCount($uid));
 		return $this -> fetch();
 	}
 	
@@ -91,6 +113,15 @@ class User extends Base
 	}
 	
 	/**
+     * controller 提现列表分页 (layui分页)
+     */
+    public function withdraw_list(){
+    	if(Request::instance() -> isPost()){
+    		return json(model('User') -> withdrawList(input('post.')));
+    	}
+    }
+	
+	/**
 	 * controller 转账
 	 */
 	public function transfer(){
@@ -101,8 +132,18 @@ class User extends Base
 		$uid = is_login($uid);
 		$this -> assign('user',model('User') -> userInfo($uid));
 		$this -> assign('voucher',model('User') -> getVou());
+		$this -> assign('count',model('User') -> transferCount($uid));
 		return $this -> fetch();
 	}
+	
+	/**
+     * controller 转账列表分页 (layui分页)
+     */
+    public function transfer_list(){
+    	if(Request::instance() -> isPost()){
+    		return json(model('User') -> transferList(input('post.')));
+    	}
+    }
 	
 	/**
 	 * controller 银行卡
@@ -212,7 +253,7 @@ class User extends Base
 		// 获取用户ID
 		$uid = is_login($uid);
 		$this -> assign('user',model('User') -> userInfo($uid));
-		$this -> assign('promotion',Db::name('user') -> where('parent_id',$uid) -> field('id,real_name,tel') -> select());
+		$this -> assign('promotion',Db::name('user') -> where('parent_id',$uid) -> field('id,account,real_name,tel') -> select());
 		return $this -> fetch();
 	}
 	

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\change.html";i:1541125727;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541125160;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541122096;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\change.html";i:1541125727;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="/static/ace/css/bootstrap.css" />
     <link rel="stylesheet" href="/static/ace/css/store.css" />
     <link rel="stylesheet" href="/static/ace/css/item.css" />
+    <link rel="stylesheet" href="/static/ace/css/clear.css" />
+    <link rel="stylesheet" href="/static/ace/css/shopCart.css" />
+    <link rel="stylesheet" href="/static/ace/css/userCenter.css">
 </head>
 <body>
 <!--头部-->
@@ -18,29 +21,44 @@
             <img src="/static/ace/img/logo_zc.png"/>
         </div>
         <ul class="top_nav_r clearfix">
-            <li><a href="#">首页</a></li>
-            <li><a href="#">众成商城</a></li>
-            <li><a href="#">交易中心</a></li>
-            <li><a href="#">中心矿机</a></li>
+            <?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $i = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+            <li>
+                <?php if(($key == 2) OR ($key == 3)): ?>
+                <a onclick="javascript:layer.alert('功能待开发',{time:2000,title:'温馨提示'})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
+                <?php else: ?>
+                <a href="/<?php echo $vo['name']; ?>" ><?php echo $vo['title']; ?></a>
+                <?php endif; ?>
+            </li>
+			<?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
-        <div class="accout">
-            <span>ZC</span>
-            张三
-            <div class="accout_menu">
-                <p><a href="#">会员中心</a></p>
-                <p><a href="#">退出登录</a></p>
-            </div>
-        </div>
+		<?php if(empty($account) || (($account instanceof \think\Collection || $account instanceof \think\Paginator ) && $account->isEmpty())): ?>
+	        <div class="accout">
+	            <span>ZC</span>
+				<div class="accout_menu">
+	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
+	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
+	            </div>
+	        </div>
+	    <?php else: ?>
+	    	<div class="accout">
+	            <span>ZC</span>
+	            <?php echo $account; ?>
+	            <div class="accout_menu">
+	                <p><a href="<?php echo url('User/wallet'); ?>">会员中心</a></p>
+	                <p><a href="<?php echo url('Publics/logout'); ?>">退出登录</a></p>
+	            </div>
+	        </div>
+	    <?php endif; ?>
     </div>
 </div>
 <!--商城导航栏-->
 <div class="store_nav">
     <div class="store_nav_box">
         <ul class="store_nav_r">
-            <li><a href="store.html">商城首页</a></li>
-            <li><a href="allSale.html">全部分类</a></li>
+            <li><a href="/index/goods/index">商城首页</a></li>
+            <li><a href="/index/goods/classify">全部分类</a></li>
             <li><a href="activate.html">激活券</a></li>
-            <li><a href="discounts.html">优惠专区</a></li>
+            <li><a href="/index/goods/preferential">优惠专区</a></li>
             <li><a href="feature.html">特色专区</a></li>
         </ul>
         <div>
@@ -124,7 +142,6 @@
 		<div class="mask"></div>
 	</body>
 	<script>
-		setNav(0);
 		function cls(){
 			$('.coupon,.mask').hide();
 		}

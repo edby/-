@@ -55,7 +55,7 @@
                 </td>
                 <td class="padding_r">
                     <div class="total_price">
-                        <span id="total{$key}">{$order['money']}</span>
+                        <span id="total{$key}" name = "total">{$order['money']}</span>
                         <dd>消费券</dd>
                     </div>
                 </td>
@@ -92,7 +92,7 @@
         <div class="figure_box">
             <span class="figure_total">合计：</span>
             <p>
-                <span class="figure_price">200</span>
+                <span class="figure_price" id = "total_money">-</span>
                 <span>消费券</span>
             </p>
             <span>（包含运费）</span>

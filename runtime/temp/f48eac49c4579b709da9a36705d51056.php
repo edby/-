@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1541335434;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1541335328;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541332290;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1541485334;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1541724664;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541407061;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -46,9 +46,61 @@
 	        });
 		}
 		
+		// 提交完善/修改个人信息
+		function full_detail() {
+		    layer.confirm('确定提交？', {
+		        btn: ['确定','取消'] //按钮
+		    }, function(){
+		        var data = {
+		        	real_name:$('#uName').val(),
+		        	tel:$('#uPhone').val(),
+		        	wechat_accout:$('#weChat').val(),
+		        	alipay_accout:$('#aliPay').val(),
+		        }
+		        
+		        $.ajax({
+		        	type:'post',
+		        	url:'<?php echo url("editUser"); ?>',
+		        	data:data,
+		        	success:function(ret){
+		        		if(ret.code === 0){
+		        			layer.alert(ret.msg);
+		        		}else{
+		        			$('#myModal').modal('hide');
+		        			layer.msg(ret.msg);
+		        		}
+		        	}
+		        });
+		    });
+		}
+		
 		// 帮新会员注册
 		function go_reg() {
-		    window.location.href = '<?php echo url("publics/userreg"); ?>';
+			layer.confirm('帮新会员注册需要使用激活券!',{
+				btn: ['激活会员','稍后再说']
+			},function(){
+				var uid = $('.user_name').attr('data-uid');
+				$.ajax({
+					type:'post',
+					url:'<?php echo url("user_vou"); ?>',
+					data:{uid:uid,vid:4},
+					success:function(ret){
+	        			if(ret.code === 0){
+	        				layer.msg(ret.msg);
+	        			}else{
+	        				if(ret.num <= 0){
+	        					layer.confirm('激活券不足！', {
+						            btn: ['现在购买','稍后再说'] //按钮
+						        }, function(){
+						        	window.location.href = '<?php echo url("goods/activate"); ?>';
+						        });
+	        				}else{
+	        					window.location.href = '<?php echo url("user/userreg"); ?>';
+	        				}
+	        			}
+	        		}
+				});
+			});
 		}
 		
 		// 去购买
@@ -97,7 +149,7 @@
 	            <span>ZC</span>
 	            <?php echo $account; ?>
 	            <div class="accout_menu">
-	                <p><a href="<?php echo url('userCenter'); ?>">会员中心</a></p>
+	                <p><a href="<?php echo url('User/wallet'); ?>">会员中心</a></p>
 	                <p><a href="<?php echo url('Publics/logout'); ?>">退出登录</a></p>
 	            </div>
 	        </div>
@@ -177,13 +229,19 @@
             <span><?php echo $user['alipay_accout']; ?></span>
         </div>
         <div>
-            帐号状态：
+		帐号状态：
             <span class="blue"><?php echo $user['status_text']; ?></span>
         </div>
-        <div class="user_change">
-            <span onclick="user_change()">修改个人信息 >></span>
-            <small>（修改个人信息需要修改码）</small>
+        <div>
+		邀请码：
+            <span class="blue"><?php echo $user['invitation_code']; ?></span>
         </div>
+        <?php if($user['is_set'] == '1'): ?>
+	        <div class="user_change">
+	            <span onclick="user_change()">修改个人信息 >></span>
+	            <small>（修改个人信息需要修改码）</small>
+	        </div>
+        <?php endif; ?>
     </div>
     <div class="go_reg">
         <span onclick="go_reg()">去帮新会员注册 >></span>
@@ -200,7 +258,7 @@
         <li><a href="<?php echo url('address'); ?>">地址管理</a></li>
         <li><a href="<?php echo url('my_promotion'); ?>">我的推广</a></li>
         <li><a href="<?php echo url('about_us'); ?>">关于我们</a></li>
-        <li><a href="#">退出登录</a></li>
+        <li><a href="<?php echo url('Publics/logout'); ?>">退出登录</a></li>
     </ul>
 </div>
 
@@ -269,32 +327,4 @@
 <script>
     vipNav(0)
 </script>
-<script type='text/javascript'>
-// 提交完善个人信息
-function full_detail() {
-    layer.confirm('确定提交？', {
-        btn: ['确定','取消'] //按钮
-    }, function(){
-        var data = {
-        	real_name:$('#uName').val(),
-        	tel:$('#uPhone').val(),
-        	wechat_accout:$('#weChat').val(),
-        	alipay_accout:$('#aliPay').val(),
-        }
-        
-        $.ajax({
-        	type:'post',
-        	url:'<?php echo url("editUser"); ?>',
-        	data:data,
-        	success:function(ret){
-        		if(ret.code === 0){
-        			layer.alert(ret.msg);
-        		}else{
-        			$('#myModal').modal('hide');
-        			layer.msg(ret.msg);
-        		}
-        	}
-        });
-    });
-}
-</script>
+

@@ -1,6 +1,7 @@
 <?php
 namespace app\index\controller;
 
+use app\admin\model\Banner;
 use app\common\controller\Base;
 use app\index\model\GoodsOrder;
 use think\Build;
@@ -12,6 +13,27 @@ use app\index\model\GoodClassify;
 class Goods extends Base
 {
 
+	private $banner;
+
+	/**
+	 *
+	 * 获取轮播图
+	 * Goods constructor.
+	 * @param Request|null $request
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 */
+	public function __construct(Request $request = null)
+	{
+		parent::__construct($request);
+//		获取轮播图
+		$banners = Db::name('banner')->where(['state'=>1])->limit(4)->order(['sort'])->select();
+//		echo Db::name('banner')->getLastSql();
+//		exit;
+//		传递轮播图
+		$this->banner = $banners;
+	}
 
 	/**
 	 *
@@ -32,11 +54,11 @@ class Goods extends Base
 		//获取特色专区商品
 		$feature = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where('area_type = 1')->select();
 		//        传递特色专区
-		$this->assign('feature',$feature);
+		 $this->assign('feature',$feature);
 //		print_r($feature);
-//		exit();
 
-
+//		 传递轮播图
+		 $this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
 	
@@ -64,6 +86,8 @@ class Goods extends Base
 
 			return $this->fetch();
 
+//		 传递轮播图
+		$this->assign('banner',$this->banner);
 
 	}
 
@@ -85,6 +109,8 @@ class Goods extends Base
 		$pages = $goods->render();
 		$this->assign('pages',$pages);
 		$this->assign('goods_detail',$goods);
+		//		 传递轮播图
+		$this->assign('banner',$this->banner);
 
 //		exit();
 
@@ -104,17 +130,25 @@ class Goods extends Base
 		$page = $preferential->render();
 		$this->assign("preferential",$preferential);
 		$this->assign("pre_page",$page);
+		//		 传递轮播图
+		$this->assign('banner',$this->banner);
 		return $this->fetch();
 
 
 	}
 
     /**
-     * 特色专区
+     * 特色专区,搜索商品也跳转此处
      * @return mixed
      * @throws \think\exception\DbException
      */
     public function feature(){
+
+//    	搜索区域
+	if($_GET['search_text']){
+
+	}
+
         $page_size = 8;
 
     //        传递特色专区
@@ -127,26 +161,9 @@ class Goods extends Base
 //            exit;
         return $this -> fetch();
 
-//            if($_POST['types'] == "feature"){
-//                try{
-//                    $feature = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->where('area_type = 2')->select();
-//                    $r = ['code'=>1,'msg'=>'成功','data'=>$feature];
-//                }catch (\Exception $e){
-//                    $r = [
-//                        'code'=>-1,
-//                        'msg'=>$e->getMessage(),
-//                    ];
-//               }
-////               print_r($r);
-////                exit();
-//                return json_encode($r);
-//            }else{
-//                $r = [
-//                    'code'=>-1,
-//                    'msg'=>'获取数据错误！'
-//                ];
-//                return json_encode($r);
-//            }
+
+//		 传递轮播图
+	    $this->assign('banner',$this->banner);
     }
 
 
@@ -176,7 +193,7 @@ class Goods extends Base
 //	    print_r(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->select());
 //    	echo Db::name('sn_goods')->getLastSql();
 //    	exit();
-	    if(sizeof(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->where(['status'=>3])->select())<1){
+	    if(sizeof(Db::table('sn_goods')->where(['id'=>$_POST['gid']])->select())<1){
 	    	$r = [
 	    		'code'=>-1,
 			    'msg'=>'商品信息错误！'
@@ -193,7 +210,7 @@ class Goods extends Base
 	    }
 	    $gid = $_POST['gid'];
 //	    商品信息
-	    $googd_info = Db::table('sn_goods_detail')->where(['gid'=>$gid])->find();
+	    $googd_info = Db::table('sn_goods_detail')->where(['gid'=>$gid])->where(['status'=>3])->find();
 //	    print_r($googd_info);
 //	    exit();
 	    $uid = $_SESSION['think']['uid'];
@@ -339,7 +356,8 @@ class Goods extends Base
 	 * controller 激活券
 	 */
 	public function activate(){
-		
+		//		 传递轮播图
+		$this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
 	
@@ -347,7 +365,8 @@ class Goods extends Base
 	 * controller 修改券
 	 */
 	public function change(){
-		
+		//		 传递轮播图
+		$this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
 	
@@ -355,7 +374,8 @@ class Goods extends Base
 	 * controller 手续费券
 	 */
 	public function tip(){
-		
+		//		 传递轮播图
+		$this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
 	
@@ -363,7 +383,8 @@ class Goods extends Base
 	 * controller 入驻券
 	 */
 	public function enter(){
-		
+		//		 传递轮播图
+		$this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
 
@@ -391,5 +412,42 @@ class Goods extends Base
 		$this->assign('user_info',$user_info);
 		$this->assign('user_order',$user_order);
 		return $this -> fetch();
+	}
+
+	/**
+	 * 删除订单，仅限于未支付
+	 * @return false|string
+	 */
+	public function delete_ord()
+	{
+		if(!$_POST){
+			$r = [
+				'code'=>-1,
+				'msg'=>'数据传递错误！'
+			];
+			return json_encode($r);
+		}
+		$r = [
+			'code'=>1,
+			'msg'=>$_POST
+		];
+//		开启事务
+		Db::startTrans();
+		try{
+			Db::name('goods_order')->where(['order_number'=>$_POST['ord_id']])->delete();
+			Db::commit();
+				$r = [
+					'code'=>1,
+					'msg'=>'删除成功'
+				];
+		}catch (\Exception $e){
+			$r = [
+				'code'=>-1,
+				'msg'=>'删除失败'
+			];
+//			回滚
+			Db::rollback();
+		}
+		return json_encode($r);
 	}
 }

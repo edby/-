@@ -1,5 +1,8 @@
 {include file='common/userTop'}
 <link rel="stylesheet" href="__CSS__/fetch.css" />
+<style type='text/css'>
+.no_data {height:50px;line-height:50px;font-family:"微软雅黑";font-size:16px;color:purple;text-align:center;border:1px solid gainsboro;}
+</style>
 <!--内容-->
 <main class="main">
     <div class="main_box">
@@ -41,7 +44,7 @@
 	                            </p>
 	                            <input id='number_{$vo.id}' type="number" name='bouns_number' placeholder="请输入您的提现金额" />
 	                        </div>
-	                        <div class="fetch_acc">
+	                        <!--<div class="fetch_acc">
 	                            <p>
 	                                <span>提现账户：</span>
 	                            </p>
@@ -56,12 +59,35 @@
 	                                    <span>{$vo.bank.bank_branch}</span>
 	                                </p>
 	                            </div>
-	                        </div>
-	                        <button type="button" onclick="withdraw({$vo.id})">确定{$vo.id}</button>
+	                        </div>-->
+	                        <button type="button" onclick="withdraw({$vo.bouns_type})">确定</button>
 	                    </div>
                     {/volist}
                 </div>
                 
+                <!--提现记录-->
+                <div class="fund_record">
+                    <p>提现记录：</p>
+                    <form class="record">
+                        <table style='text-align:center;'>
+                            <thead>
+	                            <tr>
+	                                <th width='30%' style='text-align:center;'>创建时间</th>
+	                                <th width='10%' style='text-align:center;'>奖金种类</th>
+	                                <th width='20%' style='text-align:center;'>金额</th>
+	                                <th width='20%' style='text-align:center;'>转化为消费券</th>
+	                                <th width='20%' style='text-align:center;'>审核状态</th>
+	                            </tr>
+                            </thead>
+                            <tbody id='withdraw_list' data-count='{$count}'>
+	                            
+                            </tbody>
+                        </table>
+                    </form>
+                    <ul id='withdraw_page' class="page" style='width:auto;'>
+                        
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -84,6 +110,9 @@
 </div>
 
 {include file='common/bottom'}
+<link rel="stylesheet" href="__LAYUI__/css/layui.css" media="all" />
+<script type='text/javascript' src="__LAYUI__/layui.js"></script>
+<script type='text/javascript' src="__JS__/layer/layer.js"></script>
 <script>
     vipNav(2)
 </script>
@@ -93,26 +122,84 @@ $('input[type=number]').on('input',function(){
 	$(this).val($(this).val().match(/\d+\.?\d{0,2}/));
 });
 
+// 获取用户ID
+var uid = $('.user_name').attr('data-uid');
+
 // 执行提现
 function withdraw(id){
+	layer.confirm('确定要提现吗?',{
+		btn: ['确定','关闭']
+	},function(){
+		var data = {
+			uid:uid,
+			bonus_type:id,
+			number:$('#number_'+id).val(),
+		}
+		$.ajax({
+			type:'post',
+			url:'{:url("do_withdraw")}',
+			data:data,
+			success:function(ret){
+				if(ret.code === 0){
+					layer.alert(ret.msg);
+				}else{
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = self.location.href;
+					});
+				}
+			}
+		});
+	});
+}
+
+// 提现分页功能
+var page;
+$(document).ready(function(){
+	// 读取提现分页
+	withdraw_list();
+	layui.use('laypage', function(){
+	  var logpage = layui.laypage;
+	  // 执行一个laypage实例
+	  logpage.render({
+	    elem: 'withdraw_page', 	// 注意，这里的 msg_page 是 ID，不用加 # 号
+	    count: $('#withdraw_list').attr('data-count'), 			// 数据总数，从服务端得到
+	    curr: page,
+		limit: 8,
+	    layout: ['count','prev','page','next','refresh', 'skip'],
+	    jump: function(obj,first){
+	      page = obj.curr;
+	      if(!first){
+	      	withdraw_list(page);
+	      }
+	    }
+	  });
+	});
+});
+// 调用提现分页
+function withdraw_list(page){
 	var data = {
-		uid:$('.user_name').attr('data-uid'),
-		type:id,
-		bonus_number:$('#number_'+id).val(),
-		user_card_id:$('.bank_card').attr('data-card-id'),
+		uid:uid,
+		page:page,
 	}
+	var sell_html = '';
 	$.ajax({
 		type:'post',
-		url:'{:url("do_withdraw")}',
+		async:false, 
+		url:'{:url("withdraw_list")}',
 		data:data,
 		success:function(ret){
 			if(ret.code === 0){
-				layer.alert(ret.msg);
+				sell_html = '<tr class="no_data"><td colspan="5">暂无数据</td></tr>';
 			}else{
-				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
-					location.href = self.location.href;
-				});
+				$.each(ret.sell,function(k,v){
+					sell_html += '<tr><td>'+v.start_date+'</td>';
+	                sell_html += '<td>'+v.bouns_type_text+'</td>';
+	                sell_html += '<td>'+v.number+'</td>';
+	                sell_html += '<td>'+v.vou_number+'</td>';
+	                sell_html += '<td>'+v.sell_status_text+'</td></tr>';
+				})
 			}
+			$('#withdraw_list').html(sell_html);
 		}
 	});
 }
