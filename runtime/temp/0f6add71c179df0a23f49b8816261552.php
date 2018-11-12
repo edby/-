@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:69:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\index.html";i:1540965999;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\method\record.html";i:1540186961;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -43,10 +43,8 @@ select{
 .main-container .table tr td a{
   margin-right:10px;
 }
-.t_img {text-align:center;}
-.t_img img {width:200px;height:56px;}
-.state_red {float:right;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:red;cursor:pointer;box-shadow:#006666 1px 1px 2px;}
-.state_green {float:left;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:green;cursor:pointer;box-shadow:#18A665 1px 1px 2px;}
+.record_red {width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:red;box-shadow:#006666 1px 1px 2px;}
+.record_green {width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:green;box-shadow:#18A665 1px 1px 2px;}
 </style>
 </head>
 <body class="no-skin">
@@ -110,43 +108,71 @@ select{
     <div class="main-content-inner">
       <div class="breadcrumbs" id="breadcrumbs">
         <ul class="breadcrumb">
-          <li> <i class="ace-icon fa fa-home home-icon"></i> <a href="<?php echo url('Index/index'); ?>"><?php echo config('WEB_SITE_NAME'); ?></a> </li>
-          <li class="active">商品分类</li>
+          <li> <i class="ace-icon fa fa-home home-icon"></i> <a href="<?php echo url('Index/record'); ?>"><?php echo config('WEB_SITE_NAME'); ?></a> </li>
+          <li> <a href="<?php echo url('record'); ?>">交易记录管理</a> </li>
+          <li class="active"><?php echo $pagename; ?></li>
         </ul>
       </div>
       <div class="page-content">
         <div class="page-header">
-          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 共有<?php echo $list['count']; ?>种分类 </small></h1>
+          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出<?php echo $record['count']; ?>条数据 </small> </h1>
         </div>
         <!-- /.page-header -->
         <div class="row">
           <div class="col-xs-12"> 
             <!-- PAGE CONTENT BEGINS -->
             <div class="row">
-              
               <div class="col-xs-12" style="margin-bottom:10px;">
-                <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add'); ?>" >添加分类</a>
+                <form action="<?php echo url('record'); ?>" method="get" class="form-inline" role="form">
+                  <div class="form-group">
+                    <label>关键词</label>
+                    <input name="keywords" type="text" class="form-control search" placeholder="用户账户" />
+                  </div>&nbsp;&nbsp;
+                  <div class="form-group">
+                  	<label>交易类型</label>
+                    <select name="record_type" class="form-control" <!--onchange='look_type(this)'-->>
+                    	<option value="">全部</option>
+                      <?php if(is_array($record_type) || $record_type instanceof \think\Collection || $record_type instanceof \think\Paginator): $i = 0; $__LIST__ = $record_type;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+                        <option value="<?php echo $vo['value']; ?>" <?php if($get_record_type == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
+                      <?php endforeach; endif; else: echo "" ;endif; ?>
+                    </select>
+                 	</div>&nbsp;&nbsp;
+                  <button type="submit" class="btn btn-sm btn-primary">查询</button>
+                  <button type="reset" class="btn btn-sm btn-danger hidden-xs" style="float:right;margin-right:10px;">清空查询条件</button>
+                </form>
               </div>
-              
               <div class="col-xs-12">
-                <table class="table table-striped table-bordered table-hover">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
                   <thead>
                     <tr>
-                      <th>序号</th>
-                      <th>分类名</th>
-                      <th>添加日期</th>
+                      <th class="center">交易ID</th>
+                      <th>用户账户</th>
+                      <th>交易人账户</th>
+                      <th>虚拟币名称</th>
+                      <th>交易数量</th>
+                      <th>手续费</th>
+                      <th>备注信息</th>
+                      <th>钱包地址</th>
+                      <th>交易时间</th>
+                      <th>交易类型</th>
                       <th>操作</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(is_array($class) || $class instanceof \think\Collection || $class instanceof \think\Paginator): $k = 0; $__LIST__ = $class;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
+                    <?php if(is_array($record['list']) || $record['list'] instanceof \think\Collection || $record['list'] instanceof \think\Paginator): $k = 0; $__LIST__ = $record['list'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
                       <tr>
-                        <td> <?php echo $k; ?></td>
-                        <td> <?php echo $vo['name']; ?></td>
-                        <td> <?php echo $vo['create_time']; ?> </td>
-                        <td>
-                        	<a class="btn btn-sm btn-success" href="<?php echo url('edit',array('id'=>$vo['id'])); ?>" >修改</a>
-                          <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteClass(this,<?php echo $vo['id']; ?>)">删除</a>
+                       <td class="center"><?php echo $vo['id']; ?></td>
+                       <td><?php echo $vo['user_name']; ?></td>
+                       <td><?php echo $vo['trader_name']; ?></td>
+                       <td><?php echo $vo['cur_name']; ?></td>
+                       <td><?php echo $vo['cur_num']; ?></td>
+                       <td><?php echo $vo['service_charge']; ?></td>
+                       <td><?php echo $vo['remarks']; ?></td>
+                       <td><?php echo $vo['wallet']; ?></td>
+                       <td><?php echo $vo['create_date']; ?></td>
+                       <td><div class='<?php echo $vo['record_button']; ?>'><?php echo $vo['record_type_text']; ?></div></td>
+                       <td>
+                          <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteInfo(this,<?php echo $vo['id']; ?>)">删除</a>
                         </td>
                       </tr>
                     <?php endforeach; endif; else: echo "" ;endif; ?>
@@ -154,11 +180,10 @@ select{
                 </table>
                 <div style="width:100%;margin: 0 auto; text-align:center;">
                   <ul class="pagination" >
-                    <?php echo $list['page']; ?>
+                    <?php echo $record['page']; ?>
                   </ul>
                 </div>
               </div>
-              
               <!-- /.span --> 
             </div>
             <!-- /.row --> 
@@ -188,25 +213,44 @@ select{
 <script src="/static/ace/js/ace/ace.sidebar.js"></script> 
 <script src="/static/ace/js/layer/layer.js"></script>
 <script type="text/javascript">
-  $('a[href="/Admin/Shop/index"]').parents().filter('li').addClass('open active');
+  $('a[href="/Admin/Method/record"]').parents().filter('li').addClass('open active');
+  <?php if(input('get.keywords')): ?>
+    $('input[name="keywords"]').val('<?php echo $_GET["keywords"]; ?>');
+  <?php endif; if(is_numeric(input('get.record_type'))): ?>
+    $('select[name="record_type"]').val(<?php echo $_GET['state']; ?>);
+  <?php endif; ?>
 </script>
 <script type="text/javascript">
-// 删除轮播图
-function deleteClass(obj,id){
-	layer.confirm('确定要删除吗？<br>该分类所有的信息都将被完全删除，不可恢复！', {
-		btn: ['确定','关闭'] //按钮
-	}, function(){
-		$.post("<?php echo url('delete'); ?>", {id: id}).success(function(data) {
-			if (data.code == 0) {
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
+jQuery(function($) {
+  //清除查询条件
+  $(document).on('click', 'button:reset',function() {
+    location.href = '<?php echo url('record'); ?>';
+  }); 
+});
+
+//// 查看交易类型
+//function look_type(record_type){
+//	var val = $(record_type).val();
+//	var url = '<?php echo url("index"); ?>?get_type=' + val;
+//	window.location.href = url;
+//}
+
+// 删除交易记录
+function deleteInfo(obj,id){
+	layer.confirm('确定要删除吗？<br>该条记录所有的信息都将被完全删除，不可恢复！', {
+		btn:['确定','关闭']
+	},function(){
+		$.post("<?php echo url('record_del'); ?>",{id:id}).success(function(data){
+			if(data.cdoe == 0){
+				layer.msg(data.msg,{icon:data.code,time:1500},function(){
+					location.href = self.location.href;
 				});
 			}else{
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
+				layer.msg(data.msg,{icon:data.code,time:1500},function(){
+					location.href = self.location.href;
 				});
 			}
-		})
+		});
 	});
 }
 </script>

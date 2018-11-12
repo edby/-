@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:69:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\index.html";i:1540965999;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\trade\trade_buy.html";i:1541638908;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1532051872;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -37,16 +37,21 @@ select{
 </style>
 <style type="text/css">
 .search {text-indent:0.5em;}
+
 .main-container .table tr td {
   vertical-align: middle;
 }
 .main-container .table tr td a{
   margin-right:10px;
 }
-.t_img {text-align:center;}
-.t_img img {width:200px;height:56px;}
-.state_red {float:right;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:red;cursor:pointer;box-shadow:#006666 1px 1px 2px;}
-.state_green {float:left;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:green;cursor:pointer;box-shadow:#18A665 1px 1px 2px;}
+
+/* 买入状态开始 */
+.trade_status_link {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:yellowgreen;box-shadow:yellowgreen 1px 1px 2px;}
+.trade_status_active {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:deepskyblue;box-shadow:deepskyblue 1px 1px 2px;}
+.trade_status_visited {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:red;box-shadow:red 1px 1px 2px;}
+.trade_status_hover {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:green;box-shadow:green 1px 1px 2px;}
+/* 买入状态结束 */
+
 </style>
 </head>
 <body class="no-skin">
@@ -96,7 +101,7 @@ select{
         <b class="arrow"></b>
         <ul class="submenu">
           <?php if(is_array($vo['child']) || $vo['child'] instanceof \think\Collection || $vo['child'] instanceof \think\Paginator): $i = 0; $__LIST__ = $vo['child'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$sub): $mod = ($i % 2 );++$i;?>
-            <li <?php if($sub['name'] == $rule): ?>class="active"<?php endif; ?>><a href="<?php echo url('/'.$sub['name']); ?>"><i class="menu-icon fa fa-caret-right"></i> <?php echo $sub['title']; ?> </a><b class="arrow"></b></li>
+          <li <?php if($sub['name'] == $rule): ?>class="active"<?php endif; ?>><a href="<?php echo url('/'.$sub['name']); ?>"><i class="menu-icon fa fa-caret-right"></i> <?php echo $sub['title']; ?> </a><b class="arrow"></b></li>
           <?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
       </li>
@@ -111,42 +116,72 @@ select{
       <div class="breadcrumbs" id="breadcrumbs">
         <ul class="breadcrumb">
           <li> <i class="ace-icon fa fa-home home-icon"></i> <a href="<?php echo url('Index/index'); ?>"><?php echo config('WEB_SITE_NAME'); ?></a> </li>
-          <li class="active">商品分类</li>
+          <li class="active"><?php echo $pagename; ?></li>
         </ul>
       </div>
       <div class="page-content">
         <div class="page-header">
-          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 共有<?php echo $list['count']; ?>种分类 </small></h1>
+          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出<?php echo $data['count']; ?>条数据 </small> </h1>
         </div>
         <!-- /.page-header -->
         <div class="row">
-          <div class="col-xs-12"> 
-            <!-- PAGE CONTENT BEGINS -->
+          <div class="col-xs-12">
+					<!-- PAGE CONTENT BEGINS -->
             <div class="row">
-              
               <div class="col-xs-12" style="margin-bottom:10px;">
-                <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add'); ?>" >添加分类</a>
+                <form action="<?php echo url('trade_buy'); ?>" method="get" class="form-inline" role="form">
+                  
+                  <div class="form-group">
+                    <label>关键词</label>
+                    <input name="keywords" type="text" class="form-control search" placeholder="买入人手机号" />
+                  </div>&nbsp;&nbsp;
+                  
+                  <div class="form-group">
+                  	<label>交易状态</label>
+                    <select name="buy_status" class="form-control" <!--onchange='look_trade_type(this)'-->>
+                    	<option value="">全部</option>
+                      <?php if(is_array($trade_status) || $trade_status instanceof \think\Collection || $trade_status instanceof \think\Paginator): $i = 0; $__LIST__ = $trade_status;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+                        <option value="<?php echo $vo['value']; ?>" <?php if($get_trade_status == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
+                      <?php endforeach; endif; else: echo "" ;endif; ?>
+                    </select>
+                  </div>&nbsp;&nbsp;
+                  
+                  <button type="submit" class="btn btn-sm btn-primary">查询</button>
+                  <button type="reset" class="btn btn-sm btn-danger hidden-xs" style="float:right;margin-right:10px;">清空查询条件</button>
+                </form>
               </div>
-              
               <div class="col-xs-12">
-                <table class="table table-striped table-bordered table-hover">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
                   <thead>
                     <tr>
-                      <th>序号</th>
-                      <th>分类名</th>
-                      <th>添加日期</th>
-                      <th>操作</th>
+                      <th class="center">买入ID</th>
+                      <th>买入人账号</th>
+                      <th>买入数量</th>
+                      <th>买入款类</th>
+                      <th>买入状态</th>
+                      <th>买入开始时间</th>
+                      <th>买入结束时间</th>
+                      <th>关联卖出ID</th>
+                      <th>关联订单ID</th>
+                      <td>操作</td>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(is_array($class) || $class instanceof \think\Collection || $class instanceof \think\Paginator): $k = 0; $__LIST__ = $class;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
+                    <?php if(is_array($data['list']) || $data['list'] instanceof \think\Collection || $data['list'] instanceof \think\Paginator): $k = 0; $__LIST__ = $data['list'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
                       <tr>
-                        <td> <?php echo $k; ?></td>
-                        <td> <?php echo $vo['name']; ?></td>
-                        <td> <?php echo $vo['create_time']; ?> </td>
+                        <td class="center"><?php echo $vo['id']; ?></td>
+                        <td><?php echo $vo['account']; ?></td>
+                        <td><?php echo $vo['number']; ?></td>
+                        <td><?php echo $vo['class_text']; ?></td>
+                        <td><div class='<?php echo $vo['buy_status_button']; ?>'><?php echo $vo['buy_status_text']; ?></div></td>
+                        <td><?php echo $vo['start_date']; ?></td>
+                        <td><?php echo $vo['end_date']; ?></td>
+                        <td><?php if(!(empty($vo['trade_sell_ids']) || (($vo['trade_sell_ids'] instanceof \think\Collection || $vo['trade_sell_ids'] instanceof \think\Paginator ) && $vo['trade_sell_ids']->isEmpty()))): ?><?php echo $vo['trade_sell_ids']; else: ?>-<?php endif; ?></td>
+                        <td><?php if(!(empty($vo['order_id']) || (($vo['order_id'] instanceof \think\Collection || $vo['order_id'] instanceof \think\Paginator ) && $vo['order_id']->isEmpty()))): ?><?php echo $vo['order_id']; else: ?>-<?php endif; ?></td>
                         <td>
-                        	<a class="btn btn-sm btn-success" href="<?php echo url('edit',array('id'=>$vo['id'])); ?>" >修改</a>
-                          <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteClass(this,<?php echo $vo['id']; ?>)">删除</a>
+                        	<?php if($vo['buy_status'] === 1 && $vo['matching'] === 1){ ?>
+                          	<a class="btn btn-sm btn-success" href="<?php echo url('trade_buy_bind'); ?>?trade_buy_id=<?php echo $vo['id']; ?>">去匹配</a>
+                        	<?php } ?>
                         </td>
                       </tr>
                     <?php endforeach; endif; else: echo "" ;endif; ?>
@@ -154,12 +189,11 @@ select{
                 </table>
                 <div style="width:100%;margin: 0 auto; text-align:center;">
                   <ul class="pagination" >
-                    <?php echo $list['page']; ?>
+                    <?php echo $data['page']; ?>
                   </ul>
                 </div>
               </div>
-              
-              <!-- /.span --> 
+              <!-- /.span -->
             </div>
             <!-- /.row --> 
             <!-- PAGE CONTENT ENDS --> 
@@ -188,27 +222,36 @@ select{
 <script src="/static/ace/js/ace/ace.sidebar.js"></script> 
 <script src="/static/ace/js/layer/layer.js"></script>
 <script type="text/javascript">
-  $('a[href="/Admin/Shop/index"]').parents().filter('li').addClass('open active');
+  $('a[href="/Admin/Trade/trade_buy"]').parents().filter('li').addClass('open active');
+  <?php if(input('get.keywords')): ?>
+    $('input[name="keywords"]').val('<?php echo $_GET["keywords"]; ?>');
+  <?php endif; if(is_numeric(input('get.trade_status'))): ?>
+    $('select[name="trade_status"]').val(<?php echo $_GET['trade_status']; ?>);
+  <?php endif; if(is_numeric(input('get.trade_type'))): ?>
+    $('select[name="trade_type"]').val(<?php echo $_GET['trade_type']; ?>);
+  <?php endif; ?>
 </script>
 <script type="text/javascript">
-// 删除轮播图
-function deleteClass(obj,id){
-	layer.confirm('确定要删除吗？<br>该分类所有的信息都将被完全删除，不可恢复！', {
-		btn: ['确定','关闭'] //按钮
-	}, function(){
-		$.post("<?php echo url('delete'); ?>", {id: id}).success(function(data) {
-			if (data.code == 0) {
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
-				});
-			}else{
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
-				});
-			}
-		})
-	});
-}
+jQuery(function($) {
+  //清除查询条件
+  $(document).on('click', 'button:reset',function() {
+    location.href = '<?php echo url('trade_buy'); ?>';
+  }); 
+});
+
+//// 查看挂卖状态
+//function look_trade_status(trade_status){
+//	var val = $(trade_status).val();
+//	var url = '<?php echo url("index"); ?>?get_trade_status=' + val;
+//	window.location.href = url;
+//}
+//
+//// 查看交易类型
+//function look_trade_type(trade_type){
+//	var val = $(trade_type).val();
+//	var url = '<?php echo url("index"); ?>?get_trade_type=' + val;
+//	window.location.href = url;
+//}
 </script>
 </body>
 </html>

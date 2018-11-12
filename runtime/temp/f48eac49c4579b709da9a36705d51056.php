@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1541485334;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1541724664;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1541485334;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1541724664;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -295,33 +295,34 @@
     </div>
 </main>
 
-
 		<!--底部-->
 		<div class="foot">
 			<img src="/static/ace/img/logo_zc.png" class="foot_img" />
 			<div class="foot_b">@2018.zhongchengguoji</div>
 		</div>
+		<?php if($pre_card != null): ?>
 		<!--优惠券-->
 		<div class="coupon">
 			<img src="/static/ace/img/yhq.png" class="yhq"/>
 			<img src="/static/ace/img/close.png" class="cls" onclick="cls()"/>
 		</div>
 		<div class="mask"></div>
-	</body>
+        <?php endif; ?>
+		</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();
 		}
-		var stat = document.cookie.split(";")[0].split("=")[1];
-		setTimeout(function(){
-			document.cookie="sata=0";
-		},1500);
-		console.log(document.cookie)
-		if(stat == 1){
-			$('.coupon,.mask').fadeIn();
-		}else{
-			$('.coupon,.mask').hide();
-		}
+		// var stat = document.cookie.split(";")[0].split("=")[1];
+		// setTimeout(function(){
+		// 	// document.cookie="sata=0";
+		// },1500);
+		// // console.log(document.cookie)
+		// if(stat == 1){
+		// 	$('.coupon,.mask').fadeIn();
+		// }else{
+		// 	$('.coupon,.mask').hide();
+		// }
 	</script>
 </html>
 <script>

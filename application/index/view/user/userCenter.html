@@ -12,384 +12,69 @@
         <span>查看个人信息</span>
     </div>
     <div class="order_form">
-        <ul id="myTab" class="nav nav-tabs">
-            <li class="active">
-                <a href="#all" data-toggle="tab">全部订单</a>
+        <ul class="nav nav-tabs">
+            <li {if condition = "$type eq null"} class="active" {/if}>
+                <a href="my_promotion">全部订单</a>
             </li>
-            <li>
-                <a href="#debt" data-toggle="tab">待付款</a>
+            <li {if condition = "$type eq 1"} class="active" {/if} >
+                <a href="my_promotion?type=1">待付款</a>
             </li>
-            <li>
-                <a href="#wait" data-toggle="tab">待发货</a>
+            <li {if condition = "$type eq 2"} class="active" {/if}>
+                <a href="my_promotion?type=2">待发货</a>
             </li>
-            <li>
-                <a href="#received" data-toggle="tab">已收货</a>
+            <li {if condition = "$type eq 3"} class="active" {/if}>
+                <a href="my_promotion?type=3">已收货</a>
             </li>
-            <li>
-                <a href="#finish" data-toggle="tab">已完成</a>
+            <li {if condition = "$type eq 4"} class="active" {/if}>
+                <a href="my_promotion?type=4">已完成</a>
             </li>
         </ul>
 
-        <div id="myTabContent" class="tab-content">
-
+        <div class="tab-content">
             <!--全部订单-->
             <div class="tab-pane fade in active" id="all">
+            {volist name = "order" id = "o" key = "key"}
                 <div class="indent">
                     <div class="indent_box">
                         <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
+                            <img src="{$o.detail_pic}">
                             <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
+                                <p class="">{$o.name}</p>
                                 <p>
-                                    <span>200</span>
+                                    <span>{$o.money}</span>
                                     <span>消费券</span>
                                 </p>
                                 <p>
                                     数量
-                                    <span>1</span>
+                                    <span>{$o.g_number}</span>
                                 </p>
                                 <p>
                                     时间：
-                                    <span>2018-10-17 17:30:02</span>
+                                    <span>{:date("Y-m-d H:i:s",$o.create_time)}</span>
                                 </p>
                             </div>
                         </div>
                         <div class="indent_center">
                             <p>
                                 订单号：
-                                <span>15484555656</span>
-                            </p>
-                        </div>
-                        <div class="indent_right">
-                            <div>
-                                <input type="button" class="indentBtn_off" onclick="off_indent(this)" value="取消订单">
-                                <span></span>
-                            </div>
-                            <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="立即付款">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="indent">
-                    <div class="indent_box">
-                        <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
-                            <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
-                                <p>
-                                    <span>200</span>
-                                    <span>消费券</span>
-                                </p>
-                                <p>
-                                    数量
-                                    <span>1</span>
-                                </p>
-                                <p>
-                                    时间：
-                                    <span>2018-10-17 17:30:02</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="indent_center">
-                            <p>
-                                订单号：
-                                <span>15484555656</span>
-                            </p>
-                        </div>
-                        <div class="indent_right">
-                            <div>
-                                <span></span>
-                                <p>
-                                    物流号：
-                                    <span>15484555656</span>
-                                </p>
-                            </div>
-                            <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="确认收货">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="indent">
-                    <div class="indent_box">
-                        <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
-                            <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
-                                <p>
-                                    <span>200</span>
-                                    <span>消费券</span>
-                                </p>
-                                <p>
-                                    数量
-                                    <span>1</span>
-                                </p>
-                                <p>
-                                    时间：
-                                    <span>2018-10-17 17:30:02</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="indent_center">
-                            <p>
-                                订单号：
-                                <span>15484555656</span>
+                                <span>{$o.order_number}</span>
                             </p>
                         </div>
                         <div class="indent_right">
                             <div></div>
                             <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="提醒发货">
+                                {switch name = '$o.order_status'}
+                                {case value = '1'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="待支付" disabled>{/case}
+                                {case value = '2'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="待发货" disabled>{/case}
+                                {case value = '3'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已签收" disabled>{/case}
+                                {case value = '4'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled>{/case}
+                                {/switch}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="indent">
-                    <div class="indent_box">
-                        <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
-                            <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
-                                <p>
-                                    <span>200</span>
-                                    <span>消费券</span>
-                                </p>
-                                <p>
-                                    数量
-                                    <span>1</span>
-                                </p>
-                                <p>
-                                    时间：
-                                    <span>2018-10-17 17:30:02</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="indent_center">
-                            <p>
-                                订单号：
-                                <span>15484555656</span>
-                            </p>
-                        </div>
-                        <div class="indent_right">
-                            <div></div>
-                            <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="page">
-                    <li><a href="#"><</a></li>
-                    <li><a href="#" class="red">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">...</a></li>
-                    <li><a href="#">></a></li>
-                </ul>
-            </div>
-
-            <!--待付款-->
-            <div class="tab-pane fade" id="debt">
-                <div class="indent">
-                    <div class="indent_box">
-                        <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
-                            <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
-                                <p>
-                                    <span>200</span>
-                                    <span>消费券</span>
-                                </p>
-                                <p>
-                                    数量
-                                    <span>1</span>
-                                </p>
-                                <p>
-                                    时间：
-                                    <span>2018-10-17 17:30:02</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="indent_center">
-                            <p>
-                                订单号：
-                                <span>15484555656</span>
-                            </p>
-                        </div>
-                        <div class="indent_right">
-                            <div>
-                                <input type="button" class="indentBtn_off" onclick="off_indent(this)" value="取消订单">
-                                <span></span>
-                            </div>
-                            <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="立即付款">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="page">
-                    <li><a href="#"><</a></li>
-                    <li><a href="#" class="red">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">...</a></li>
-                    <li><a href="#">></a></li>
-                </ul>
-            </div>
-
-            <!--待发货-->
-            <div class="tab-pane fade" id="wait">
-                <div class="indent">
-                    <div class="indent_box">
-                        <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
-                            <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
-                                <p>
-                                    <span>200</span>
-                                    <span>消费券</span>
-                                </p>
-                                <p>
-                                    数量
-                                    <span>1</span>
-                                </p>
-                                <p>
-                                    时间：
-                                    <span>2018-10-17 17:30:02</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="indent_center">
-                            <p>
-                                订单号：
-                                <span>15484555656</span>
-                            </p>
-                        </div>
-                        <div class="indent_right">
-                            <div></div>
-                            <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="提醒发货">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="page">
-                    <li><a href="#"><</a></li>
-                    <li><a href="#" class="red">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">...</a></li>
-                    <li><a href="#">></a></li>
-                </ul>
-            </div>
-
-            <!--已收货-->
-            <div class="tab-pane fade" id="received">
-                <div class="indent">
-                    <div class="indent_box">
-                        <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
-                            <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
-                                <p>
-                                    <span>200</span>
-                                    <span>消费券</span>
-                                </p>
-                                <p>
-                                    数量
-                                    <span>1</span>
-                                </p>
-                                <p>
-                                    时间：
-                                    <span>2018-10-17 17:30:02</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="indent_center">
-                            <p>
-                                订单号：
-                                <span>15484555656</span>
-                            </p>
-                        </div>
-                        <div class="indent_right">
-                            <div>
-                                <span></span>
-                                <p>
-                                    物流号：
-                                    <span>15484555656</span>
-                                </p>
-                            </div>
-                            <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="确认收货">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="page">
-                    <li><a href="#"><</a></li>
-                    <li><a href="#" class="red">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">...</a></li>
-                    <li><a href="#">></a></li>
-                </ul>
-            </div>
-
-            <!--已完成-->
-            <div class="tab-pane fade" id="finish">
-                <div class="indent">
-                    <div class="indent_box">
-                        <div class="indent_left">
-                            <img src="__IMG__/show1.jpg">
-                            <div class="indent_detail">
-                                <p class="">法国梧桐Realmadrid红酒</p>
-                                <p>
-                                    <span>200</span>
-                                    <span>消费券</span>
-                                </p>
-                                <p>
-                                    数量
-                                    <span>1</span>
-                                </p>
-                                <p>
-                                    时间：
-                                    <span>2018-10-17 17:30:02</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="indent_center">
-                            <p>
-                                订单号：
-                                <span>15484555656</span>
-                            </p>
-                        </div>
-                        <div class="indent_right">
-                            <div></div>
-                            <div>
-                                <input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="page">
-                    <li><a href="#"><</a></li>
-                    <li><a href="#" class="red">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">...</a></li>
-                    <li><a href="#">></a></li>
-                </ul>
+             {/volist}
+                <center>{$page}</center>
             </div>
         </div>
     </div>

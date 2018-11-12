@@ -86,7 +86,7 @@
 							</div>
 						</div>
 						<div class="col-md-2" style="position: relative;">
-							<input accept="image/*" type="file" name="file" class="filed" id='upload_pay_{$vo.id}'>
+							<input accept="image/*" name="file" class="filed" {eq name='$vo.sell_status' valuie='1'}id='upload_pay_{$vo.id}'{else/}style='cursor:default;'{/eq}>
 							<img src="{$vo.pay.pay_pic}" class="upload_btn" id='view_pay_{$vo.id}' />
 						</div>
 						<div class="col-md-2"><button style='background: gray;'>已提交</button></div>

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1541811816;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1541729990;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541757369;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1541985522;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1542013344;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -217,6 +217,7 @@
 				<tr>
 					<th>订单号</th>
 					<th>类型</th>
+					<th>款类</th>
 					<th>金额</th>
 					<th>创建时间</th>
 					<th>状态</th>
@@ -319,33 +320,34 @@
 <script type="text/javascript" src="/static/ace/js/common.js"></script>
 <script type="text/javascript" src="/static/ace/js/store.js"></script>
 <script type='text/javascript' src="/static/layui/layui.js"></script>
-
 		<!--底部-->
 		<div class="foot">
 			<img src="/static/ace/img/logo_zc.png" class="foot_img" />
 			<div class="foot_b">@2018.zhongchengguoji</div>
 		</div>
+		<?php if($pre_card != null): ?>
 		<!--优惠券-->
 		<div class="coupon">
 			<img src="/static/ace/img/yhq.png" class="yhq"/>
 			<img src="/static/ace/img/close.png" class="cls" onclick="cls()"/>
 		</div>
 		<div class="mask"></div>
-	</body>
+        <?php endif; ?>
+		</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();
 		}
-		var stat = document.cookie.split(";")[0].split("=")[1];
-		setTimeout(function(){
-			document.cookie="sata=0";
-		},1500);
-		console.log(document.cookie)
-		if(stat == 1){
-			$('.coupon,.mask').fadeIn();
-		}else{
-			$('.coupon,.mask').hide();
-		}
+		// var stat = document.cookie.split(";")[0].split("=")[1];
+		// setTimeout(function(){
+		// 	// document.cookie="sata=0";
+		// },1500);
+		// // console.log(document.cookie)
+		// if(stat == 1){
+		// 	$('.coupon,.mask').fadeIn();
+		// }else{
+		// 	$('.coupon,.mask').hide();
+		// }
 	</script>
 </html>
 
@@ -590,21 +592,42 @@ function order_list(page){
 		data:data,
 		success:function(ret){
 			if(ret.code === 0){
-				order_html = '<tr class="no_data"><td colspan="7">暂无数据</td></tr>';
+				order_html = '<tr class="no_data"><td colspan="8">暂无数据</td></tr>';
 			}else{
 				$.each(ret.order,function(k,v){
 					order_html += '<tr><td>'+v.order+'</td>';
 					order_html += '<td class="'+v.trade_type_class+'" style="cursor:default">'+v.trade_type_text+'</td>';
+					order_html += '<td class="'+v.trade_type_class+'">'+v.class_text+'</td>';
 					order_html += '<td>'+v.order_number+'</td>';
 					order_html += '<td>'+v.create_date+'</td>';
 					order_html += '<td class="cor_red">'+v.order_status_text+'</td>';
 					order_html += '<td>'+v.deadline+'</td>';
-					order_html += '<td class="'+v.trade_type_class+'" style="cursor:pointer">详情</td></tr>';
+					if(!v.class || v.class === 1){
+						order_html += '<td class="'+v.trade_type_class+'" style="cursor:pointer" onclick="trade_page('+v.trade_type+','+v.id+')">详情</td></tr>';
+					}else{
+						if(v.open_click){
+							order_html += '<td class="'+v.trade_type_class+'" style="cursor:pointer" onclick="trade_page('+v.trade_type+','+v.id+')">'+v.detail_text+'</td></tr>';
+						}else{
+							order_html += '<td class="'+v.trade_type_class+'">'+v.detail_text+'</td></tr>';
+						}
+					}
 				})
 			}
 			$('#order_list').html(order_html);
 		}
 	});
+}
+
+// 查看跳转进行中的详情
+function trade_page(trade_type,id){
+	switch(trade_type){
+		case 1:
+			location.href = '<?php echo url("sell_det"); ?>?id='+id;
+			break;
+		case 2:
+			location.href = '<?php echo url("buy_det"); ?>?id='+id;
+			break;
+	}
 }
 
 </script>

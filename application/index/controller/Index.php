@@ -158,6 +158,7 @@ class Index extends Base
     	$three_day = $endToday - 60*60*24*3;	// 三天
     	$four_day = $endToday - 60*60*24*4;		// 四天
     	$five_day = $endToday - 60*60*24*5;		// 五天
+    	$ten_day = $endToday - 60*60*24*10;		// 十天
     	
     	// 获取设置天数用户ID
     	$users_where['status'] = 1;
@@ -215,6 +216,15 @@ class Index extends Base
     				}
     				break;
     				
+    			default:
+    				// 查询用户十天内是否有交易
+    				$have_trade = Db::name('trade_burn') -> where('uid',$v['id']) -> whereTime('create_time','between',[$ten_day,$endToday]) -> count();
+    				if(!$have_trade){
+    					$data['uid'] = $v['id'];
+    					$data['number'] = 2000;
+    					model('Index') -> tradeBuy($data);
+    				}
+    				break;
     		}
     	}
     }

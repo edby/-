@@ -28,6 +28,18 @@ class Goods extends Base
 	public function __construct(Request $request = null)
 	{
 		parent::__construct($request);
+
+//		获得优惠券后提示
+		$pre_card = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid']])->whereNotIn('notice',[1])->find();
+		Db::startTrans();
+		try{
+			Db::name('user_vou')->where(['id'=>$pre_card['id']])->update(['notice'=>1]);
+			$this->assign('pre_card',$pre_card);
+			Db::commit();
+		}catch (\Exception $e){
+			Db::rollback();
+		}
+
 //		获取轮播图
 		$banners = Db::name('banner')->where(['state'=>1])->limit(4)->order(['sort'])->select();
 //		echo Db::name('banner')->getLastSql();
@@ -358,7 +370,10 @@ class Goods extends Base
 //				echo Db::name('user')->getLastSql();
 //				exit();
 				if(!$user_info){
-					throw new Exception("用户密码错误或已被禁用");
+					throw new Exception("用户密码错误");
+				}
+				if($user_info['status' == '2']){
+					throw new Exception("帐户已被禁用");
 				}
 				$item_money = $goods_order['g_price'] * $item[1];
 
@@ -390,6 +405,10 @@ class Goods extends Base
 			    }
 		    }
 		    Db::commit();
+		    $r = [
+		    	'code'=>1,
+			    'msg'=>'订单处理成功'
+		    ];
 	    }catch (\Exception $e){
 	    	Db::rollback();
 			$r = [
@@ -440,6 +459,14 @@ class Goods extends Base
 		return $this -> fetch();
 	}
 
+	/**
+	 * 购买激活券
+	 * @return false|string
+	 * @throws Exception
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 */
 	public function buy_active()
 	{
 		$r = [
@@ -479,7 +506,7 @@ class Goods extends Base
 			$active_order['buy_uid'] = $_SESSION['think']['uid'];
 			$active_order['sell_sid'] = 1;
 			$active_order['order_number'] = generateOrderNumber();
-			$active_order['order_status'] = 2;
+			$active_order['order_status'] = 4;
 			$active_order['create_time'] = time();
 			$active_order['g_price'] = $item_money;
 			$active_order['money'] = $item_money;
@@ -577,7 +604,7 @@ class Goods extends Base
 //		开启事务
 		Db::startTrans();
 		try{
-			Db::name('goods_order')->where(['order_number'=>$_POST['ord_id']])->delete();
+			Db::name('goods_order')->where(['order_number'=>$_POST['ord_id'],'order_status'=>1])->delete();
 			Db::commit();
 				$r = [
 					'code'=>1,
@@ -592,5 +619,40 @@ class Goods extends Base
 			Db::rollback();
 		}
 		return json_encode($r);
+	}
+	public function my_promotion()
+	{
+//		定义订单状态
+		$where = null;
+		$paginate_config = null;
+		$where['buy_uid'] = $_SESSION['think']['uid'];
+		print_r($_GET['type']);
+		if($_GET['type']){
+//			echo "是否为int".is_int($_GET['type'])."asfasdf";
+			$_GET['type'] = (int)$_GET['type'];
+			if(($_GET['type']>5)||($_GET['type']<0)){
+				$_GET['type'] = null;
+			}
+			$where['order_status'] = $_GET['type'];
+			$types = [
+				'type'=>$_GET['type']
+			];
+			$querys = [
+				'query'=>$types
+			];
+		}else{
+			$querys = [
+				'query'=>[]
+			];
+		}
+//		print_r($where);
+		$page_size = 5;
+		$goods_order = Db::table('sn_goods_order')->alias('a')->join('sn_goods_detail b','a.gid = b.gid')->where($where)->paginate($page_size,false,$querys);
+//		echo Db::name('goods_order')->getLastSql();
+		$pages = $goods_order->render();
+		$this->assign('type',$_GET['type']);
+		$this->assign('order',$goods_order);
+		$this->assign('page',$pages);
+		return $this->fetch('user/userCenter');
 	}
 }

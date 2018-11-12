@@ -150,6 +150,7 @@ class Method extends Admin
             return json(model('Method') -> orderDel(input('post.id')));
         }
     }
+
 }
 
 

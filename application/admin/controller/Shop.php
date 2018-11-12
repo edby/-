@@ -291,4 +291,44 @@ class Shop extends Admin
 ////    	echo "删除商品";
 //    	exit();
     }
+
+
+	/**
+	 * 显示商品订单
+	 * @return mixed
+	 * @throws \think\exception\DbException
+	 */
+    public function goods_order()
+    {
+    	$page_size = 10;
+//    	$query =$_GET['record_type']!=null?"?record_type=".$_GET['record_type']."&":null;
+//    	$query.=$_GET['keywords']!=null?"?keywords=".$_GET['keywords']:null;
+//		print_r($page_config);
+		$where = null;
+		$querys = null;
+		if($_GET['record_type'] && $_GET['record_type'] != 0){
+			$querys = [
+				'record_type'=>$_GET['record_type']
+			];
+			$where['order_status'] = $_GET['record_type'];
+		}
+		if($_GET['keywords']){
+			$querys+=[
+				'keywords'=>$_GET['keywords']
+			];
+			$where['order_number'] = $_GET['keywords'];
+		}
+		$page_config = [
+			'query'=>$querys
+		];
+		$where['buy_uid'] =$_SESSION['think']['uid'];
+//    	$goods_order = Db::table('sn_goods_order')->alias('order')->join('sn_goods_detail detail','order.gid = detail.gid')->join('sn_user','sn_goods_order.buy_uid = sn_user.id')->field('sn_user.account as user,sn_goods_detail.name as goods_name,sn_goods_order.sell_sid as sid,sn_goods_order.g_number as number,order.sn_goods_order.order_status as status,sn_goods_order.create_time as time')->paginate($page_size);
+		$goods_order = Db::name('goods_order')->alias('order')->join('goods_detail detail','order.gid = detail.gid','LEFT')->join('user u','u.id = order.buy_uid','LEFT')->where($where)->paginate($page_size,false,$page_config);
+//		echo Db::name('goods_order')->getLastSql();
+    	$page = $goods_order->render();
+    	$this->assign('record_type',$_GET['record_type']!=null?$_GET['record_type']:null);
+    	$this->assign('goods_order',$goods_order);
+    	$this->assign('page',$page);
+    	return $this->fetch();
+    }
 }

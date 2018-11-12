@@ -27,7 +27,7 @@
         <b class="arrow"></b>
         <ul class="submenu">
           {volist name="vo['child']" id="sub"}
-          <li {if condition="$sub['name'] eq $rule"}class="active"{/if}><a href="{:url('/'.$sub['name'])}"><i class="menu-icon fa fa-caret-right"></i> {$sub.title} </a><b class="arrow"></b></li>
+            <li {if condition="$sub['name'] eq $rule"}class="active"{/if}><a href="{:url('/'.$sub['name'])}"><i class="menu-icon fa fa-caret-right"></i> {$sub.title} </a><b class="arrow"></b></li>
           {/volist}
         </ul>
       </li>

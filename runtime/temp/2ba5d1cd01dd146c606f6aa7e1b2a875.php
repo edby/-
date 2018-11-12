@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:69:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\index.html";i:1540965999;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:69:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\menu\index.html";i:1540805791;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -43,10 +43,15 @@ select{
 .main-container .table tr td a{
   margin-right:10px;
 }
-.t_img {text-align:center;}
-.t_img img {width:200px;height:56px;}
-.state_red {float:right;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:red;cursor:pointer;box-shadow:#006666 1px 1px 2px;}
-.state_green {float:left;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:green;cursor:pointer;box-shadow:#18A665 1px 1px 2px;}
+/* 显示状态开始 */
+.is_show_red {float:right;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:red;cursor:pointer;box-shadow:#006666 1px 1px 2px;}
+.is_show_green {float:left;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:green;cursor:pointer;box-shadow:#18A665 1px 1px 2px;}
+/* 显示状态结束 */
+
+/* 导航类型开始 */
+.menu_type_web {float:left;width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#3387D0;cursor:pointer;box-shadow:#3387D0 1px 1px 2px;}
+.menu_type_app {float:right;width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#C9981F;cursor:pointer;box-shadow:#C9981F 1px 1px 2px;}
+/* 导航类型结束 */
 </style>
 </head>
 <body class="no-skin">
@@ -111,42 +116,66 @@ select{
       <div class="breadcrumbs" id="breadcrumbs">
         <ul class="breadcrumb">
           <li> <i class="ace-icon fa fa-home home-icon"></i> <a href="<?php echo url('Index/index'); ?>"><?php echo config('WEB_SITE_NAME'); ?></a> </li>
-          <li class="active">商品分类</li>
+          <li> <a href="<?php echo url('index'); ?>">网站导航</a> </li>
+          <li class="active"><?php echo $pagename; ?></li>
         </ul>
       </div>
       <div class="page-content">
         <div class="page-header">
-          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 共有<?php echo $list['count']; ?>种分类 </small></h1>
+          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出<?php echo $list['count']; ?>条数据 </small> </h1>
         </div>
         <!-- /.page-header -->
         <div class="row">
           <div class="col-xs-12"> 
             <!-- PAGE CONTENT BEGINS -->
             <div class="row">
-              
               <div class="col-xs-12" style="margin-bottom:10px;">
-                <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add'); ?>" >添加分类</a>
+                <form action="<?php echo url('index'); ?>" method="get" class="form-inline" role="form">
+                  <div class="form-group">
+                    <label>关键词：</label>
+                    <input name="keywords" type="text" class="form-control search" placeholder="规则描述">
+                  </div>&nbsp;&nbsp;
+                  
+                  <div class="form-group"><label>显示状态：</label>
+                    <select name="is_show" class="form-control" <!--onchange="look_state(this)"-->>
+                    <option value="">全部</option>
+                      <?php if(is_array($state) || $state instanceof \think\Collection || $state instanceof \think\Paginator): $i = 0; $__LIST__ = $state;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+                        <option value="<?php echo $vo['value']; ?>" <?php if($get_is_show == $vo['value']): ?>selected = 'selected'<?php else: endif; ?>><?php echo $vo['key']; ?></option>
+                      <?php endforeach; endif; else: echo "" ;endif; ?>
+                    </select>
+                  </div>&nbsp;&nbsp;
+                  
+                  <button type="submit" class="btn btn-sm btn-primary">查询</button>
+                  <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add'); ?>" >添加导航</a>
+                  <button type="reset" class="btn btn-sm btn-danger hidden-xs" style="float:right;margin-right:10px;">清空查询条件</button>
+                </form>
               </div>
-              
               <div class="col-xs-12">
-                <table class="table table-striped table-bordered table-hover">
+                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
                   <thead>
                     <tr>
-                      <th>序号</th>
-                      <th>分类名</th>
-                      <th>添加日期</th>
+                      <th class="center">ID</th>
+                      <th>规则</th>
+                      <th>规则描述</th>
+                      <th>显示状态</th>
+                      <th>排序</th>
                       <th>操作</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(is_array($class) || $class instanceof \think\Collection || $class instanceof \think\Paginator): $k = 0; $__LIST__ = $class;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
+                    <?php if(is_array($list['list']) || $list['list'] instanceof \think\Collection || $list['list'] instanceof \think\Paginator): $k = 0; $__LIST__ = $list['list'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
                       <tr>
-                        <td> <?php echo $k; ?></td>
-                        <td> <?php echo $vo['name']; ?></td>
-                        <td> <?php echo $vo['create_time']; ?> </td>
+                        <td class="center"><?php echo $vo['id']; ?></td>
+                        <td><?php echo $vo['name']; ?></td>
+                        <td><?php echo $vo['title']; ?></td>
+                        <td><div class='<?php echo $vo['is_show_btn']; ?>' onclick="change_show(<?php echo $vo['id']; ?>,<?php echo $vo['is_show']; ?>)"><?php echo $vo['is_show_text']; ?><div></td>
                         <td>
-                        	<a class="btn btn-sm btn-success" href="<?php echo url('edit',array('id'=>$vo['id'])); ?>" >修改</a>
-                          <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteClass(this,<?php echo $vo['id']; ?>)">删除</a>
+                        	<a href="javascript:;" onclick="sort(<?php echo $vo['id']; ?>,'up')"><img src="/static/ace/images/up.png" /></a>&nbsp;&nbsp;
+													<a href="javascript:;" onclick="sort(<?php echo $vo['id']; ?>,'down')"><img src="/static/ace/images/down.png" /></a>
+                        </td>
+                        <td>
+                          <a class="btn btn-sm btn-success" href="<?php echo url('edit',array('id'=>$vo['id'])); ?>" >修改</a>
+                          <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteInfo(this,<?php echo $vo['id']; ?>)">删除</a>
                         </td>
                       </tr>
                     <?php endforeach; endif; else: echo "" ;endif; ?>
@@ -158,7 +187,6 @@ select{
                   </ul>
                 </div>
               </div>
-              
               <!-- /.span --> 
             </div>
             <!-- /.row --> 
@@ -188,12 +216,65 @@ select{
 <script src="/static/ace/js/ace/ace.sidebar.js"></script> 
 <script src="/static/ace/js/layer/layer.js"></script>
 <script type="text/javascript">
-  $('a[href="/Admin/Shop/index"]').parents().filter('li').addClass('open active');
+  $('a[href="/Admin/Menu/index"]').parents().filter('li').addClass('open active');
+  <?php if(input('get.keywords')): ?>
+    $('input[name="keywords"]').val('<?php echo $_GET["keywords"]; ?>');
+  <?php endif; if(is_numeric(input('get.is_show'))): ?>
+    $('select[name="is_show"]').val(<?php echo $_GET['is_show']; ?>);
+  <?php endif; ?>
 </script>
 <script type="text/javascript">
-// 删除轮播图
-function deleteClass(obj,id){
-	layer.confirm('确定要删除吗？<br>该分类所有的信息都将被完全删除，不可恢复！', {
+jQuery(function($) {
+  //清除查询条件
+  $(document).on('click', 'button:reset',function() {
+    location.href = '<?php echo url('index'); ?>';
+  }); 
+});
+
+//// 查看导行状态
+//function look_state(state){
+//	var val = $(state).val();
+//	var url = '<?php echo url("index"); ?>?get_state=' + val;
+//	window.location.href = url;
+//}
+
+// 修改显示状态
+function change_show(id,is_show){
+	layer.confirm('确定要修改显示状态吗？', {
+		btn: ['确定','关闭'] //按钮
+	}, function(){
+		$.post("<?php echo url('is_show'); ?>", {id:id,is_show:is_show}).success(function(data) {
+			if (data.code == 0) {
+				layer.msg(data.msg, {icon: data.code,time: 1000},function(){
+					location.href=self.location.href;
+				});
+			}else{
+				layer.msg(data.msg, {icon: data.code,time: 1000},function(){
+					location.href=self.location.href;
+				});
+			}
+		})
+	});
+}
+
+// 排序
+function sort(id,type){
+	$.post("<?php echo url('sort'); ?>", {id:id,type:type}).success(function(data) {
+		if (data.code == 0) {
+			layer.msg(data.msg, {icon: data.code,time: 1000},function(){
+				location.href=self.location.href;
+			});
+		}else{
+			layer.msg(data.msg, {icon: data.code,time: 1000},function(){
+				location.href=self.location.href;
+			});
+		}
+	})
+}
+
+// 删除导航
+function deleteInfo(obj,id){
+	layer.confirm('确定要删除吗？<br>该导航所有的信息都将被完全删除，不可恢复！', {
 		btn: ['确定','关闭'] //按钮
 	}, function(){
 		$.post("<?php echo url('delete'); ?>", {id: id}).success(function(data) {

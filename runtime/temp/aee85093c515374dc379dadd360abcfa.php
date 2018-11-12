@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:77:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\preferential.html";i:1541754667;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541752912;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:77:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\preferential.html";i:1541755712;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541988575;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -119,7 +119,6 @@
 		            <button type="button" >立即购买</button>
 		        </div>
 		    </div>
-        
         <?php endforeach; endif; else: echo "" ;endif; ?>
     </div>
    <center> <?php echo $pre_page; ?>  </center>
@@ -200,14 +199,12 @@
 <script type="text/javascript" src="/static/ace/js/common.js" ></script>
 <script type="text/javascript" src="/static/layui/layui.js"></script>
 <script type="text/javascript" src="/static/ace/js/store.js"></script>
-
 		<!--底部-->
 		<div class="foot">
 			<img src="/static/ace/img/logo_zc.png" class="foot_img" />
 			<div class="foot_b">@2018.zhongchengguoji</div>
 		</div>
 		<!--优惠券-->
-		{$}
 		<div class="coupon">
 			<img src="/static/ace/img/yhq.png" class="yhq"/>
 			<img src="/static/ace/img/close.png" class="cls" onclick="cls()"/>
