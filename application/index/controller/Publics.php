@@ -32,6 +32,24 @@ class Publics extends Base
 		}
 	}
 	
+    /**
+     * 用户注册
+     */
+    public function userreg()
+    {
+        if (Request::instance()->isPost()) {
+            return json(model('User') -> userReg(input('post.')));
+        } else {
+            return $this->fetch();
+        }
+    }
+	
+	/**
+	 * 注册获取手机验证码
+	 */
+	public function get_verify($account){
+		return json(model('User') -> getVerify(input('post.')));
+	}
 	
     /**
      * 忘记密码
