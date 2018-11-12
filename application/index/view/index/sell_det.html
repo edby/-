@@ -1,129 +1,100 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>卖单详情</title>
-		<link rel="stylesheet" href="css/common.css" />
-		<link rel="stylesheet" href="css/zhongyu.css" />
-		<link rel="stylesheet" href="css/bootstrap.css" />
-	</head>
-	<body class="bac_ebf1ff">
-		<!--头部-->
-		<div class="top_nav">
-			<div class="container clearfix">
-				<div class="top_nav_l">
-					<img src="img/logo_zc.png" />
-				</div>
-				<ul class="top_nav_r clearfix">
-					<li>
-						<a href="#">首页</a>
-					</li>
-					<li>
-						<a href="#">众成商城</a>
-					</li>
-					<li>
-						<a href="#">交易中心</a>
-					</li>
-					<li>
-						<a href="#">中心矿机</a>
-					</li>
-				</ul>
-				<div class="accout">
-					<span>ZC</span> 张三
-					<div class="accout_menu">
-						<p>
-							<a href="#">会员中心</a>
-						</p>
-						<p>
-							<a href="#">退出登录</a>
-						</p>
+{include file='common/indexTop'}
+<!--匹配订单-->
+<div class="container" style="min-height: 580px;">
+	<div class="order_tit clearfix">
+		<h1>匹配订单</h1>
+		<span class="order_tit_1">订单详情</span>
+		<span class="order_tit_2">BEST</span>
+		<span class="order_tit_3">查看订单详情</span>
+	</div>
+	<div class="payer">
+		<p class="clearfix">
+			<span class="col-md-3">打款人：{$order.real_name}({$order.account})</span>
+			<span class="col-md-3">总预付款：{$order.order_number}</span>
+			<span class="col-md-3">付款状态：<font class="cor_red">{$order.order_status_text}</font></span>
+			<span class="col-md-3">备注：{empty name='$order.remarks'}无{else/}{$order.remarks}{/empty}</span>
+		</p>
+		<div class="payer_sm">打款最迟时间：{$order.last_pay_date} 每天早上8点~12点完成并需要确认</div>
+	</div>
+	<ul class="payee payee2">
+		<li>
+			<p>
+				<span>收款人：{empty name='$order.trade_sell.real_name'}&nbsp;-&nbsp;{else/}&nbsp;{$order.trade_sell.real_name}&nbsp;{/empty}({$order.trade_sell.account})</span>
+				<span>需要打款：<font class="cor_red">{$order.order_number}</font></span>
+				<span>收款状态：<font class="cor_red">{$order.order_status_text}</font></span>
+				<span>打款时间：{$order.pay_date}</span>
+			</p>
+			<div class="clearfix" style="margin-top: 15px;">
+				{empty name='$order.pay_time'}
+					<div class="col-md-3" style='width:80%;'>打款人信息：-</div>
+					<div class="col-md-2">
+						<button data-toggle="modal" style='background:gray;cursor:default;'>查看凭证</button>
+						<button style='background:gray;cursor:default;'>确认提交</button>
 					</div>
-				</div>
+				{else/}
+					<div class="col-md-3" style='width:80%;'>打款人信息：{$order.pay_info.pay_account}</div>
+					<div class="col-md-2">
+						<button data-toggle="modal" data-target="#view">查看凭证</button>
+						{empty name='$order.clear_deal_btn'}
+							<button onclick='deal({$order.id},{$order.trade_sell_ids})'>确认提交</button>
+						{else/}
+							<button style='background:gray;cursor:default;'>确认提交</button>
+						{/empty}
+					</div>
+				{/empty}
+			</div>
+		</li>
+	</ul>
+</div>	
+
+<!--查看凭证-->
+<div class="modal fade" id="view" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">查看凭证</h4>
+			</div>
+			<div class="modal-body">
+				<img src="{$order.pay_info.pay_pic}" class="view_img"/>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn_red2" data-dismiss="modal">取消</button>
 			</div>
 		</div>
-		<!--匹配订单-->
-		<div class="container" style="min-height: 580px;">
-			<div class="order_tit clearfix">
-				<h1>匹配订单</h1>
-				<span class="order_tit_1">订单详情</span>
-				<span class="order_tit_2">BEST</span>
-				<span class="order_tit_3">查看订单详情</span>
-			</div>
-			<div class="payer">
-				<p class="clearfix">
-					<span class="col-md-3">打款人：李三三(156898565454)</span>
-					<span class="col-md-3">总预付款：420</span>
-					<span class="col-md-3">付款状态：<font class="cor_red">未完成</font></span>
-					<span class="col-md-3">备注：无</span>
-				</p>
-				<div class="payer_sm">打款最迟时间：2018-10-17 19:52:02 每天早上8点~12点完成并需要确认</div>
-			</div>
-			<ul class="payee payee2">
-				<li>
-					<p>
-						<span>打款人：张三(156898565454)</span>
-						<span>需要打款：<font class="cor_red">2000</font></span>
-						<span>收款状态：<font class="cor_red">未完成</font></span>
-						<span>打款时间：2018-10-17 19:52:02</span>
-					</p>
-					<div class="clearfix" style="margin-top: 15px;">
-						<div class="col-md-3">打款人信息：支付宝：18339835562</div>
-						<div class="col-md-2">微信号：18339835562</div>
-						<div class="col-md-5">银行卡：工商银行 张三 6013823400339101557</div>
-						<div class="col-md-2">
-							<button data-toggle="modal" data-target="#view">查看凭证</button>
-							<button>确认提交</button>
-						</div>
-					</div>
-				</li>
-				<li>
-					<p>
-						<span>打款人：张三(156898565454)</span>
-						<span>需要打款：<font class="cor_red">2000</font></span>
-						<span>收款状态：<font class="cor_red">未完成</font></span>
-						<span>打款时间：2018-10-17 19:52:02</span>
-					</p>
-					<div class="clearfix" style="margin-top: 15px;">
-						<div class="col-md-3">打款人信息：支付宝：18339835562</div>
-						<div class="col-md-2">微信号：18339835562</div>
-						<div class="col-md-5">银行卡：工商银行 张三 6013823400339101557</div>
-						<div class="col-md-2">
-							<button data-toggle="modal" data-target="#view">查看凭证</button>
-							<button>确认提交</button>
-						</div>
-					</div>
-				</li>
-			</ul>
-		</div>	
-		<!--底部-->
-		<div class="foot">
-			<img src="img/logo_zc.png" class="foot_img" />
-			<div class="foot_b">@2018.zhongchengguoji</div>
-		</div>
-		<!--查看凭证-->
-		<div class="modal fade" id="view" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h4 class="modal-title">查看凭证</h4>
-					</div>
-					<div class="modal-body">
-						<img src="img/yhq.png" class="view_img"/>
-					</div>
-					<div class="modal-footer">
-                		<button type="button" class="btn_red">确定</button>
-						<button type="button" class="btn_red2" data-dismiss="modal">取消</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</body>
-	<script type="text/javascript" src="js/jquery.min.js"></script>
-	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/common.js"></script>
-	<script type="text/javascript" src="layui/layui.all.js" ></script>
-	<script>
-		setNav(0);
-	</script>
-</html>
+	</div>
+</div>
+{include file='common/bottom'}
+<script type="text/javascript" src="__JS__/jquery.min.js"></script>
+<script type="text/javascript" src="__JS__/bootstrap.min.js"></script>
+<script type="text/javascript" src="__JS__/common.js"></script>
+<script type='text/javascript' src="__JS__/layer/layer.js"></script>
+
+<link rel="stylesheet" href="__LAYUI__/css/layui.css" media="all" />
+<script type='text/javascript' src="__LAYUI__/layui.all.js"></script>
+<script>
+	setNav(0);
+</script>
+<script type='text/javascript'>
+// 提交匹配订单
+function deal(id,trade_sell_ids){
+	layer.confirm('确定提交吗?',{
+		btn: ['确定','关闭']
+	},function(){
+		$.ajax({
+			type:'post',
+			url:'{:url("trade_deal")}',
+			data:{id:id,trade_sell_ids:trade_sell_ids},
+			success:function(ret){
+				if(ret.code === 0){
+					layer.msg(ret.msg);
+				}else{
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = self.location.href;
+					});
+				}
+			}
+		});
+	});
+}
+</script>

@@ -86,6 +86,69 @@ class Index extends Base
     }
     
     /**
+     * controller 买入订单详情
+     */
+    public function buy_det($id){
+    	$this -> assign('order',model('Index') -> buyDet($id));
+    	return $this -> fetch();
+    }
+    
+    /**
+     * controller 提交支付单个匹配卖单
+     */
+    public function pay_sell(){
+    	if(Request::instance() -> isPost()){
+    		return json(model('Index') -> paySell(input('post.')));
+    	}
+    }
+    
+    /**
+     * controller 卖出订单详情
+     */
+    public function sell_det($id){
+    	$this -> assign('order',model('Index') -> sellDet($id));
+    	return $this -> fetch();
+    }
+    
+    /**
+     * controller 提交确认交易
+     */
+    public function trade_deal(){
+    	if(Request::instance() -> isPost()){
+    		return json(model('Index') -> tradeDeal(input('post.')));
+    	}
+    }
+    
+    // 上传图片
+    public function upload_pay(){
+    	$type = trim(input('type'));
+    	$buyer_id = input('buyer_id');	// 店铺ID
+    	if(!$type || !$buyer_id){
+    		$ret = ['code' => 0,'msg' => '参数错误!'];
+    	}else{
+    		$file = request() -> file('file');
+    		if($file){
+    			$info = $file -> move(ROOT_PATH . 'public' . DS . 'upload/' . $type . '/' . $buyer_id,true,true,2);
+    			if($info){
+    				$link = '/upload/' . $type . '/' . $buyer_id . '/' . $info -> getSaveName();
+    				$ret = ['code' => 1,'msg' => '上传成功!','url' => $link];
+    			}else{
+    				$ret = ['code' => 0,'msg' => $file -> getError()];
+    			}
+    		}else{
+    			$ret = ['code' => 0,'msg' => '未上传!'];
+    		}
+    	}
+    	return json($ret);
+    }
+    
+    
+    
+    
+    
+    
+    
+    /**
      * controller 判断用户是否设置预约
      */
     public function set_timing_buy(){
