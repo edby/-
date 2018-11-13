@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1541985522;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1542013344;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1542089305;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1542088332;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -32,7 +32,6 @@
 	            <span>ZC</span>
 				<div class="accout_menu">
 	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
-	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
 	            </div>
 	        </div>
 	    <?php else: ?>
@@ -318,8 +317,9 @@
 <script type="text/javascript" src="/static/ace/js/jquery.min.js"></script>
 <script type="text/javascript" src="/static/ace/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/static/ace/js/common.js"></script>
-<script type="text/javascript" src="/static/ace/js/store.js"></script>
+<link rel="stylesheet" href="/static/layui/css/layui.css" media="all" />
 <script type='text/javascript' src="/static/layui/layui.js"></script>
+<script type="text/javascript" src="/static/ace/js/store.js"></script>
 		<!--底部-->
 		<div class="foot">
 			<img src="/static/ace/img/logo_zc.png" class="foot_img" />

@@ -363,10 +363,10 @@ class Goods extends Base
 //		    	订单状态
 			    $goods_order = Db::name('goods_order')->where(['order_number' => $item[0]])->find();
 				if(!$goods_order){
-					throw new Exception("cant find order id".$item[0]);
+					throw new Exception("订单不存在");
 				}
 //				当前用户状态：
-			    $user_info = Db::name('user')->where(['id'=>$_SESSION['think']['uid'],'status'=>1])->where(['payment_password'=>md5($_POST['pwd'])])->find();
+			    $user_info = Db::name('user')->where(['id'=>$_SESSION['think']['uid'],'status'=>1])->where(['payment_password'=>encrypt(trim($_POST['pwd']))])->find();
 //				echo Db::name('user')->getLastSql();
 //				exit();
 				if(!$user_info){
@@ -376,11 +376,11 @@ class Goods extends Base
 					throw new Exception("帐户已被禁用");
 				}
 				$item_money = $goods_order['g_price'] * $item[1];
-
+				$item_const = $item_money;
 //				用户余额账户
 				$user_money = Db::name('user_bouns')->where(['uid'=>$_SESSION['think']['uid']])->order('bouns_type asc')->select();
 				if(!$user_money){
-					throw new Exception("cant find user account about money");
+					throw new Exception("用户不存在");
 				}
 //				    遍历用户三个类型的奖金，依次扣款
 			    $times = 1;
@@ -396,12 +396,22 @@ class Goods extends Base
 						break;
 					}
 					if(($times==3)&&($item_money>0)){
-						throw new Exception("user blance is low!");
+						throw new Exception("用户余额不足");
 					}
 					$times++;
 				}
 			    if(!(Db::name('goods_order')->where(['order_number' => $item[0]])->update(['order_status'=>2]))){
-					throw new Exception('change order fail');
+					throw new Exception('订单付款失败');
+			    }
+//			    获取商家信息
+			    $goods_detail = Db::name('goods_detail')->where(['gid'=>$goods_order['sell_sid']])->find();
+			    if(!$goods_order){
+				    throw new Exception("未找到该商家！");
+			    }
+			    $shop = Db::name('user_bouns')->where(['uid'=>$goods_order['sell_sid']])->setInc(['frozen_bouns_number'=>($item_const*$goods_detail['profit_rate'])]);
+//			    echo Db::name('user_bouns')->getLastSql();
+			    if(!($shop)){
+			    	throw new Exception("商家信息写入失败！");
 			    }
 		    }
 		    Db::commit();
@@ -626,7 +636,7 @@ class Goods extends Base
 		$where = null;
 		$paginate_config = null;
 		$where['buy_uid'] = $_SESSION['think']['uid'];
-		print_r($_GET['type']);
+//		print_r($_GET['type']);
 		if($_GET['type']){
 //			echo "是否为int".is_int($_GET['type'])."asfasdf";
 			$_GET['type'] = (int)$_GET['type'];
@@ -653,6 +663,8 @@ class Goods extends Base
 		$this->assign('type',$_GET['type']);
 		$this->assign('order',$goods_order);
 		$this->assign('page',$pages);
+		$uid = is_login($uid);
+		$this -> assign('uid',$uid);
 		return $this->fetch('user/userCenter');
 	}
 }

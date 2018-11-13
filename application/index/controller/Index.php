@@ -26,8 +26,6 @@ class Index extends Base
 	    //		传递优惠专区
 	    $this->assign('pre',$preferential);
 
-//	    print_r($preferential);
-//	    exit;
         return $this -> fetch();
     }
     
@@ -149,7 +147,7 @@ class Index extends Base
     
     
     /**
-     * controller 判断用户是否设置预约
+     * controller 判断用户是否设置预约(每天00:00:00执行)
      */
     public function set_timing_buy(){
     	// 获取天数
@@ -227,6 +225,45 @@ class Index extends Base
     				break;
     		}
     	}
+    }
+    
+    /**
+     * controller 判断用户冻结是否已过10天(每天00:00:00点执行)
+     */
+    public function thaw_bonus(){
+    	$beginToday = mktime(0,0,0,date('m'),date('d'),date('Y'));	// 当天00:00:00点时间戳
+    	$ten_day = $beginToday - 60*60*24*10;	// 10天前的00:00:00点时间戳
+    	
+    	// 获取烧伤表中未解冻的数据
+    	$burn_where['start_timezone'] = array('neq',null);
+    	$burn_where['end_timezone'] = array('neq',null);
+    	$burn_where['create_time'] = array('<=',$ten_day);
+    	$burn = Db::name('trade_burn') -> where($burn_where) -> select();
+    	foreach($burn as $k => $v){
+    		// 修改用户冻结的静态奖金
+    		$this -> back_bonus($v['uid'],1,$v['frozen_bouns_number']);	// 静态奖
+    		$this -> back_bonus($v['uid'],2,$v['frozen_bouns_number']);	// 动态奖
+    		
+    		// 修改上一级用户烧伤(动态)
+			if($v['one_number'] != 0){
+    			$this -> back_bonus($v['one_id'],2,$v['one_number']);	// 动态奖
+			}
+			// 修改上二级用户烧伤(动态)
+			if($v['two_number'] != 0){
+    			$this -> back_bonus($v['two_id'],2,$v['two_number']);	// 动态奖
+			}
+			// 修改上三级用户烧伤(动态)
+			if($burn['three_number'] != 0){
+    			$this -> back_bonus($v['three_id'],2,$v['three_number']);	// 动态奖
+			}
+    	}
+    }
+    // 执行返奖金
+    public function back_bonus($uid,$type){
+    	$user_where['uid'] = $uid;
+    	$user_where['bouns_type'] = $type;
+    	Db::name('user_bouns') -> where($user_where) -> setInc('bouns_number',$v['back_status_bonus']);
+    	Db::name('user_bouns') -> where($user_where) -> setDec('frozen_bouns_number',$v['back_status_bonus']);
     }
     
 }

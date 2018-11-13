@@ -81,8 +81,8 @@
             </div>
         </div>
         <div class="freight">
-            <span>运费：</span>
-            <p><span>10</span>元</p>
+            <!--<span>运费：</span>-->
+            <!--<p><span>10</span>元</p>-->
         </div>
     </div>
     <div class="line"></div>
@@ -92,10 +92,10 @@
         <div class="figure_box">
             <span class="figure_total">合计：</span>
             <p>
-                <span class="figure_price" id = "total_money">-</span>
+                <span class="figure_price" id = "total_money">{$order['money']}</span>
                 <span>消费券</span>
             </p>
-            <span>（包含运费）</span>
+            <!--<span>（包含运费）</span>-->
             <button type="button" onclick="submit_order()">提交订单</button>
         </div>
     </div>

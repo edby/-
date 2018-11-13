@@ -46,8 +46,6 @@ class User extends Base
             return array('code'=>0,'msg'=>'密码不正确');
         }
         session('uid', $info['id']);
-//        print_r($_SESSION);
-//        exit();
         session('account', $info['account']);
         return array('code'=>1,'msg'=>'登录成功','data'=>$info['status'],'url'=>url('Index/index'));
     }
@@ -114,7 +112,10 @@ class User extends Base
     		if(!$exist_user){
     			return ['code' => 0,'msg' => '邀请码错误!'];
     		}
+    		// 获取单个上级ID
     		$data['parent_id'] = $exist_user['id'];
+    		// 获取多俱上级ID
+    		$data['pids'] = $exist_user['pids'].','.$exist_user['id'];
     	}
     	// 判断用户名
     	if($data['account']){
@@ -281,10 +282,12 @@ class User extends Base
     	Db::startTrans();
     	$condition = 0;
     	try{
-    		// 扣除用户的 修改券
-    		$user_vou_where['uid'] = session('uid');
-    		$user_vou_where['vid'] = 3;
-    		Db::name('user_vou') -> where($user_vou_where) -> setDec('number');
+    		if($user_is_set === 1){
+	    		// 扣除用户的 修改券
+	    		$user_vou_where['uid'] = session('uid');
+	    		$user_vou_where['vid'] = 3;
+	    		Db::name('user_vou') -> where($user_vou_where) -> setDec('number');
+    		}
     		
     		// 修改用户信息
     		$data['update_time'] = time();
@@ -332,26 +335,25 @@ class User extends Base
 			switch($v['value']){
 				case 1:
 					$bouns_where['bouns_type'] = $v['value'];
-					$static = Db::name('user_bouns') -> where($bouns_where) -> sum('bouns_number');		// 静态奖金
+					$static = Db::name('user_bouns') -> where($bouns_where) -> value('bouns_number');		// 未冻结静态奖金
+					$frozen_static = Db::name('user_bouns') -> where($bouns_where) -> value('frozen_bouns_number');		// 冻结静态奖金
 					break;
 				case 2:
 					$bouns_where['bouns_type'] = $v['value'];
-					$dynamic = Db::name('user_bouns') -> where($bouns_where) -> sum('bouns_number');	// 动态奖金
+					$dynamic = Db::name('user_bouns') -> where($bouns_where) -> value('bouns_number');	// 未冻结动态奖金
+					$frozen_dynamic = Db::name('user_bouns') -> where($bouns_where) -> value('frozen_bouns_number');		// 冻结动态奖金
 					break;
 				case 3:
 					$bouns_where['bouns_type'] = $v['value'];
-					$welfare = Db::name('user_bouns') -> where($bouns_where) -> sum('bouns_number');	// 福利奖金
+					$welfare = Db::name('user_bouns') -> where($bouns_where) -> value('bouns_number');	// 未冻结福利奖金
+					$frozen_welfare = Db::name('user_bouns') -> where($bouns_where) -> value('frozen_bouns_number');	// 未冻结福利奖金
 					break;
 			}
 		}
-		$user_bouns = $static + $dynamic + $welfare;	// 未冻结奖金
-		
-		// 冻结奖金
-		
-		
+		$user_bonus = $static + $dynamic + $welfare;	// 未冻结奖金
+		$wallet['user_frozen_bonus'] = $frozen_static + $frozen_dynamic + $frozen_welfare;	// 冻结奖金
 		// 积分(所有奖金)
-		
-		
+		$wallet['user_all_bonus'] = $user_bonus + $wallet['user_frozen_bonus'];
 		
 		/** 用户券 **/
 		$voucher = Db::name('voucher') -> field('id,name,is_sell') -> select();
@@ -375,15 +377,13 @@ class User extends Base
 	 * model 用户奖金额
 	 */
 	public function userBouns($uid){
-		// 解冻区
-		$bouns['thaw_bouns'] = Db::name('user_bouns') -> where('uid',$uid) -> select();
-		foreach($bouns['thaw_bouns'] as $k => $v){
+		// 解冻区&冻结区
+		$bouns = Db::name('user_bouns') -> where('uid',$uid) -> select();
+		foreach($bouns as $k => $v){
 			$dict_where['type'] = 'bouns_type';
 			$dict_where['value'] = $v['bouns_type'];
-			$bouns['thaw_bouns'][$k]['name'] = Db::name('dict') -> where($dict_where) -> value('key');
+			$bouns[$k]['name'] = Db::name('dict') -> where($dict_where) -> value('key');
 		}
-		// 冻结区
-		$bouns['frozen_bouns'] = null;
 		return $bouns;
 	}
 	
@@ -908,8 +908,8 @@ class User extends Base
 		if(!$data['payment_password'] || !$data['re_payment_password']){
 			return ['code' => 0,'msg' => '请输入安全密码!'];
 		}else{
-			if(!preg_match('/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])[A-Za-z0-9]{8,14}/',$data['payment_password'])){
-				return ['code' => 0,'msg' => '安全密码必须为8~14位并包含大小写和数字!'];
+			if(!preg_match('/(?=.*[a-z])(?=.*[0-9])[a-z0-9]{8,14}/',$data['payment_password'])){
+				return ['code' => 0,'msg' => '安全密码必须为8~14位并包含字母和数字!'];
 			}
 			if($data['payment_password'] != $data['re_payment_password']){
 				return ['code' => 0,'msg' => '两次输入的安全密码不相同!'];

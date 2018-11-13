@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:77:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\preferential.html";i:1541755712;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1541733792;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1541988575;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:77:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\preferential.html";i:1542013994;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,12 +8,24 @@
     <link rel="stylesheet" href="/static/ace/css/zhongyu.css" />
     <link rel="stylesheet" href="/static/ace/css/bootstrap.css" />
     <link rel="stylesheet" href="/static/ace/css/store.css" />
-    <link rel="stylesheet" href="/static/ace/css/item.css" />
+    <!--<link rel="stylesheet" href="/static/ace/css/item.css" />-->
     <link rel="stylesheet" href="/static/ace/css/clear.css" />
     <link rel="stylesheet" href="/static/ace/css/shopCart.css" />
     <link rel="stylesheet" href="/static/ace/css/userCenter.css">
 </head>
 <body>
+<!--悬浮窗-->
+<div class="suspend" id = "floating_window">
+    <a href="/index/goods/car" title="购物车" class="shop">
+        <img src="/static/ace/img/shop.png">
+    </a>
+    <a href="/index/goods/my_promotion" title="个人中心" class="mine">
+        <img src="/static/ace/img/my.png">
+    </a>
+    <a href="#" title="回顶部" class="backTop">
+        <img src="/static/ace/img/top.png">
+    </a>
+</div>
 <!--头部-->
 <div class="top_nav">
     <div class="container clearfix">
@@ -123,75 +135,6 @@
     </div>
    <center> <?php echo $pre_page; ?>  </center>
     <!--商品展示-->
-    <!--<div class="cabinet2">
-        <div class="show3">
-            <img src="/static/ace/img/show2.jpg" onclick="item()">
-            <div class="buyBox">
-                <div>
-                    <p>售价：<span>2000</span> <span>积分</span></p>
-                </div>
-                <button type="button" onclick="buy()">立即购买</button>
-            </div>
-        </div>
-        <div class="show3">
-            <img src="/static/ace/img/show2.jpg" onclick="item()">
-            <div class="buyBox">
-                <div>
-                    <p>售价：<span>2000</span> <span>积分</span></p>
-                </div>
-                <button type="button" onclick="buy()">立即购买</button>
-            </div>
-        </div>
-        <div class="show3">
-            <img src="/static/ace/img/show3.jpg" onclick="item()">
-            <div class="buyBox">
-                <div>
-                    <p>售价：<span>2000</span> <span>积分</span></p>
-                </div>
-                <button type="button" onclick="buy()">立即购买</button>
-            </div>
-        </div>
-    </div>
-    <div class="cabinet2">
-        <div class="show3">
-            <img src="/static/ace/img/show2.jpg" onclick="item()">
-            <div class="buyBox">
-                <div>
-                    <p>售价：<span>200</span> <span>积分</span></p>
-                </div>
-                <button type="button" onclick="buy()">立即购买</button>
-            </div>
-        </div>
-        <div class="show3">
-            <img src="/static/ace/img/show2.jpg" onclick="item()">
-            <div class="buyBox">
-                <div>
-                    <p>售价：<span>200</span> <span>积分</span></p>
-                </div>
-                <button type="button" onclick="buy()">立即购买</button>
-            </div>
-        </div>
-        <div class="show3">
-            <img src="/static/ace/img/show3.jpg" onclick="item()">
-            <div class="buyBox">
-                <div>
-                    <p>售价：<span>200</span> <span>积分</span></p>
-                </div>
-                <button type="button" onclick="buy()">立即购买</button>
-            </div>
-        </div>
-    </div>-->
-    <!--分页-->
-    <!--<ul class="page">
-        <li><a href="#"><</a></li>
-        <li><a href="#">1</a></li>
-        <li><a href="#">2</a></li>
-        <li><a href="#">3</a></li>
-        <li><a href="#">4</a></li>
-        <li><a href="#">5</a></li>
-        <li><a href="#">...</a></li>
-        <li><a href="#">></a></li>
-    </ul>-->
 </main>
 
 <script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>
@@ -204,27 +147,29 @@
 			<img src="/static/ace/img/logo_zc.png" class="foot_img" />
 			<div class="foot_b">@2018.zhongchengguoji</div>
 		</div>
+		<?php if($pre_card != null): ?>
 		<!--优惠券-->
 		<div class="coupon">
 			<img src="/static/ace/img/yhq.png" class="yhq"/>
 			<img src="/static/ace/img/close.png" class="cls" onclick="cls()"/>
 		</div>
 		<div class="mask"></div>
-	</body>
+        <?php endif; ?>
+		</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();
 		}
-		var stat = document.cookie.split(";")[0].split("=")[1];
-		setTimeout(function(){
-			document.cookie="sata=0";
-		},1500);
-		console.log(document.cookie)
-		if(stat == 1){
-			$('.coupon,.mask').fadeIn();
-		}else{
-			$('.coupon,.mask').hide();
-		}
+		// var stat = document.cookie.split(";")[0].split("=")[1];
+		// setTimeout(function(){
+		// 	// document.cookie="sata=0";
+		// },1500);
+		// // console.log(document.cookie)
+		// if(stat == 1){
+		// 	$('.coupon,.mask').fadeIn();
+		// }else{
+		// 	$('.coupon,.mask').hide();
+		// }
 	</script>
 </html>
 <script>

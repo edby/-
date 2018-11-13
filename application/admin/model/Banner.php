@@ -42,8 +42,6 @@ class Banner extends Base
         $return['list'] = $list;
         $return['count'] = $count;
         $return['page'] = boot_page($return['count'], self::PAGE_LIMIT, self::PAGE_SHOW, $p,$request->action());
-//        print_r($return);
-//        exit();
         return $return;
     }
 	

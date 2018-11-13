@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\clear.html";i:1541733433;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542013298;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\clear.html";i:1542074848;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,21 +8,21 @@
     <link rel="stylesheet" href="/static/ace/css/zhongyu.css" />
     <link rel="stylesheet" href="/static/ace/css/bootstrap.css" />
     <link rel="stylesheet" href="/static/ace/css/store.css" />
-    <link rel="stylesheet" href="/static/ace/css/item.css" />
+    <!--<link rel="stylesheet" href="/static/ace/css/item.css" />-->
     <link rel="stylesheet" href="/static/ace/css/clear.css" />
     <link rel="stylesheet" href="/static/ace/css/shopCart.css" />
     <link rel="stylesheet" href="/static/ace/css/userCenter.css">
 </head>
 <body>
 <!--悬浮窗-->
-<div class="suspend">
-    <a href="/index/.html" class="shop">
+<div class="suspend" id = "floating_window">
+    <a href="/index/goods/car" title="购物车" class="shop">
         <img src="/static/ace/img/shop.png">
     </a>
-    <a href="userCenter.html" class="mine">
+    <a href="/index/goods/my_promotion" title="个人中心" class="mine">
         <img src="/static/ace/img/my.png">
     </a>
-    <a href="#" class="backTop">
+    <a href="#" title="回顶部" class="backTop">
         <img src="/static/ace/img/top.png">
     </a>
 </div>
@@ -163,8 +163,8 @@
             </div>
         </div>
         <div class="freight">
-            <span>运费：</span>
-            <p><span>10</span>元</p>
+            <!--<span>运费：</span>-->
+            <!--<p><span>10</span>元</p>-->
         </div>
     </div>
     <div class="line"></div>
@@ -174,10 +174,10 @@
         <div class="figure_box">
             <span class="figure_total">合计：</span>
             <p>
-                <span class="figure_price" id = "total_money">-</span>
+                <span class="figure_price" id = "total_money"><?php echo $order['money']; ?></span>
                 <span>消费券</span>
             </p>
-            <span>（包含运费）</span>
+            <!--<span>（包含运费）</span>-->
             <button type="button" onclick="submit_order()">提交订单</button>
         </div>
     </div>

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1542088538;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\mod_pwd.html";i:1542088500;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -194,13 +194,13 @@
     </div><!-- /.modal -->
 </div>
 
-<link rel="stylesheet" href="/static/ace/css/wallet.css">
-<!--内容-->
-<main class="main">
-    <div class="main_box">
-        <div class="main_left">
-            <!--左侧用户信息&左侧会员中心导航栏-->
-            <!--左侧会员中心导航栏-->
+
+		<!--内容-->
+		<main class="main">
+			<div class="main_box">
+				<div class="main_left">
+					<!--左侧用户信息&左侧会员中心导航栏-->
+            		<!--左侧会员中心导航栏-->
 <div class="member">
     <div class="member_box">
         <img src="/static/ace/img/show1.jpg" class="portrait">
@@ -261,38 +261,23 @@
     </ul>
 </div>
 
-        </div>
+				</div>
 
-        <div class="main_right">
-            <p class="vip_hint">钱包（请妥善保管您的资金）：</p>
-            <div class="wallet_box">
-                <span>总积分：</span>
-                <span class="wallet_num"><?php echo $wallet['user_frozen_bonus']; ?></span>
-                <small>（包含冻结区、解冻区积分）</small>
-            </div>
-            <div class="wallet_box">
-                <span>已解冻积分：</span>
-                <span class="wallet_num"><?php echo $wallet['user_all_bonus']; ?></span>
-            </div>
-            
-            <?php if(is_array($wallet['voucher']) || $wallet['voucher'] instanceof \think\Collection || $wallet['voucher'] instanceof \think\Paginator): $i = 0; $__LIST__ = $wallet['voucher'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;if($vo['is_sell'] == '1'): ?>
-		            <div class="walletBox">
-		                <div class="wallet_box">
-		                    <span><?php echo $vo['name']; ?>：</span>
-		                    <span class="wallet_num"><?php echo $vo['number']; ?>张</span>
-		                </div>
-		                <button type="button" onclick="buy_tip(<?php echo $vo['id']; ?>)">去购买</button>
-		            </div>
-		        <?php else: ?>
-		        	<div class="wallet_box">
-		                <span><?php echo $vo['name']; ?>：</span>
-		                <span class="wallet_num"><?php echo $vo['number']; ?></span>
-		            </div>
-		        <?php endif; endforeach; endif; else: echo "" ;endif; ?>
-            
-        </div>
-    </div>
-</main>
+				<div class="main_right">
+					<ul class="pwd_right">
+						<li>
+							<p class="vip_hint">
+								设置安全密码（请妥善保管密码）：
+							</p>
+							<input id='pay_pwd' placeholder="请输入您的安全密码" name='payment_password' type="password" />
+							<font>温馨提示：安全密码必须包含字母和数字，长度为8-14位，且不能与登录密码一致。</font>
+							<input id='repay_pwd' placeholder="请确认您的安全密码" name='re_payment_password' type="password" />
+							<button id='mod_pwd'>确认提交</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</main>
 
 		<!--底部-->
 		<div class="foot">
@@ -325,6 +310,29 @@
 	</script>
 </html>
 <script>
-    vipNav(0)
+	vipNav(5);
 </script>
-
+<script type='text/javascript'>
+$('#mod_pwd').click(function(){
+	var data = {
+		uid:$('.user_name').attr('data-uid'),
+		payment_password:$('#pay_pwd').val(),
+		re_payment_password:$('#repay_pwd').val(),
+	}
+	$.ajax({
+		type:'post',
+		url:'<?php echo url("mod_pwd"); ?>',
+		data:data,
+		success:function(ret){
+			if(ret.code === 0){
+				layer.msg(ret.msg);
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+    				location.href = self.location.href;
+    			});
+			}
+		}
+	});
+});
+</script>
+	

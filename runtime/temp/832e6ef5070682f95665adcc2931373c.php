@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\classify.html";i:1541754659;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021099;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\classify.html";i:1541754659;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,7 +15,7 @@
 </head>
 <body>
 <!--悬浮窗-->
-<div class="suspend">
+<div class="suspend" id = "floating_window">
     <a href="/index/goods/car" title="购物车" class="shop">
         <img src="/static/ace/img/shop.png">
     </a>

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\activate.html";i:1541838096;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542013204;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\activate.html";i:1542078002;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,21 +8,21 @@
     <link rel="stylesheet" href="/static/ace/css/zhongyu.css" />
     <link rel="stylesheet" href="/static/ace/css/bootstrap.css" />
     <link rel="stylesheet" href="/static/ace/css/store.css" />
-    <link rel="stylesheet" href="/static/ace/css/item.css" />
+    <!--<link rel="stylesheet" href="/static/ace/css/item.css" />-->
     <link rel="stylesheet" href="/static/ace/css/clear.css" />
     <link rel="stylesheet" href="/static/ace/css/shopCart.css" />
     <link rel="stylesheet" href="/static/ace/css/userCenter.css">
 </head>
 <body>
 <!--悬浮窗-->
-<div class="suspend">
-    <a href="shopCart.html" class="shop">
+<div class="suspend" id = "floating_window">
+    <a href="/index/goods/car" title="购物车" class="shop">
         <img src="/static/ace/img/shop.png">
     </a>
-    <a href="userCenter.html" class="mine">
+    <a href="/index/goods/my_promotion" title="个人中心" class="mine">
         <img src="/static/ace/img/my.png">
     </a>
-    <a href="#" class="backTop">
+    <a href="#" title="回顶部" class="backTop">
         <img src="/static/ace/img/top.png">
     </a>
 </div>

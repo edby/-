@@ -157,17 +157,14 @@ class Index extends Base
 				// 判断当付款条件为 尾款 时设置条件为 首款 支付后的 3~5 天之间可付尾款
 				if($v['class'] === 2){
 					// 获取同一用户同一笔交易中关联的ID
-					$same_user_orders = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$v['trade_buy_id']) -> value('trade_buy_ids');
+					$same_user_orders = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.','.$v['trade_buy_id'].','.'%') -> value('trade_buy_ids');
 					$trade_class_1_order_id = Db::name('trade_buy') -> where('id','in',$same_user_orders) -> value('order_id');	// 查询同一用户同一笔交易中 首款 的对应 order 表中的ID
 					$order_class_1_pay = Db::name('order') -> where('id',$trade_class_1_order_id) -> value('pay_time');	// 获取同一用户同一笔交易中 首款 支付的时间
-					$order[$k]['aaaaaaaaaaaaaaaa'] = $same_user_orders;
-					$order[$k]['bbbbbbbbbbbbbbbb'] = $trade_class_1_order_id;
-					$order[$k]['cccccccccccccccc'] = $order_class_1_pay;
 					// 如果用户是否已付首款
 					if($order_class_1_pay){	// 已付
 						// 判断尾款的可付款日期
 						$time = time();
-						$order[$k]['start_can_pay'] = $order_class_1_pay + 60*60;	// 3天
+						$order[$k]['start_can_pay'] = $order_class_1_pay + 60*3;	// 3天
 						$order[$k]['end_can_pay'] = $order_class_1_pay + 60*60*5;	// 5天
 						if($time < $order[$k]['start_can_pay']){	// 判断用户付款后 3 天之内的提示(不可点击)
 							$order[$k]['detail_text'] = '未到付款时间';
@@ -216,12 +213,20 @@ class Index extends Base
 				return ['code' => 0,'msg' => '买入只能为2000的倍数!'];
 			}
 		}
-		// 判断一天只能买一次
-		$burn_where['uid'] = $data['uid'];
-		$burn_count = Db::name('trade_burn') -> where($burn_where) -> whereTime('create_time','today') -> count();
-		if($burn_count >= 1){
-			return ['code' => 0,'msg' => '一天最多只能交易一次!'];
+		// 判断用户是否绑定银行卡
+		$card_where['uid'] = $data['uid'];
+		$card_where['default'] = 2;
+		$exist_card = Db::name('user_card') -> where($card_where) -> find();
+		if(!$exist_card){
+			return ['code' => 0,'msg' => '请先绑定并设置默认银行卡!'];
 		}
+		
+		// 判断一天只能买一次
+//		$burn_where['uid'] = $data['uid'];
+//		$burn_count = Db::name('trade_burn') -> where($burn_where) -> whereTime('create_time','today') -> count();
+//		if($burn_count >= 1){
+//			return ['code' => 0,'msg' => '一天最多只能交易一次!'];
+//		}
 		
 		Db::startTrans();
 		$condition = 0;
@@ -243,11 +248,26 @@ class Index extends Base
 			$in_trade_burn['uid'] = $data['uid'];
 			$in_trade_burn['number'] = $data['number'];
 			$in_trade_burn['create_time'] = time();
-			$in_trade_burn['trade_buy_ids'] = $first_trade_id.','.$last_trade_id;;
+			$in_trade_burn['trade_buy_ids'] = ','.$first_trade_id.','.$last_trade_id.',';
+			$in_trade_burn['back_status_bonus'] = $data['number'] + $data['number'] * 0.15;
 			$trade_burn_id = Db::name('trade_burn') -> insertGetId($in_trade_burn);
 			
-			// 执行用户对上级烧伤奖金记录
+			// 执行用户对上级烧伤奖金记录(三代领导奖[动态奖])
 			$this -> bonus($data['uid'],$data['number'],$trade_burn_id);
+			
+			// 执行用户对上级的奖金(见点奖[动态奖])
+			$this -> point_bonus($data['uid'],$data['number']);
+			
+			// 判断用户交易金额，每大于10000将增加一张优惠券
+			$vou = intval($data['number']/10000);
+			if($vou != 0){
+				$vou_where['uid'] = $data['uid'];
+				$vou_where['vid'] = 1;
+				Db::name('user_vou') -> where($vou_where) -> setInc('number',$vou);
+			}
+			
+			// 福利奖
+			model('Profit') -> welfare();
 			
 			$condition = 1;
 			Db::commit();
@@ -266,8 +286,9 @@ class Index extends Base
 	 * 用户对上级烧伤奖金记录
 	 * $uid 	当前购买用户ID
 	 * $number 	当前用户购买数量
+	 * $trade_hurn_id	当前用户买入时在对应的 用户交易烧伤记录表 中插入数据ID
 	 */
-	public function bonus($uid,$number,$trade_buy_ids){
+	public function bonus($uid,$number,$trade_burn_id){
 		
 		// 上一级用户
 		$one_id = Db::name('user') -> where('id',$uid) -> value('parent_id');	// 获取上一级用户ID
@@ -281,8 +302,8 @@ class Index extends Base
 			}else{
 				$trade_burn_one_mod['one_number'] = $last_one_trade * 0.02;
 			}
+			$trade_burn_one_mod['one_id'] = $one_id;
 			$trade_burn_one_where['id'] = $trade_burn_id;
-			$trade_burn_one_where['one_id'] = $one_id;
 			Db::name('trade_burn') -> where($trade_burn_one_where) -> update($trade_burn_one_mod);
 			
 			// 上二级用户
@@ -297,12 +318,12 @@ class Index extends Base
 				}else{
 					$trade_burn_two_mod['two_number'] = $last_two_trade * 0.03;
 				}
+				$trade_burn_two_mod['two_id'] = $two_id;
 				$trade_burn_two_where['id'] = $trade_burn_id;
-				$trade_burn_two_where['two_id'] = $two_id;
 				Db::name('trade_burn') -> where($trade_burn_two_where) -> update($trade_burn_two_mod);
 				
 				// 上三级用户
-				$three_id = Db::name('user') -> where('id',$one_id) -> value('parent_id');	// 获取上三级用户ID
+				$three_id = Db::name('user') -> where('id',$two_id) -> value('parent_id');	// 获取上三级用户ID
 				if($three_id){
 					$three = Db::name('user') -> where('id',$three_id) -> find();	// 查询上三级用户信息
 					// 记录 当前用户交易烧伤记录表 中对上三级用户的烧伤奖金
@@ -313,12 +334,39 @@ class Index extends Base
 					}else{
 						$trade_burn_three_mod['three_number'] = $last_three_trade * 0.05;
 					}
+					$trade_burn_three_mod['three_id'] = $three_id;
 					$trade_burn_three_where['id'] = $trade_burn_id;
-					$trade_burn_three_where['three_id'] = $three_id;
 					Db::name('trade_burn') -> where($trade_burn_three_where) -> update($trade_burn_three_mod);
 				}
 			}
  		}
+	}
+	
+	/**
+	 * 用户见点奖
+	 * $uid		当前用户ID
+	 * $number	当前用户购买数量
+	 */
+	public function point_bonus($uid,$number){
+		// 获取当前用户邀请人数
+		$child_num = Db::name('user') -> where('parent_id',$uid) -> count();
+		$current = Db::name('user') -> where('id',$uid) -> find();
+		$user_ids = explode(',',$current['pids']);
+		
+		// 2*统计下级数据+5
+		$times = 2*$child_num+5;
+		if($child_num >= 5){
+			array_slice($user_ids,0,15);
+		}else{
+			array_slice($user_ids,0,$times);
+		}
+		
+		foreach($user_ids aS $k => $v){
+			$frozen = $number * 0.0005;
+			$user_bouns_where['uid'] = $v;
+			$user_bouns_where['bouns_type'] = 2;
+			Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$frozen);
+		}
 	}
 	
 	/**
@@ -333,7 +381,7 @@ class Index extends Base
 		$order = Db::name('order') -> where('id',$id) -> find();
 		
 		// 订单状态
-		$dict_where['type'] = 'order_status';
+		$dict_where['type'] = 'trade_status';
 		$dict_where['value'] = $order['order_status'];
 		$order['order_status_text'] = Db::name('dict') -> where($dict_where) -> value('key');
 		// 隐藏手机号
@@ -423,6 +471,7 @@ class Index extends Base
 			$sell_pay_count_where['id'] = array('in',$sell_ids);
 			$sell_pay_count_where['pay_type'] = array('neq',null);
 			$sell_pay_count = Db::name('trade_sell') -> where('id','in',$sell_ids) -> where('pay_type<>0') -> count();
+			// 判断支付多条订单的最后一条
 			if($sell_pay_count === $sell_count){
 				// 修改 交易买入信息
 				$buy_mod['buy_status'] = 2;
@@ -434,6 +483,29 @@ class Index extends Base
 					$order_mod['order_status'] = 2;
 					$order_mod['pay_time'] = time();
 					Db::name('order') -> where('trade_sell_ids','LIKE','%'.$v) -> update($order_mod);
+				}
+				
+				// 判断用户打款时间(1.是否在8~12点打款;2.是否超过5个小时未打款;3.是否超过12个小时未打款)
+				$beginToday = mktime(0,0,0,date('m'),date('d'),date('Y'));	// 当天0点时间戳
+				$eight_oclock = $beginToday + 60*60*8;		// 当天8点
+				$twelve_oclock = $beginToday + 60*60*12;	// 当天12点
+				$thirteen_oclock = $beginToday + 60*60*13;	// 当天13点(超过1小时)
+				$seventeen_oclock = $beginToday + 60*60*17;	// 当天17点(超过5小时)
+				$tomorrow = $beginToday + 60*60*24;			// 第二天0点(超过12小时)
+				$time = time();
+				// 获取用户购买信息
+				$trade_buy = Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> find();
+				// 8~12点(增加1%静态奖)
+				if($time >= $eight_oclock && $time <= $twelve_oclock){
+					$this -> pay_timezone($trade_buy['class'],$data['trade_buy_id'],1);
+				}
+				// 12~13点(扣除用户2%静态奖)
+				if($time >= $twelve_oclock && $time <= $thirteen_oclock){
+					$this -> pay_timezone($trade_buy['class'],$data['trade_buy_id'],2);
+				}
+				// 13~17点(扣除用户10%静态奖)
+				if($time >= $thirteen_oclock && $time <= $tomorrow){
+					$this -> pay_timezone($trade_buy['class'],$data['trade_buy_id'],3);
 				}
 			}
 			
@@ -451,6 +523,37 @@ class Index extends Base
 	}
 	
 	/**
+	 * 根据用户的支付时间判断奖惩
+	 */
+	public function pay_timezone($class,$trade_buy_id,$timezone){
+		$trade_buy_id = ','.$trade_buy_id.',';
+		if($class === 2){
+			// 修改 用户交易烧伤记录表 时间状态
+			Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> update(['end_timezone' => $timezone]);
+			
+			// 查询 用户买入 表中关联的两条数据,如果其中有一条不达标奖按不达标条件处理
+			$burn = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> find();
+			
+			if($burn['start_timezone'] === 1 && $burn['start_timezone'] === 1){
+				// 为用户增加 1% 的静态奖金
+				$bonus_num = $burn['number'] * 0.01;
+				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> setInc('back_status_bonus',$bonus_num);
+			}else if($burn['start_timezone'] === 2 || $burn['start_timezone'] === 2){
+				// 为用户扣除 2% 的静态奖金
+				$bonus_num = $burn['number'] * 0.02;
+				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> setDec('back_status_bonus',$bonus_num);
+			}else if($burn['start_timezone'] === 3 || $burn['start_timezone'] === 3){
+				// 为用户扣除 10% 的静态奖金
+				$bonus_num = $burn['number'] * 0.1;
+				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> setDec('back_status_bonus',$bonus_num);
+			}
+		}else{
+			// 修改 用户交易烧伤记录表 时间状态
+			Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> update(['start_timezone' => $timezone]);
+		}
+	}
+	
+	/**
 	 * model 卖出订单详情
 	 */
 	public function sellDet($id){
@@ -462,7 +565,7 @@ class Index extends Base
 		$order = Db::name('order') -> where('id',$id) -> find();
 		
 		// 订单状态
-		$dict_where['type'] = 'order_status';
+		$dict_where['type'] = 'trade_status';
 		$dict_where['value'] = $order['order_status'];
 		$order['order_status_text'] = Db::name('dict') -> where($dict_where) -> value('key');
 		// 隐藏手机号
@@ -528,7 +631,7 @@ class Index extends Base
 		try{
 			// 修改 买入交易 信息
 			$trade_buy_id = Db::name('order') -> where('id',$data['id']) -> value('trade_buy_id');	// 获取 交易买入ID
-			$buy_mod['buy_status'] = 4;
+			$buy_mod['buy_status'] = 3;
 			$buy_mod['end_time'] = time();
 			Db::name('trade_buy') -> where('id',$trade_buy_id) -> update($buy_mod);
 			
@@ -536,14 +639,56 @@ class Index extends Base
 			$trade_sell_ids = explode(',',$data['trade_sell_ids']);
 			foreach($trade_sell_ids as $k => $v){
 				// 修改 卖出交易 信息
-				$sell_mod['sell_status'] = 4;
+				$sell_mod['sell_status'] = 3;
 				$sell_mod['end_time'] = time();
 				$result = Db::name('trade_sell') -> where('id','LIKE',$v) -> update($sell_mod);
 				
 				// 修改 订单 信息
-				$order_mod['order_status'] = 4;
+				$order_mod['order_status'] = 3;
 				$order_mod['done_time'] = time();
 				Db::name('order') -> where('trade_sell_ids','LIKE',$v) -> update($order_mod);
+			}
+			
+			// 判断卖出的订单是否已经完成支付,如果完成,则修改买入的订单状态,并将静态奖金冻结
+			$order_buy_id = Db::name('order') -> where('trade_sell_ids',$data['trade_sell_ids']) -> value('trade_buy_id');	// 获取匹配的同一买入订单ID
+			$count_where['trade_buy_id'] = $order_buy_id;
+			$count_where['trade_type'] = 1;
+			$sell_order_count = Db::name('order') -> where($count_where) -> count();	// 获取卖出订单的总数
+			$status3_where['trade_buy_id'] = $order_buy_id;
+			$status3_where['order_status'] = 3;
+			$sell_order_status3_count = Db::name('order') -> where($status3_where) -> count();	// 获取卖出已确认订单的总数
+			// 判断如果卖出订单总数和已确认卖出订单总数相同则修改订单状态
+			if($sell_order_count === $sell_order_status3_count){
+				// 修改买入订单状态
+				$buy_where['trade_buy_id'] = $order_buy_id;
+				$buy_where['trade_type'] = 2;
+				$order_buy_mod['order_status'] = 3;
+				$order_buy_mod['done_time'] = time();
+				Db::name('order') -> where($buy_where) -> update($order_buy_mod);
+			}
+			
+			// 将 用户交易烧伤表中的相应数据 冻结
+			$burn = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%,'.$order_buy_id.',%') -> find();
+			$bonus_where['uid'] = $burn['uid'];
+			$bonus_where['bouns_type'] = 1;
+			Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',$burn['back_status_bonus']);
+			// 增加上一级用户烧伤
+			if($burn['one_number'] != 0){
+				$one_where['uid'] = $burn['one_id'];
+				$one_where['bouns_type'] = 1;
+				Db::name('user_bouns') -> where($one_where) -> setInc('frozen_bouns_number',$burn['one_number']);
+			}
+			// 增加上二级用户烧伤
+			if($burn['two_number'] != 0){
+				$two_where['uid'] = $burn['two_id'];
+				$two_where['bouns_type'] = 1;
+				Db::name('user_bouns') -> where($two_where) -> setInc('frozen_bouns_number',$burn['two_number']);
+			}
+			// 增加上三级用户烧伤
+			if($burn['three_number'] != 0){
+				$three_where['uid'] = $burn['three_id'];
+				$three_where['bouns_type'] = 1;
+				Db::name('user_bouns') -> where($three_where) -> setInc('frozen_bouns_number',$burn['two_number']);
 			}
 			
 			$condition = 1;

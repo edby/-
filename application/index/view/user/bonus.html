@@ -16,27 +16,15 @@
             </div>
             <div class="bonus_box">
                 <div class="bonus_main">
-                    <div>
-                        <span>静态冻结</span>
-                        <p>
-                            <span>XXX</span>
-                            积分
-                        </p>
-                    </div>
-                    <div>
-                        <span>动态冻结</span>
-                        <p>
-                            <span>XXX</span>
-                            积分
-                        </p>
-                    </div>
-                    <div>
-                        <span>福利冻结</span>
-                        <p>
-                            <span>XXX</span>
-                            积分
-                        </p>
-                    </div>
+                    {volist name='$bonus' id='vo'}
+	                    <div>
+	                        <span>{$vo.name}</span>
+	                        <p>
+	                            <span>{$vo.frozen_bouns_number}</span>
+	                            积分
+	                        </p>
+	                    </div>
+                    {/volist}
                 </div>
                 <p>小提示：进入冻结区的奖金，需要十天才能解冻哦，请耐心等待</p>
             </div>
@@ -48,7 +36,7 @@
             </div>
             <div class="bonus_box">
                 <div class="bonus_main">
-                    {volist name='$bonus.thaw_bouns' id='vo'}
+                    {volist name='$bonus' id='vo'}
 	                    <div>
 	                        <span>{$vo.name}</span>
 	                        <p>

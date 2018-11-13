@@ -6,7 +6,8 @@ class Userdetail extends Validate
     /**
      * 验证规则
      */
-    protected $rule = [    	'real_name'	=>	'require',
+    protected $rule = [
+    	'real_name'	=>	'require',
     	'identity'	=>	'require',
     	'tel'		=>	'require',
         'status'	=>	'require',

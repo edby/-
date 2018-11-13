@@ -12,12 +12,12 @@
             <p class="vip_hint">钱包（请妥善保管您的资金）：</p>
             <div class="wallet_box">
                 <span>总积分：</span>
-                <span class="wallet_num">XXX</span>
+                <span class="wallet_num">{$wallet.user_frozen_bonus}</span>
                 <small>（包含冻结区、解冻区积分）</small>
             </div>
             <div class="wallet_box">
                 <span>已解冻积分：</span>
-                <span class="wallet_num">XXX</span>
+                <span class="wallet_num">{$wallet.user_all_bonus}</span>
             </div>
             
             {volist name='wallet.voucher' id='vo'}

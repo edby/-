@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:75:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\goods_order.html";i:1542012408;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:75:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\goods_order.html";i:1542095836;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -174,7 +174,7 @@ select{
                                         </td>
                                         <td><?php echo date("Y年m月d日 H:i:s",$vo['create_time']); ?></td>
                                         <td><?php echo $vo['order_number']; ?></td>
-                                        <td>删除</td>
+                                        <td class="center">--</td>
                                     </tr>
                                     <?php endforeach; endif; else: echo "" ;endif; ?>
                                     </tbody>
