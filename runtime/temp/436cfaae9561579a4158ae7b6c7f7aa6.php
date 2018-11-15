@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1542021183;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1542088417;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +48,6 @@
 	            <span>ZC</span>
 				<div class="accout_menu">
 	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
-	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
 	            </div>
 	        </div>
 	    <?php else: ?>
@@ -285,7 +284,6 @@
 			{
 			    var return_code = ["-2","-1","1"];
 			    r = JSON.parse(r);
-			    // console.log(r);return false;
 			    if(!return_code.indexOf(r['code'])){
 			        layer.confirm("返回数据错误！！",function (index) {
                         window.reload();

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542021244;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542272126;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +48,6 @@
 	            <span>ZC</span>
 				<div class="accout_menu">
 	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
-	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
 	            </div>
 	        </div>
 	    <?php else: ?>
@@ -104,8 +103,11 @@
             <li <?php if($type == 2): ?> class="active" <?php endif; ?>>
                 <a href="my_promotion?type=2">待发货</a>
             </li>
+            <li <?php if($type == 5): ?> class="active" <?php endif; ?>>
+            <a href="my_promotion?type=5">运输中</a>
+            </li>
             <li <?php if($type == 3): ?> class="active" <?php endif; ?>>
-                <a href="my_promotion?type=3">已收货</a>
+            <a href="my_promotion?type=3">待收货</a>
             </li>
             <li <?php if($type == 4): ?> class="active" <?php endif; ?>>
                 <a href="my_promotion?type=4">已完成</a>
@@ -145,7 +147,7 @@
                         <div class="indent_right">
                             <div></div>
                             <div>
-                                <?php switch($o['order_status']): case "1": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="待支付" disabled><?php break; case "2": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="待发货" disabled><?php break; case "3": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已签收" disabled><?php break; case "4": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled><?php break; endswitch; ?>
+                                <?php switch($o['order_status']): case "1": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'pay_now',<?php echo $o['order_number']; ?>)" value="待支付" title="去支付"><?php break; case "2": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'notice',)" value="提醒发货"><input type="button" class="indentBtn_on" disabled value="待发货"><?php break; case "5": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="运输中" disabled><?php break; case "3": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'confirm',<?php echo $o['order_number']; ?>)" value="待收货"><?php break; case "4": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled><?php break; endswitch; ?>
                             </div>
                         </div>
                     </div>

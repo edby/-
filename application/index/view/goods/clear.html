@@ -64,12 +64,18 @@
             </tbody>
         </table>
     </form>
-
+    {volist name = "addrs" id = "a" key = "key"}
+        <input type="radio" name="addr_select">
+        <span>姓名：{$a['username']}</span>
+        <span>电话：{$a['tel']}</span>
+        <span>收货地址：{$a['address']}</span>
+        <br />
+    {/volist}
 
     <!--收货信息-->
     <div class="recipients">
         <div class="rec_box">
-            <div class="rec_title">
+            <div class="rec_title"  style="cursor: pointer;" onclick="select_addr()">
                 <span>收货信息：</span>
                 <img src="__IMG__/next.png">
             </div>
@@ -77,7 +83,7 @@
                 <span>姓名：{$user_info[0]['username']}</span>
                 <span>电话：{$user_info[0]['tel']}</span>
                 <span>收货地址：{$user_info[0]['address']}</span>
-                <a href="#">编辑</a>
+                <a href="../user/address" target="_blank" style="cursor: pointer">编辑</a>
             </div>
         </div>
         <div class="freight">

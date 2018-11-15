@@ -45,6 +45,7 @@
                                             <option value="0" {$record_type=="0"?'selected':''}>全部</option>
                                             <option value="1" {$record_type=="1"?'selected':''}>待支付</option>
                                             <option value="2" {$record_type=="2"?'selected':''}>待发货</option>
+                                            <option value="5" {$record_type=="5"?'selected':''}>运输中</option>
                                             <option value="3" {$record_type=="3"?'selected':''}>已收货</option>
                                             <option value="4" {$record_type=="4"?'selected':''}>已完成</option>
                                         {volist name="record_type" id="vo"}
@@ -61,12 +62,16 @@
                                     <thead>
                                     <tr>
                                         <th class="center">序号</th>
+                                        <th>用户</th>
                                         <th>商品名</th>
-                                        <th>商家id</th>
+                                        <th>商家</th>
                                         <th>交易数量</th>
                                         <th>交易金额</th>
-                                        <th>交易状态</th>
-                                        <th>创建时间</th>
+                                        <th style="width: 180px;">交易状态</th>
+                                        <th>收货人地址</th>
+                                        <th>电话</th>
+                                        <th>姓名</th>
+                                        <th>订单产生时间</th>
                                         <th>订单号</th>
                                         <th>操作</th>
                                     </tr>
@@ -75,21 +80,26 @@
                                     {volist name="goods_order" id="vo" key="k"}
                                     <tr>
                                         <td class="center">{$k}</td>
+                                        <td>{$vo.account}</td>
                                         <td>{$vo.name}</td>
                                         <td>{$vo.gid}</td>
                                         <td>{$vo.g_number}</td>
                                         <td>{$vo.money}</td>
-                                        <td class="center">
+                                        <td>
                                             {switch name = "$vo.order_status" }
-                                            {case value = "1"}待支付{/case}
-                                            {case value = "2"}待发货{/case}
-                                            {case value = "4"}已收货{/case}
-                                            {case value = "5"}已完成{/case}
+                                            {case value = "1"}<span style="margin-left: 0px">待支付</span>{/case}
+                                            {case value = "2"}<span style="margin-left: 30px">待发货</span>{/case}
+                                            {case value = "3"}<span style="margin-left: 60px">已收货</span>{/case}
+                                            {case value = "4"}<span style="margin-left: 120px">已完成</span>{/case}
+                                            {case value = "5"}<span style="margin-left: 90px">运输中</span>{/case}
                                             {/switch}
                                         </td>
+                                        <td title="{$vo.address}">{$vo.address}</td>
+                                        <td>{$vo.tel}</td>
+                                        <td>{$vo.username}</td>
                                         <td>{:date("Y年m月d日 H:i:s",$vo.create_time)}</td>
                                         <td>{$vo.order_number}</td>
-                                        <td class="center">--</td>
+                                        <td class="center">{if condition = "($user_type eq 2)&&($vo.order_status eq 2)"}<button onclick="delivery({$vo.order_number},1)">发货</button>{else}--{/if}</td>
                                     </tr>
                                     {/volist}
                                     </tbody>
@@ -166,6 +176,28 @@
                 }
             });
         });
+    }
+    function delivery(order) {
+        var data = {
+            'order_number':order
+        };
+        $.ajax({
+            url:"delivery",
+            type:"post",
+            data:data,
+            success:function (r) {
+                r = JSON.parse(r);
+                console.log(r);
+                if(r['code'] == 1){
+                    layer.msg(r['msg']);
+                    setTimeout(function () {
+                        window.location.reload();
+                    },1000)
+                }else{
+                    layer.alert(r['msg']);
+                }
+            }
+        })
     }
 </script>
 </body>

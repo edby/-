@@ -326,13 +326,14 @@ class Goods extends Base
     		echo "接收数据错误！";
     		exit();
 	    }
-
+	    $addrs = Db::name('user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+	    $this->assign("addrs",$addrs);
     	return $this->fetch();
     }
 
 
 	/**
-	 * 订单付款功能
+	 * 订单付款功能，只能使用消费券进行购买商品
 	 * @return false|string
 	 * @throws \think\db\exception\DataNotFoundException
 	 * @throws \think\db\exception\ModelNotFoundException
@@ -340,7 +341,6 @@ class Goods extends Base
 	 */
     public function do_clear()
     {
-
 //    	print_r($_POST);
 //    	exit();
     	$r = [
@@ -354,7 +354,7 @@ class Goods extends Base
 				'msg'=>'用户信息不存在'
 			];
 			return json_encode($r);
-			exit();
+//			exit();
 		}
 	    Db::startTrans();
 	    try {
@@ -382,37 +382,52 @@ class Goods extends Base
 				if(!$user_money){
 					throw new Exception("用户不存在");
 				}
-//				    遍历用户三个类型的奖金，依次扣款
-			    $times = 1;
-				foreach ($user_money as $money_type){
-//					  依次扣除静态奖金、动态奖、福利奖
-					if($money_type['bouns_number'] < $item_money){
-						$money_type['bouns_number'] = 0;
-						$item_money -= $money_type['bouns_number'];
-						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
-					}else{
-						$money_type['bouns_number'] -= $item_money;
-						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
-						break;
-					}
-					if(($times==3)&&($item_money>0)){
-						throw new Exception("用户余额不足");
-					}
-					$times++;
-				}
+				$consumer_num = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>6])->find();
+//				print_r($consumer_num);
+//				exit();
+			    if($consumer_num > $item_money){
+			    	throw new Exception("用户消费券不足");
+			    }else{
+			    	$consumer_num['number'] -= $item_money;
+				    $result = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>6])->update($consumer_num);
+				    if(!$result){
+						throw new Exception("更新用户消费券失败");
+				    }
+			    }
+
+////				    遍历用户三个类型的奖金，依次扣款
+//			    $times = 1;
+//				foreach ($user_money as $money_type){
+////					  依次扣除静态奖金、动态奖、福利奖
+//					if($money_type['bouns_number'] < $item_money){
+//						$money_type['bouns_number'] = 0;
+//						$item_money -= $money_type['bouns_number'];
+//						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
+//					}else{
+//						$money_type['bouns_number'] -= $item_money;
+//						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
+//						break;
+//					}
+////					按客户要求，只能使用静态奖金，含泪将循环次数改为1
+//					if(($times==1)&&($item_money>0)){
+//						throw new Exception("用户余额不足");
+//					}
+//					$times++;
+//				}
 			    if(!(Db::name('goods_order')->where(['order_number' => $item[0]])->update(['order_status'=>2]))){
 					throw new Exception('订单付款失败');
 			    }
-//			    获取商家信息
-			    $goods_detail = Db::name('goods_detail')->where(['gid'=>$goods_order['sell_sid']])->find();
-			    if(!$goods_order){
-				    throw new Exception("未找到该商家！");
-			    }
-			    $shop = Db::name('user_bouns')->where(['uid'=>$goods_order['sell_sid']])->setInc(['frozen_bouns_number'=>($item_const*$goods_detail['profit_rate'])]);
+////			    获取商家信息
+//			    $goods_detail = Db::name('goods_detail')->where(['gid'=>$goods_order['sell_sid']])->find();
+//			    if(!$goods_order){
+//				    throw new Exception("未找到该商家！");
+//			    }
+////			    付款时候，资金暂时不转到商家账户中，等到用户确认收货之后再将资金转入到商家账户和平台中
+//			    $shop = Db::name('user_bouns')->where(['uid'=>$goods_order['sell_sid']])->setInc(['frozen_bouns_number'=>($item_const*$goods_detail['profit_rate'])]);
 //			    echo Db::name('user_bouns')->getLastSql();
-			    if(!($shop)){
-			    	throw new Exception("商家信息写入失败！");
-			    }
+//			    if(!($shop)){
+//			    	throw new Exception("商家信息写入失败！");
+//			    }
 		    }
 		    Db::commit();
 		    $r = [
@@ -630,6 +645,12 @@ class Goods extends Base
 		}
 		return json_encode($r);
 	}
+
+	/**
+	 * 查询订单
+	 * @return mixed
+	 * @throws \think\exception\DbException
+	 */
 	public function my_promotion()
 	{
 //		定义订单状态
@@ -667,4 +688,19 @@ class Goods extends Base
 		$this -> assign('uid',$uid);
 		return $this->fetch('user/userCenter');
 	}
+
+	/**
+	 * 选择地址
+	 * @return mixed
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 */
+	public function select_addr()
+	{
+		$addrs = Db::name('user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+		$this->assign("addrs",$addrs);
+		return $this->fetch();
+	}
+	public function
 }

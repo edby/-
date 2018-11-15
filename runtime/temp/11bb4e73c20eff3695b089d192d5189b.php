@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\voucher\index.html";i:1540898058;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\index\repwd.html";i:1525334716;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -35,17 +35,6 @@ select{
   width: auto;
 }
 </style>
-<style type="text/css">
-.search {text-indent:0.5em;}
-.main-container .table tr td {
-  vertical-align: middle;
-}
-.main-container .table tr td a{
-  margin-right:10px;
-}
-.is_green {font-weight:bold;color:green;}
-.is_red {font-weight:bold;color:red;}
-</style>
 </head>
 <body class="no-skin">
 <div id="navbar" class="navbar navbar-default">
@@ -65,7 +54,8 @@ select{
     </div>
   </div>
 </div>
-<div class="main-container" id="main-container"> <div id="sidebar" class="sidebar ">
+<div class="main-container" id="main-container"> 
+<div id="sidebar" class="sidebar ">
   <div class="sidebar-shortcuts" id="sidebar-shortcuts">
     <div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
       <button class="btn btn-success">
@@ -109,124 +99,77 @@ select{
       <div class="breadcrumbs" id="breadcrumbs">
         <ul class="breadcrumb">
           <li> <i class="ace-icon fa fa-home home-icon"></i> <a href="<?php echo url('Index/index'); ?>"><?php echo config('WEB_SITE_NAME'); ?></a> </li>
-          <li> <a href="<?php echo url('index'); ?>">用户管理</a> </li>
           <li class="active"><?php echo $pagename; ?></li>
         </ul>
       </div>
       <div class="page-content">
         <div class="page-header">
-          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出<?php echo $list['count']; ?>条数据 </small> </h1>
+          <h1> <?php echo $pagename; ?> </h1>
         </div>
-        <!-- /.page-header -->
         <div class="row">
-          <div class="col-xs-12"> 
-            <!-- PAGE CONTENT BEGINS -->
-            <div class="row">
-              <div class="col-xs-12" style="margin-bottom:10px;">
-                <form action="<?php echo url('index'); ?>" method="get" class="form-inline" role="form">
-                  <div class="form-group">
-                    <label>关键词：</label>
-                    <input name="keywords" type="text" class="form-control search" placeholder="名称">
-                  </div>
-                  <button type="submit" class="btn btn-sm btn-primary">查询</button>
-                  <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add'); ?>" >添加券</a>
-                  <button type="reset" class="btn btn-sm btn-danger hidden-xs" style="float:right;margin-right:10px;">清空查询条件</button>
-                </form>
-              </div>
-              <div class="col-xs-12">
-                <table id="sample-table-1" class="table table-striped table-bordered table-hover">
-                  <thead>
-                    <tr>
-                      <th class="center" width='3%'>ID</th>
-                      <th>名称</th>
-                      <th>价格</th>
-                      <th>交易</th>
-                      <th>添加时间</th>
-                      <th>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody class='t_tbody'>
-                    <?php if(is_array($list['list']) || $list['list'] instanceof \think\Collection || $list['list'] instanceof \think\Paginator): $k = 0; $__LIST__ = $list['list'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
-                      <tr>
-                        <td class="center"><?php echo $vo['id']; ?></td>
-                        <td><?php echo $vo['name']; ?></td>
-                        <td><?php echo $vo['price']; ?></td>
-                        <td class='<?php echo $vo['is_sell_color']; ?>'><?php echo $vo['is_sell_text']; ?></td>
-                        <td><?php echo $vo['create_time']; ?></td>
-                        <td>
-                          <a class="btn btn-sm btn-success" href="<?php echo url('edit',array('id'=>$vo['id'])); ?>" >修改</a>
-                          <a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="deleteInfo(this,<?php echo $vo['id']; ?>)">删除</a>
-                        </td>
-                      </tr>
-                    <?php endforeach; endif; else: echo "" ;endif; ?>
-                  </tbody>
-                </table>
-                <div style="width:100%;margin: 0 auto; text-align:center;">
-                  <ul class="pagination" >
-                    <?php echo $list['page']; ?>
-                  </ul>
+          <div class="col-xs-12">
+            <form class="form-horizontal form-post" role="form">
+              <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right"> 当前密码 </label>
+                <div class="col-sm-9">
+                  <input name="oldpassword" type="text" class="col-xs-10 col-sm-5" placeholder="输入当前密码" />
                 </div>
               </div>
-              <!-- /.span --> 
-            </div>
-            <!-- /.row --> 
-            <!-- PAGE CONTENT ENDS --> 
+              <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right"> 新密码 </label>
+                <div class="col-sm-9">
+                  <input name="password" type="text" class="col-xs-10 col-sm-5" placeholder="输入新密码" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label no-padding-right">二次确认</label>
+                <div class="col-sm-9">
+                  <input name="repassword" type="text" class="col-xs-10 col-sm-5" placeholder="再次输入新密码" />
+                </div>
+              </div>
+              <div class="space-4"></div>
+              <div class="alert" style="display:none;"></div>
+              <div class="clearfix form-actions">
+                <div class="col-md-offset-3 col-md-9">
+                  <button class="btn btn-info" type="submit" id="btn"> <i class="ace-icon fa fa-check bigger-110"></i> 保存 </button>
+                </div>
+              </div>
+            </form>
           </div>
-          <!-- /.col --> 
         </div>
-        <!-- /.row --> 
       </div>
-      <!-- /.page-content --> 
     </div>
   </div>
   <!-- /.main-content -->
   <div class="footer">
-    <div class="footer-inner"> 
-      <!-- #section:basics/footer -->
+    <div class="footer-inner">
       <div class="footer-content"> <span class="bigger-120"> <span class="blue bolder"><?php echo config('WEB_SITE_NAME'); ?> </span><?php echo WEB_VERSION; ?>版 </span></div>
-      <!-- /section:basics/footer --> 
     </div>
   </div>
-  <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse"><i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i></a> </div>
+  <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse"> <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i> </a> </div>
 <!-- /.main-container --> 
+
 <!-- basic scripts --> 
 <script type="text/javascript">if($(window).width()<1024)  $("#sidebar").addClass('menu-min');</script>
 <script src="/static/ace/js/bootstrap.js"></script>
 <script src="/static/ace/js/ace/ace.js"></script> 
-<script src="/static/ace/js/ace/ace.sidebar.js"></script> 
-<script src="/static/ace/js/layer/layer.js"></script>
+<script src="/static/ace/js/ace/ace.sidebar.js"></script>  
 <script type="text/javascript">
-  <?php if(input('get.keywords')): ?>
-    $('input[name="keywords"]').val('<?php echo $_GET["keywords"]; ?>');
-  <?php endif; ?>
-</script>
-<script type="text/javascript">
-$('a[href="/Admin/Voucher/index"]').parents().filter('li').addClass('open active');
-jQuery(function($) {
-  // 清除查询条件
-  $(document).on('click', 'button:reset',function() {
-    location.href = '<?php echo url('index'); ?>';
-  });
+$('a[href="/Index/index.html"]').parents().filter('li').addClass('active');
+$(".form-post").find('button:submit').click(function() {
+    $.post("<?php echo url('repwd'); ?>", $(".form-post").serialize()).success(function(data) {
+  		$('#btn').text('正在保存').attr('disabled',"true");
+      if (data.code === 0){
+			  $(".form-post .alert").addClass('alert-danger').text(data.msg).show();
+		  	setTimeout(function() {location.href=self.location.href;},1000);	
+      }else{
+  			$(".form-post .alert").addClass('alert-success').text(data.msg).show();
+  			setTimeout(function() {location.href=data.url;},1000);
+		  }
+	 }
+);
+return false;
 });
-
-// 删除币种
-function deleteInfo(obj,id){
-	layer.confirm('确定要删除吗？<br>该券所有的信息都将被完全删除，不可恢复！', {
-		btn: ['确定','关闭'] //按钮
-	}, function(){
-		$.post("<?php echo url('delete'); ?>", {id: id}).success(function(data) {
-			if (data.code === 0) {
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
-				});
-			}else{
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
-				});
-			}
-		})
-	});
-}
-</script>
+</script> 
 </body>
 </html>

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:69:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\news\index.html";i:1535628666;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\method\index.html";i:1541420400;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -44,10 +44,11 @@ select{
   margin-right:10px;
 }
 
-.t_tbody td {height:60px;line-height:80px;overflow:hidden;}
-
-.state_red {float:right;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:red;cursor:pointer;box-shadow:#006666 1px 1px 2px;}
-.state_green {float:left;width:50px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:green;cursor:pointer;box-shadow:#18A665 1px 1px 2px;}
+/* 审核状态开始 */
+.review_pass {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#87B87F;box-shadow:#87B87F 1px 1px 2px;}
+.review_fail {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#DD0C0C;box-shadow:#DD0C0C 1px 1px 2px;}
+.review_on {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#2E98F5;box-shadow:#2E98F5 1px 1px 2px;}
+/* 审核状态结束 */
 </style>
 </head>
 <body class="no-skin">
@@ -112,7 +113,7 @@ select{
       <div class="breadcrumbs" id="breadcrumbs">
         <ul class="breadcrumb">
           <li> <i class="ace-icon fa fa-home home-icon"></i> <a href="<?php echo url('Index/index'); ?>"><?php echo config('WEB_SITE_NAME'); ?></a> </li>
-          <li> <a href="<?php echo url('index'); ?>">新闻管理</a> </li>
+          <li> <a href="<?php echo url('index'); ?>">充值管理</a> </li>
           <li class="active"><?php echo $pagename; ?></li>
         </ul>
       </div>
@@ -128,19 +129,29 @@ select{
               <div class="col-xs-12" style="margin-bottom:10px;">
                 <form action="<?php echo url('index'); ?>" method="get" class="form-inline" role="form">
                   <div class="form-group">
-                    <label>关键词：</label>
-                    <input name="keywords" type="text" class="form-control search" placeholder="新闻标题">
+                    <label>提现记录查询</label>
+                    <input name="keywords" type="text" class="form-control search" placeholder="用户账号" />
                   </div>&nbsp;&nbsp;
-                  <div class="form-group"><label>状态：</label>
-                    <select name="state" class="form-control" <!--onchange="look_state(this)"-->>
+                  
+                  <div class="form-group"><label>奖金类型</label>
+                    <select name="status" class="form-control" <!--onchange='look_state(this)'-->>
                     	<option value="">全部</option>
-                      <?php if(is_array($is_show) || $is_show instanceof \think\Collection || $is_show instanceof \think\Paginator): $i = 0; $__LIST__ = $is_show;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-                        <option value="<?php echo $vo['value']; ?>" <?php if($get_is_show == $vo['value']): ?>selected='selected'<?php else: endif; ?>><?php echo $vo['key']; ?></option>
+                      <?php if(is_array($bonus) || $bonus instanceof \think\Collection || $bonus instanceof \think\Paginator): $i = 0; $__LIST__ = $bonus;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+                        <option value="<?php echo $vo['value']; ?>" <?php if($get_bonus == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
                       <?php endforeach; endif; else: echo "" ;endif; ?>
                     </select>
                   </div>&nbsp;&nbsp;
+                  
+                  <div class="form-group"><label>审核状态</label>
+                    <select name="review" class="form-control" <!--onchange='look_state(this)'-->>
+                    	<option value="">全部</option>
+                      <?php if(is_array($review) || $review instanceof \think\Collection || $review instanceof \think\Paginator): $i = 0; $__LIST__ = $review;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+                        <option value="<?php echo $vo['value']; ?>" <?php if($get_review == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
+                      <?php endforeach; endif; else: echo "" ;endif; ?>
+                    </select>
+                  </div>&nbsp;&nbsp;
+                  
                   <button type="submit" class="btn btn-sm btn-primary">查询</button>
-                  <a class="btn btn-sm btn-success" style="float:right; margin-right:10px;" href="<?php echo url('add'); ?>" >添加新闻</a>
                   <button type="reset" class="btn btn-sm btn-danger hidden-xs" style="float:right;margin-right:10px;">清空查询条件</button>
                 </form>
               </div>
@@ -148,29 +159,39 @@ select{
                 <table id="sample-table-1" class="table table-striped table-bordered table-hover">
                   <thead>
                     <tr>
-                      <th class="center" width='4%'>新闻ID</th>
-                      <th width='14%'>新闻标题</th>
-                      <th width='45%'>新闻内容</th>
-                      <th width='10%'>创建时间</th>
-                      <th width='10%'>更新时间</th>
-                      <th width='7%'>状态</th>
-                      <th width='10%'>操作</th>
+                      <th class="center">记录ID</th>
+                      <th>用户账号</th>
+                      <th>用户银行卡</th>
+                      <th>奖金类型</th>
+                      <th>人民币数量</th>
+                      <th>消费券数量</th>
+                      <th>提交时间</th>
+                      <th>审核时间</th>
+                      <th>审核状态</th>
+                      <th>操作</th>
                     </tr>
                   </thead>
-                  <tbody class='t_tbody'>
+                  <tbody>
                     <?php if(is_array($list['list']) || $list['list'] instanceof \think\Collection || $list['list'] instanceof \think\Paginator): $k = 0; $__LIST__ = $list['list'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
-                      <tr>
+                    <tr>
                         <td class="center"><?php echo $vo['id']; ?></td>
-                        <td><?php echo $vo['title']; ?></td>
-                        <td><div style='width:100%;height:100px;overflow-y:scroll;'><?php echo $vo['content']; ?></div></td>
+                        <td><?php echo $vo['user_account']; ?></td>
+                        <td><?php echo $vo['user_card']['bank_name']; ?><br /><?php echo $vo['user_card']['bank_number']; ?></td>
+                        <td><?php echo $vo['money_number']; ?></td>
+                        <td><?php echo $vo['vou_number']; ?></td>
                         <td><?php echo $vo['create_time']; ?></td>
-                        <td><?php echo $vo['update_time']; ?></td>
-                        <td><div class='<?php echo $vo['is_show_btn']; ?>' onclick="change_is_show(this,<?php echo $vo['id']; ?>,<?php echo $vo['state']; ?>)"><?php echo $vo['is_show_text']; ?></div></td>
-                        <td>
-                          <a class="btn btn-sm btn-success" href="<?php echo url('edit',array('id'=>$vo['id'])); ?>" >修改</a>
-                          <a class="btn btn-sm btn-danger" href="javascript:void(0);" onclick="deleteInfo(this,<?php echo $vo['id']; ?>)">删除</a>
-                        </td>
-                      </tr>
+                        <td><?php echo $vo['done_time']; ?></td>
+                        <td><?php echo $vo['service_charge']; ?></td>
+                        <td><div class='<?php echo $vo['review_btn']; ?>'><?php echo $vo['review_text']; ?></div></td>
+	                      <td>
+	                      	<?php if($vo['recharge_status'] === 1): ?>
+	                      		<a class="btn btn-sm btn-success" href="javascript:void(0)" onclick="review(this,<?php echo $vo['id']; ?>,2)">审核</a>
+	                      		<a class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="review(this,<?php echo $vo['id']; ?>,3)">失败</a>
+	                      	<?php else: ?>
+	                      		--
+	                      	<?php endif; ?>
+	                      </td>
+                    </tr>
                     <?php endforeach; endif; else: echo "" ;endif; ?>
                   </tbody>
                 </table>
@@ -208,57 +229,43 @@ select{
 <script src="/static/ace/js/ace/ace.js"></script> 
 <script src="/static/ace/js/ace/ace.sidebar.js"></script> 
 <script src="/static/ace/js/layer/layer.js"></script>
+
+<script type="text/javascript" src="/static/ace/js/imgZoom/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="/static/ace/js/imgZoom/jquery.imgZoom.js"></script>
+<script type="text/javascript" src="/static/ace/js/imgZoom/jquery.drag.js"></script>
 <script type="text/javascript">
-  $('a[href="/Admin/News/index"]').parents().filter('li').addClass('open active');
+	// 点击查看大图
+	$(".imgZoom").imgZoom();
+</script>
+
+<script type="text/javascript">
+  $('a[href="/Admin/Method/index"]').parents().filter('li').addClass('open active');
   <?php if(input('get.keywords')): ?>
     $('input[name="keywords"]').val('<?php echo $_GET["keywords"]; ?>');
+  <?php endif; if(is_numeric(input('get.state'))): ?>
+    $('select[name="state"]').val(<?php echo $_GET['state']; ?>);
   <?php endif; ?>
 </script>
+
 <script type="text/javascript">
 jQuery(function($) {
   //清除查询条件
   $(document).on('click', 'button:reset',function() {
-    location.href = '<?php echo url('index'); ?>';
+    location.href = '<?php echo url("index"); ?>';
   }); 
 });
 
-//// 查看新闻状态
-//function look_state(state){
-//	var val = $(state).val();
-//	var url = '<?php echo url("index"); ?>?get_state=' + val;
-//	window.location.href = url;
-//}
-
-// 修改显示状态
-function change_is_show(obj,id,is_show){
-	layer.confirm('确定要修改吗?',{
-		btn:['确定','关闭']
+// 审核
+function review(obj,id,review){
+	layer.confirm('确定审核吗？',{
+		btn: ['确定','关闭']
 	},function(){
-		$.post("<?php echo url('change_is_show'); ?>",{id:id,is_show:is_show}).success(function(ret){
-			if(ret.code === 0){
-				layer.msg(ret.msg,{icon:ret.code,time:1000});
-			}else{
-				layer.msg(ret.msg,{icon:ret.code,time:1000},function(){
-					location.href = location.href
-				});
-			}
-		});
-	})
-}
-
-// 删除新闻
-function deleteInfo(obj,id){
-	layer.confirm('确定要删除吗？<br>该新闻所有的信息都将被完全删除，不可恢复！', {
-		btn: ['确定','关闭'] //按钮
-	}, function(){
-		$.post("<?php echo url('delete'); ?>", {id: id}).success(function(data) {
-			if (data.code == 0) {
-				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
-				});
+		$.post("<?php echo url('review'); ?>", {id:id,review:review}).success(function(data) {
+			if(data.code == 0){
+				layer.msg(data.msg, {icon: data.code,time: 1500});
 			}else{
 				layer.msg(data.msg, {icon: data.code,time: 1500},function(){
-					location.href=self.location.href;
+					location.href = self.location.href;
 				});
 			}
 		})

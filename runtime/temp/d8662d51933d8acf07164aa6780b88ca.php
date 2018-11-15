@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:69:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\bonus.html";i:1542088493;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\transfer.html";i:1541675226;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -194,7 +194,7 @@
     </div><!-- /.modal -->
 </div>
 
-<link rel="stylesheet" href="/static/ace/css/bonus.css">
+<link rel="stylesheet" href="/static/ace/css/move.css">
 <!--内容-->
 <main class="main">
     <div class="main_box">
@@ -264,119 +264,54 @@
         </div>
 
         <div class="main_right">
-            <p class="vip_hint">钱包（请妥善保管您的资金）：</p>
-            <!--冻结区-->
-            <div class="bonus_head">
-                <span>冻结区：</span>
-            </div>
-            <div class="bonus_box">
-                <div class="bonus_main">
-                    <?php if(is_array($bonus) || $bonus instanceof \think\Collection || $bonus instanceof \think\Paginator): $i = 0; $__LIST__ = $bonus;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-	                    <div>
-	                        <span><?php echo $vo['name']; ?></span>
-	                        <p>
-	                            <span><?php echo $vo['frozen_bouns_number']; ?></span>
-	                            积分
-	                        </p>
-	                    </div>
-                    <?php endforeach; endif; else: echo "" ;endif; ?>
-                </div>
-                <p>小提示：进入冻结区的奖金，需要十天才能解冻哦，请耐心等待</p>
-            </div>
-
-            <!--解冻区-->
-            <div class="bonus_head">
-                <span>解冻区：</span>
-                <a href="<?php echo url('withdraw'); ?>">提现</a>
-            </div>
-            <div class="bonus_box">
-                <div class="bonus_main">
-                    <?php if(is_array($bonus) || $bonus instanceof \think\Collection || $bonus instanceof \think\Paginator): $i = 0; $__LIST__ = $bonus;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-	                    <div>
-	                        <span><?php echo $vo['name']; ?></span>
-	                        <p>
-	                            <span><?php echo $vo['bouns_number']; ?></span>积分
-	                        </p>
-	                    </div>
-                    <?php endforeach; endif; else: echo "" ;endif; ?>
-                </div>
-                <p>小提示：动态解冻一月一次，福利不限次数哦，请耐心等待</p>
-            </div>
-
-            <!--转成消费券-->
-            <div class="bonus_head">
-                <span>转成消费券：</span>
-            </div>
-            <div class="bonus_box">
+            <p class="vip_hint">转账（请注意资金安全）：</p>
+            <div class="move_box">
                 <ul id="myTab" class="nav nav-tabs">
-                    <li class="active">
-                        <a href="#active" data-toggle="tab">动态奖金</a>
-                    </li>
-                    <li>
-                        <a href="#static" data-toggle="tab">静态奖金</a>
-                    </li>
-                    <li>
-                        <a href="#welfare" data-toggle="tab">福利奖金</a>
-                    </li>
+                	<?php if(is_array($voucher) || $voucher instanceof \think\Collection || $voucher instanceof \think\Paginator): $i = 0; $__LIST__ = $voucher;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+	                    <li <?php if($vo['id'] == '1'): ?>class="active"<?php endif; ?>>
+	                        <a href="<?php echo $vo['href']; ?>" data-toggle="tab"><?php echo $vo['name']; ?></a>
+	                    </li>
+                    <?php endforeach; endif; else: echo "" ;endif; ?>
                 </ul>
 
-                <div id="myTabContent" class="tab-content" data-uid='<?php echo $uid; ?>'>
-                    <!--动态奖金-->
-                    <div class="tab-pane fade in active" id="active">
-                        <div class="move_in">
-                            <p>
-                                <span>动态积分：</span>
-                                <small>按照1:1的比例转换消费券</small>
-                            </p>
-                            <input type="number" id="integral" oninput="integral()" name="bouns_number" placeholder="请输入您的转换的动态积分数量">
-                        </div>
-                        <div class="move_in">
-                            <p>
-                                <span>转换的消费券：</span>
-                            </p>
-                            <input type="number" id="consume" value="0" name="number" readonly="readonly">
-                        </div>
-                        <input type='hidden' id='integral_id' name='bouns_type' value='2'/>
-                        <button type="button" onclick="in_con()">确认转换</button>
-                    </div>
-
-                    <!--静态奖金-->
-                    <div class="tab-pane fade" id="static">
-                        <div class="move_in">
-                            <p>
-                                <span>静态积分：</span>
-                                <small>按照1:1的比例转换消费券</small>
-                            </p>
-                            <input type="number" id="quiet" oninput="quiet()" name="bouns_number" placeholder="请输入您的转换的静态积分数量">
-                        </div>
-                        <div class="move_in">
-                            <p>
-                                <span>转换的消费券：</span>
-                            </p>
-                            <input type="number" id="sta_con" name="number" value="0" readonly="readonly">
-                        </div>
-                        <input type='hidden' id='quiet_id' name='bouns_type' value='1'/>
-                        <button type="button" onclick="quiet_con()">确认转换</button>
-                    </div>
-
-                    <!--福利奖金-->
-                    <div class="tab-pane fade" id="welfare">
-                        <div class="move_in">
-                            <p>
-                                <span>福利积分：</span>
-                                <small>按照1:1的比例转换消费券</small>
-                            </p>
-                            <input type="number" id="weal" oninput="weal()" name="bouns_number" placeholder="请输入您的转换的福利积分数量">
-                        </div>
-                        <div class="move_in">
-                            <p>
-                                <span>转换的消费券：</span>
-                            </p>
-                            <input type="number" id="weal_con" name="number" value="0" readonly="readonly">
-                        </div>
-                        <input type='hidden' id='weal_id' name='bouns_type' value='3'/>
-                        <button type="button" onclick="weal_con()">确认转换</button>
-                    </div>
+                <div id="myTabContent" class="tab-content">
+                    <!--优惠券-->
+                    <?php if(is_array($voucher) || $voucher instanceof \think\Collection || $voucher instanceof \think\Paginator): $i = 0; $__LIST__ = $voucher;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+	                    <div class="tab-pane fade<?php if($vo['id'] == '1'): ?> in active<?php endif; ?>" id="<?php echo $vo['div_id']; ?>">
+	                        <div class="move_box">
+	                            <p><?php echo $vo['name']; ?>转账数量：</p>
+	                            <input type="number" id="<?php echo $vo['id']; ?>_number" name="number" placeholder="请输入您的<?php echo $vo['name']; ?>转账数量" />
+	                        </div>
+	                        <div class="move_box">
+	                            <p>转账账户：</p>
+	                            <input type="text" id="<?php echo $vo['id']; ?>_account" name="account" placeholder="请输入您要转账的账户" />
+	                        </div>
+	                        <button type="button" onclick="move(<?php echo $vo['id']; ?>)">确定</button>
+	                    </div>
+                    <?php endforeach; endif; else: echo "" ;endif; ?>
+                </div>
+                
+                <!--转账记录-->
+                <div class="fund_record">
+                    <p>转账记录：</p>
+                    <form class="record">
+                        <table>
+                            <thead>
+	                            <tr>
+	                                <th>创建时间</th>
+	                                <th>种类</th>
+	                                <th>数量</th>
+	                                <th>接收人</th>
+	                            </tr>
+                            </thead>
+                            <tbody id='transfer_list' data-count='<?php echo $count; ?>'>
+	                            
+                            </tbody>
+                        </table>
+                    </form>
+                    <ul id='transfer_page' class="page" style='width:auto;'>
+                        
+                    </ul>
                 </div>
             </div>
         </div>
@@ -413,98 +348,93 @@
 		// }
 	</script>
 </html>
+<link rel="stylesheet" href="/static/layui/css/layui.css" media="all" />
+<script type='text/javascript' src="/static/layui/layui.js"></script>
+<script type='text/javascript' src="/static/ace/js/layer/layer.js"></script>
 <script>
-    vipNav(1)
+    vipNav(3)
 </script>
 <script type='text/javascript'>
-// 判断买入数量输入格式
-$('#integral,#quiet,#weal').on('input',function(){
-	$(this).val($(this).val().match(/\d+\.?\d{0,2}/));
-});
+// 获取用户ID
 var uid = $('.user_name').attr('data-uid');
 
-// 提交动态积分
-function integral() {
-    var num = $('#integral').val();
-    $('#consume').val(num);
-}
-function in_con() {
-    var number = $('#integral').val();
-    var bouns_type = $('#integral_id').val();
-    layer.confirm('确定转换？', {
+// 执行转账
+function move(vid) {
+	layer.confirm('确定要转账吗？', {
         btn: ['确定','取消']
     }, function(){
-        $.ajax({
-        	type:'post',
-        	url:'<?php echo url("bonus"); ?>',
-        	data:{uid:uid,number:number,bouns_type:bouns_type},
-        	success:function(ret){
-        		if(ret.code === 0){
-        			layer.alert(ret.msg);
-        		}else{
-        			$('#integral').val('');
-        			$('#consume').val('0');
-        			layer.alert(ret.msg);
-        		}
-        	}
-        });
+	    var data = {
+	    	uid:uid,
+	    	vid:vid,
+	    	number:$('#'+vid+'_number').val(),
+	    	account:$('#'+vid+'_account').val(),
+	    };
+	    $.ajax({
+	    	type:'post',
+	    	url:'<?php echo url("transfer"); ?>',
+	    	data:data,
+	    	success:function(ret){
+	    		if(ret.code === 0){
+	    			layer.alert(ret.msg);
+	    		}else{
+	    			layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+	    				location.href = self.location.href;
+	    			});
+	    		}
+	    	}
+	    });
     });
 }
 
-
-// 提交静态积分
-function quiet() {
-    var num = $('#quiet').val();
-    $('#sta_con').val(num);
-}
-function quiet_con() {
-    var number = $('#quiet').val();
-    var bouns_type = $('#quiet_id').val();
-    layer.confirm('确定转换？', {
-        btn: ['确定','取消']
-    }, function(){
-        $.ajax({
-        	type:'post',
-        	url:'<?php echo url("bonus"); ?>',
-        	data:{uid:uid,number:number,bouns_type:bouns_type},
-        	success:function(ret){
-        		if(ret.code === 0){
-        			layer.alert(ret.msg);
-        		}else{
-        			$('#quiet').val('');
-        			$('#sta_con').val('0');
-        			layer.alert(ret.msg);
-        		}
-        	}
-        });
-    });
-}
-
-// 提交福利积分
-function weal() {
-    var num = $('#weal').val();
-    $('#weal_con').val(num);
-}
-function weal_con() {
-    var number = $('#weal').val();
-    var bouns_type = $('#weal_id').val();
-    layer.confirm('确定转换？', {
-        btn: ['确定','取消']
-    }, function(){
-        $.ajax({
-        	type:'post',
-        	url:'<?php echo url("bonus"); ?>',
-        	data:{uid:uid,number:number,bouns_type:bouns_type},
-        	success:function(ret){
-        		if(ret.code === 0){
-        			layer.alert(ret.msg);
-        		}else{
-        			$('#weal').val('');
-        			$('#weal_con').val('0');
-        			layer.alert(ret.msg);
-        		}
-        	}
-        });
-    });
+// 转账分页功能
+var page;
+$(document).ready(function(){
+	// 读取转账分页
+	transfer_list();
+	layui.use('laypage', function(){
+	  var logpage = layui.laypage;
+	  // 执行一个laypage实例
+	  logpage.render({
+	    elem: 'transfer_page', 	// 注意，这里的 msg_page 是 ID，不用加 # 号
+	    count: $('#transfer_list').attr('data-count'), 			// 数据总数，从服务端得到
+	    curr: page,
+		limit: 8,
+	    layout: ['count','prev','page','next','refresh', 'skip'],
+	    jump: function(obj,first){
+	      page = obj.curr;
+	      if(!first){
+	      	transfer_list(page);
+	      }
+	    }
+	  });
+	});
+});
+// 调用转账分页
+function transfer_list(page){
+	var data = {
+		uid:uid,
+		page:page,
+	}
+	var transfer_html = '';
+	$.ajax({
+		type:'post',
+		async:false, 
+		url:'<?php echo url("transfer_list"); ?>',
+		data:data,
+		success:function(ret){
+			if(ret.code === 0){
+				transfer_html = '<tr class="no_data"><td colspan="4">暂无数据</td></tr>';
+			}else{
+				$.each(ret.transfer,function(k,v){
+					transfer_html += '<tr><td>'+v.create_date+'</td>';
+	                transfer_html += '<td>'+v.vou_name+'</td>';
+	                transfer_html += '<td>'+v.number+'</td>';
+	                transfer_html += '<td>'+v.target_user_account+'</td></tr>';
+				})
+			}
+			$('#transfer_list').html(transfer_html);
+		}
+	});
 }
 </script>
+

@@ -321,14 +321,45 @@ class Shop extends Admin
 		$page_config = [
 			'query'=>$querys
 		];
-		$where['buy_uid'] =$_SESSION['think']['uid'];
+//		print_r($_SESSION['think']['user_type']);
+		if($_SESSION['think']['user_type'] == 2){
+			$where['buy_uid'] =$_SESSION['think']['uid'];
+		}
 //    	$goods_order = Db::table('sn_goods_order')->alias('order')->join('sn_goods_detail detail','order.gid = detail.gid')->join('sn_user','sn_goods_order.buy_uid = sn_user.id')->field('sn_user.account as user,sn_goods_detail.name as goods_name,sn_goods_order.sell_sid as sid,sn_goods_order.g_number as number,order.sn_goods_order.order_status as status,sn_goods_order.create_time as time')->paginate($page_size);
-		$goods_order = Db::name('goods_order')->alias('order')->join('goods_detail detail','order.gid = detail.gid','LEFT')->join('user u','u.id = order.buy_uid','LEFT')->where($where)->paginate($page_size,false,$page_config);
+		$goods_order = Db::name('goods_order')->alias('order')->join('goods_detail detail','order.gid = detail.gid','LEFT')->join('user u','u.id = order.buy_uid','LEFT')->join('user_addr addr','addr.id = order.addr_id')->where($where)->paginate($page_size,false,$page_config);
 //		echo Db::name('goods_order')->getLastSql();
     	$page = $goods_order->render();
+//    	print_r($goods_order);
     	$this->assign('record_type',$_GET['record_type']!=null?$_GET['record_type']:null);
     	$this->assign('goods_order',$goods_order);
+    	$this->assign('user_type',$_SESSION['think']['user_type']);
     	$this->assign('page',$page);
     	return $this->fetch();
+    }
+    public function delivery()
+    {
+    	$r = [
+    		'code'=>1,
+		    'msg'=>$_POST
+	    ];
+    	Db::startTrans();
+    	try{
+    		$result = 	Db::name('goods_order')->where(['order_number'=>$_POST['order_number'],'order_status'=>2])->update(['order_status'=>5]);
+    		if(!$result){
+    			throw new Exception("数据未更改！");
+		    }
+			Db::commit();
+			$r = [
+				'code'=>1,
+				'msg'=>'数据已更新'
+			];
+	    }catch (\Exception $e){
+    		Db::rollback();
+    		$r = [
+    			'code'=>1,
+			    'msg'=>'数据已更新'
+		    ];
+	    }
+    	return json_encode($r);
     }
 }

@@ -77,6 +77,7 @@ class Trade extends Admin
 		if($keywords){
 			$map['account'] = array('like','%'.$keywords.'%');
 		}
+
 		
 		// 奖金类型
 		$bonus_type = input('bonus_type');
@@ -97,6 +98,18 @@ class Trade extends Admin
 		$this -> assign("trade_status", model("Common/Dict") -> showList('trade_status'));
 		$this -> assign('data',model('trade') -> tradeSell($map,$p));
 		return $this -> fetch();
+	}
+
+
+	/**
+	 *
+	 */
+	public function all_trade_flow()
+	{
+		$trade_flow = Db::name('trade_flow')->alias("flow")->join("user u","u.id = flow.uid")->select();
+//		print_r($trade_flow);
+		$this->assign("order",$trade_flow);
+		return $this->fetch();
 	}
 }
 

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1541986236;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1542242565;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +48,6 @@
 	            <span>ZC</span>
 				<div class="accout_menu">
 	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
-	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
 	            </div>
 	        </div>
 	    <?php else: ?>
@@ -188,10 +187,10 @@
                 <a href="#">编辑</a>
             </div>
         </div>
-        <div class="freight">
-            <span>运费：</span>
-            <p><span>10</span>元</p>
-        </div>
+        <!--<div class="freight">-->
+            <!--<span>运费：</span>-->
+            <!--<p><span>10</span>元</p>-->
+        <!--</div>-->
     </div>
 
     <!--输入密码-->

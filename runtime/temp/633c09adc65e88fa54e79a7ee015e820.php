@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:69:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\bonus.html";i:1542088493;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\withdraw.html";i:1541675216;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -194,7 +194,10 @@
     </div><!-- /.modal -->
 </div>
 
-<link rel="stylesheet" href="/static/ace/css/bonus.css">
+<link rel="stylesheet" href="/static/ace/css/fetch.css" />
+<style type='text/css'>
+.no_data {height:50px;line-height:50px;font-family:"微软雅黑";font-size:16px;color:purple;text-align:center;border:1px solid gainsboro;}
+</style>
 <!--内容-->
 <main class="main">
     <div class="main_box">
@@ -264,124 +267,102 @@
         </div>
 
         <div class="main_right">
-            <p class="vip_hint">钱包（请妥善保管您的资金）：</p>
-            <!--冻结区-->
-            <div class="bonus_head">
-                <span>冻结区：</span>
-            </div>
-            <div class="bonus_box">
-                <div class="bonus_main">
-                    <?php if(is_array($bonus) || $bonus instanceof \think\Collection || $bonus instanceof \think\Paginator): $i = 0; $__LIST__ = $bonus;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-	                    <div>
-	                        <span><?php echo $vo['name']; ?></span>
-	                        <p>
-	                            <span><?php echo $vo['frozen_bouns_number']; ?></span>
-	                            积分
-	                        </p>
-	                    </div>
-                    <?php endforeach; endif; else: echo "" ;endif; ?>
-                </div>
-                <p>小提示：进入冻结区的奖金，需要十天才能解冻哦，请耐心等待</p>
-            </div>
-
-            <!--解冻区-->
-            <div class="bonus_head">
-                <span>解冻区：</span>
-                <a href="<?php echo url('withdraw'); ?>">提现</a>
-            </div>
-            <div class="bonus_box">
-                <div class="bonus_main">
-                    <?php if(is_array($bonus) || $bonus instanceof \think\Collection || $bonus instanceof \think\Paginator): $i = 0; $__LIST__ = $bonus;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-	                    <div>
-	                        <span><?php echo $vo['name']; ?></span>
-	                        <p>
-	                            <span><?php echo $vo['bouns_number']; ?></span>积分
-	                        </p>
-	                    </div>
-                    <?php endforeach; endif; else: echo "" ;endif; ?>
-                </div>
-                <p>小提示：动态解冻一月一次，福利不限次数哦，请耐心等待</p>
-            </div>
-
-            <!--转成消费券-->
-            <div class="bonus_head">
-                <span>转成消费券：</span>
-            </div>
-            <div class="bonus_box">
+            <p class="vip_hint">
+                提现（请注意资金安全）：
+                <small>动态奖，福利奖提现时，20%自动转换为消费券</small>
+            </p>
+            <div class="fetch_box">
                 <ul id="myTab" class="nav nav-tabs">
-                    <li class="active">
-                        <a href="#active" data-toggle="tab">动态奖金</a>
-                    </li>
-                    <li>
-                        <a href="#static" data-toggle="tab">静态奖金</a>
-                    </li>
-                    <li>
-                        <a href="#welfare" data-toggle="tab">福利奖金</a>
-                    </li>
+                    <?php if(is_array($list) || $list instanceof \think\Collection || $list instanceof \think\Paginator): $i = 0; $__LIST__ = $list;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+	                    <li <?php if($vo['bouns_type'] == '1'): ?>class='active'<?php endif; ?>>
+	                        <a href="<?php echo $vo['select']; ?>" data-toggle="tab">
+								<?php echo $vo['name']; ?>
+	                            <p><?php echo $vo['short_name']; ?>余额：<span class="red"><?php echo $vo['bouns_number']; ?> 积分</span></p>
+	                        </a>
+	                    </li>
+                    <?php endforeach; endif; else: echo "" ;endif; ?>
                 </ul>
-
-                <div id="myTabContent" class="tab-content" data-uid='<?php echo $uid; ?>'>
-                    <!--动态奖金-->
-                    <div class="tab-pane fade in active" id="active">
-                        <div class="move_in">
-                            <p>
-                                <span>动态积分：</span>
-                                <small>按照1:1的比例转换消费券</small>
-                            </p>
-                            <input type="number" id="integral" oninput="integral()" name="bouns_number" placeholder="请输入您的转换的动态积分数量">
-                        </div>
-                        <div class="move_in">
-                            <p>
-                                <span>转换的消费券：</span>
-                            </p>
-                            <input type="number" id="consume" value="0" name="number" readonly="readonly">
-                        </div>
-                        <input type='hidden' id='integral_id' name='bouns_type' value='2'/>
-                        <button type="button" onclick="in_con()">确认转换</button>
-                    </div>
-
-                    <!--静态奖金-->
-                    <div class="tab-pane fade" id="static">
-                        <div class="move_in">
-                            <p>
-                                <span>静态积分：</span>
-                                <small>按照1:1的比例转换消费券</small>
-                            </p>
-                            <input type="number" id="quiet" oninput="quiet()" name="bouns_number" placeholder="请输入您的转换的静态积分数量">
-                        </div>
-                        <div class="move_in">
-                            <p>
-                                <span>转换的消费券：</span>
-                            </p>
-                            <input type="number" id="sta_con" name="number" value="0" readonly="readonly">
-                        </div>
-                        <input type='hidden' id='quiet_id' name='bouns_type' value='1'/>
-                        <button type="button" onclick="quiet_con()">确认转换</button>
-                    </div>
-
-                    <!--福利奖金-->
-                    <div class="tab-pane fade" id="welfare">
-                        <div class="move_in">
-                            <p>
-                                <span>福利积分：</span>
-                                <small>按照1:1的比例转换消费券</small>
-                            </p>
-                            <input type="number" id="weal" oninput="weal()" name="bouns_number" placeholder="请输入您的转换的福利积分数量">
-                        </div>
-                        <div class="move_in">
-                            <p>
-                                <span>转换的消费券：</span>
-                            </p>
-                            <input type="number" id="weal_con" name="number" value="0" readonly="readonly">
-                        </div>
-                        <input type='hidden' id='weal_id' name='bouns_type' value='3'/>
-                        <button type="button" onclick="weal_con()">确认转换</button>
-                    </div>
+				
+                <div id="myTabContent" class="tab-content">
+                    <?php if(is_array($list) || $list instanceof \think\Collection || $list instanceof \think\Paginator): $i = 0; $__LIST__ = $list;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+	                    <div class="tab-pane fade<?php if($vo['bouns_type'] == '1'): ?> in active<?php endif; ?>" id="<?php echo $vo['div_id']; ?>">
+	                        <div class="fetch_head">
+	                            <p><?php echo $vo['short_name']; ?>余额
+	                                <span class="red"><?php echo $vo['bouns_number']; ?> 积分</span>
+	                            </p>
+	                            <small>满500提现且一个月只能提满两倍</small>
+	                        </div>
+	                        <div class="fetch_in">
+	                            <p>
+	                                <span>提现金额：</span>
+	                                <small data-toggle="modal" data-target="#myModal1">了解提现规则 >></small>
+	                            </p>
+	                            <input id='number_<?php echo $vo['id']; ?>' type="number" name='bouns_number' placeholder="请输入您的提现金额" />
+	                        </div>
+	                        <!--<div class="fetch_acc">
+	                            <p>
+	                                <span>提现账户：</span>
+	                            </p>
+	                            <div class="bank">
+	                                <a href="<?php echo url('bank'); ?>">银行卡管理</a>
+	                            </div>
+	                            <div class="bank_card" data-card-id='<?php echo $vo['bank']['id']; ?>'>
+	                                <p><?php echo $vo['bank']['bank_user']; ?></p>
+	                                <p><?php echo $vo['bank']['bank_number']; ?></p>
+	                                <p>
+	                                    <span><?php echo $vo['bank']['bank_name']; ?></span>
+	                                    <span><?php echo $vo['bank']['bank_branch']; ?></span>
+	                                </p>
+	                            </div>
+	                        </div>-->
+	                        <button type="button" onclick="withdraw(<?php echo $vo['bouns_type']; ?>)">确定</button>
+	                    </div>
+                    <?php endforeach; endif; else: echo "" ;endif; ?>
+                </div>
+                
+                <!--提现记录-->
+                <div class="fund_record">
+                    <p>提现记录：</p>
+                    <form class="record">
+                        <table style='text-align:center;'>
+                            <thead>
+	                            <tr>
+	                                <th width='30%' style='text-align:center;'>创建时间</th>
+	                                <th width='10%' style='text-align:center;'>奖金种类</th>
+	                                <th width='20%' style='text-align:center;'>金额</th>
+	                                <th width='20%' style='text-align:center;'>转化为消费券</th>
+	                                <th width='20%' style='text-align:center;'>审核状态</th>
+	                            </tr>
+                            </thead>
+                            <tbody id='withdraw_list' data-count='<?php echo $count; ?>'>
+	                            
+                            </tbody>
+                        </table>
+                    </form>
+                    <ul id='withdraw_page' class="page" style='width:auto;'>
+                        
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+<!--提现规则弹窗-->
+<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><?php echo $page['name']; ?></h4>
+            </div>
+            <p class="line"></p>
+            <div class="modal-body">
+                <div><?php echo $page['content']; ?></div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
 
 		<!--底部-->
 		<div class="foot">
@@ -413,98 +394,97 @@
 		// }
 	</script>
 </html>
+<link rel="stylesheet" href="/static/layui/css/layui.css" media="all" />
+<script type='text/javascript' src="/static/layui/layui.js"></script>
+<script type='text/javascript' src="/static/ace/js/layer/layer.js"></script>
 <script>
-    vipNav(1)
+    vipNav(2)
 </script>
 <script type='text/javascript'>
 // 判断买入数量输入格式
-$('#integral,#quiet,#weal').on('input',function(){
+$('input[type=number]').on('input',function(){
 	$(this).val($(this).val().match(/\d+\.?\d{0,2}/));
 });
+
+// 获取用户ID
 var uid = $('.user_name').attr('data-uid');
 
-// 提交动态积分
-function integral() {
-    var num = $('#integral').val();
-    $('#consume').val(num);
-}
-function in_con() {
-    var number = $('#integral').val();
-    var bouns_type = $('#integral_id').val();
-    layer.confirm('确定转换？', {
-        btn: ['确定','取消']
-    }, function(){
-        $.ajax({
-        	type:'post',
-        	url:'<?php echo url("bonus"); ?>',
-        	data:{uid:uid,number:number,bouns_type:bouns_type},
-        	success:function(ret){
-        		if(ret.code === 0){
-        			layer.alert(ret.msg);
-        		}else{
-        			$('#integral').val('');
-        			$('#consume').val('0');
-        			layer.alert(ret.msg);
-        		}
-        	}
-        });
-    });
-}
-
-
-// 提交静态积分
-function quiet() {
-    var num = $('#quiet').val();
-    $('#sta_con').val(num);
-}
-function quiet_con() {
-    var number = $('#quiet').val();
-    var bouns_type = $('#quiet_id').val();
-    layer.confirm('确定转换？', {
-        btn: ['确定','取消']
-    }, function(){
-        $.ajax({
-        	type:'post',
-        	url:'<?php echo url("bonus"); ?>',
-        	data:{uid:uid,number:number,bouns_type:bouns_type},
-        	success:function(ret){
-        		if(ret.code === 0){
-        			layer.alert(ret.msg);
-        		}else{
-        			$('#quiet').val('');
-        			$('#sta_con').val('0');
-        			layer.alert(ret.msg);
-        		}
-        	}
-        });
-    });
+// 执行提现
+function withdraw(id){
+	layer.confirm('确定要提现吗?',{
+		btn: ['确定','关闭']
+	},function(){
+		var data = {
+			uid:uid,
+			bonus_type:id,
+			number:$('#number_'+id).val(),
+		}
+		$.ajax({
+			type:'post',
+			url:'<?php echo url("do_withdraw"); ?>',
+			data:data,
+			success:function(ret){
+				if(ret.code === 0){
+					layer.alert(ret.msg);
+				}else{
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = self.location.href;
+					});
+				}
+			}
+		});
+	});
 }
 
-// 提交福利积分
-function weal() {
-    var num = $('#weal').val();
-    $('#weal_con').val(num);
-}
-function weal_con() {
-    var number = $('#weal').val();
-    var bouns_type = $('#weal_id').val();
-    layer.confirm('确定转换？', {
-        btn: ['确定','取消']
-    }, function(){
-        $.ajax({
-        	type:'post',
-        	url:'<?php echo url("bonus"); ?>',
-        	data:{uid:uid,number:number,bouns_type:bouns_type},
-        	success:function(ret){
-        		if(ret.code === 0){
-        			layer.alert(ret.msg);
-        		}else{
-        			$('#weal').val('');
-        			$('#weal_con').val('0');
-        			layer.alert(ret.msg);
-        		}
-        	}
-        });
-    });
+// 提现分页功能
+var page;
+$(document).ready(function(){
+	// 读取提现分页
+	withdraw_list();
+	layui.use('laypage', function(){
+	  var logpage = layui.laypage;
+	  // 执行一个laypage实例
+	  logpage.render({
+	    elem: 'withdraw_page', 	// 注意，这里的 msg_page 是 ID，不用加 # 号
+	    count: $('#withdraw_list').attr('data-count'), 			// 数据总数，从服务端得到
+	    curr: page,
+		limit: 8,
+	    layout: ['count','prev','page','next','refresh', 'skip'],
+	    jump: function(obj,first){
+	      page = obj.curr;
+	      if(!first){
+	      	withdraw_list(page);
+	      }
+	    }
+	  });
+	});
+});
+// 调用提现分页
+function withdraw_list(page){
+	var data = {
+		uid:uid,
+		page:page,
+	}
+	var sell_html = '';
+	$.ajax({
+		type:'post',
+		async:false, 
+		url:'<?php echo url("withdraw_list"); ?>',
+		data:data,
+		success:function(ret){
+			if(ret.code === 0){
+				sell_html = '<tr class="no_data"><td colspan="5">暂无数据</td></tr>';
+			}else{
+				$.each(ret.sell,function(k,v){
+					sell_html += '<tr><td>'+v.start_date+'</td>';
+	                sell_html += '<td>'+v.bouns_type_text+'</td>';
+	                sell_html += '<td>'+v.number+'</td>';
+	                sell_html += '<td>'+v.vou_number+'</td>';
+	                sell_html += '<td>'+v.sell_status_text+'</td></tr>';
+				})
+			}
+			$('#withdraw_list').html(sell_html);
+		}
+	});
 }
 </script>

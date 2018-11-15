@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\clear.html";i:1542074848;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\clear.html";i:1542274158;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +48,6 @@
 	            <span>ZC</span>
 				<div class="accout_menu">
 	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
-	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
 	            </div>
 	        </div>
 	    <?php else: ?>
@@ -146,12 +145,18 @@
             </tbody>
         </table>
     </form>
-
+    <?php if(is_array($addrs) || $addrs instanceof \think\Collection || $addrs instanceof \think\Paginator): $key = 0; $__LIST__ = $addrs;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$a): $mod = ($key % 2 );++$key;?>
+        <input type="radio" name="addr_select">
+        <span>姓名：<?php echo $a['username']; ?></span>
+        <span>电话：<?php echo $a['tel']; ?></span>
+        <span>收货地址：<?php echo $a['address']; ?></span>
+        <br />
+    <?php endforeach; endif; else: echo "" ;endif; ?>
 
     <!--收货信息-->
     <div class="recipients">
         <div class="rec_box">
-            <div class="rec_title">
+            <div class="rec_title"  style="cursor: pointer;" onclick="select_addr()">
                 <span>收货信息：</span>
                 <img src="/static/ace/img/next.png">
             </div>
@@ -159,7 +164,7 @@
                 <span>姓名：<?php echo $user_info[0]['username']; ?></span>
                 <span>电话：<?php echo $user_info[0]['tel']; ?></span>
                 <span>收货地址：<?php echo $user_info[0]['address']; ?></span>
-                <a href="#">编辑</a>
+                <a href="../user/address" target="_blank" style="cursor: pointer">编辑</a>
             </div>
         </div>
         <div class="freight">

@@ -22,8 +22,11 @@
             <li {if condition = "$type eq 2"} class="active" {/if}>
                 <a href="my_promotion?type=2">待发货</a>
             </li>
+            <li {if condition = "$type eq 5"} class="active" {/if}>
+            <a href="my_promotion?type=5">运输中</a>
+            </li>
             <li {if condition = "$type eq 3"} class="active" {/if}>
-                <a href="my_promotion?type=3">已收货</a>
+            <a href="my_promotion?type=3">待收货</a>
             </li>
             <li {if condition = "$type eq 4"} class="active" {/if}>
                 <a href="my_promotion?type=4">已完成</a>
@@ -64,9 +67,10 @@
                             <div></div>
                             <div>
                                 {switch name = '$o.order_status'}
-                                {case value = '1'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="待支付" disabled>{/case}
-                                {case value = '2'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="待发货" disabled>{/case}
-                                {case value = '3'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已签收" disabled>{/case}
+                                {case value = '1'}<input type="button" class="indentBtn_on" onclick="use_indent(this,'pay_now',{$o.order_number})" value="待支付" title="去支付">{/case}
+                                {case value = '2'}<input type="button" class="indentBtn_on" onclick="use_indent(this,'notice',)" value="提醒发货"><input type="button" class="indentBtn_on" disabled value="待发货">{/case}
+                                {case value = '5'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="运输中" disabled>{/case}
+                                {case value = '3'}<input type="button" class="indentBtn_on" onclick="use_indent(this,'confirm',{$o.order_number})" value="待收货">{/case}
                                 {case value = '4'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled>{/case}
                                 {/switch}
                             </div>

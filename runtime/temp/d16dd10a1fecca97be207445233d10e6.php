@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\index.html";i:1541753344;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542021420;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\index.html";i:1541753344;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -48,7 +48,6 @@
 	            <span>ZC</span>
 				<div class="accout_menu">
 	                <p><a href="<?php echo url('Publics/login'); ?>">登录</a></p>
-	                <p><a href="<?php echo url('Publics/userreg'); ?>">注册</a></p>
 	            </div>
 	        </div>
 	    <?php else: ?>
