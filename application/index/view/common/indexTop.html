@@ -19,7 +19,7 @@
 			{volist name='sidebar' id='vo' key = "key"}
 				<li>
 					{if condition ="($key eq 3) OR ($key eq 4)"}
-					<a onclick="javascript:layer.alert('功能待开发',{time:2000,title:'温馨提示'})" style="cursor:pointer" >{$vo.title}</a>
+					<a onclick="javascript:layer.msg('功能待开发',{time:1500})" style="cursor:pointer" >{$vo.title}</a>
 					{else}
 					<a href="/{$vo.name}" >{$vo.title}</a>
 					{/if}

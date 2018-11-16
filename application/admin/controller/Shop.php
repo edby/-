@@ -313,7 +313,7 @@ class Shop extends Admin
 			$where['order_status'] = $_GET['record_type'];
 		}
 		if($_GET['keywords']){
-			$querys+=[
+			$querys=[
 				'keywords'=>$_GET['keywords']
 			];
 			$where['order_number'] = $_GET['keywords'];
@@ -336,6 +336,11 @@ class Shop extends Admin
     	$this->assign('page',$page);
     	return $this->fetch();
     }
+
+	/**
+	 * 商家修改发货状态，开始发货
+	 * @return false|string
+	 */
     public function delivery()
     {
     	$r = [
@@ -344,7 +349,7 @@ class Shop extends Admin
 	    ];
     	Db::startTrans();
     	try{
-    		$result = 	Db::name('goods_order')->where(['order_number'=>$_POST['order_number'],'order_status'=>2])->update(['order_status'=>5]);
+    		$result = 	Db::name('goods_order')->where(['order_number'=>$_POST['order_number'],'order_status'=>2])->update(['order_status'=>3]);
     		if(!$result){
     			throw new Exception("数据未更改！");
 		    }

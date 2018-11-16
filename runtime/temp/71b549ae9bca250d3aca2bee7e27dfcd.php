@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1542242565;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1542366147;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -176,21 +176,24 @@
     <!--收货信息-->
     <div class="recipients">
         <div class="rec_box">
-            <div class="rec_title">
+            <div class="rec_title"  style="cursor: pointer;" onclick="select_addr()" data-toggle="modal" data-target="#myModal">
                 <span>收货信息：</span>
                 <img src="/static/ace/img/next.png">
             </div>
+            <?php if(is_array($addrs) || $addrs instanceof \think\Collection || $addrs instanceof \think\Paginator): $key = 0; $__LIST__ = $addrs;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$a): $mod = ($key % 2 );++$key;if($a['default'] == '2'): ?>
             <div class="rec_details">
-                <span>姓名：<?php echo $user_info[0]['username']; ?></span>
-                <span>电话：<?php echo $user_info[0]['tel']; ?></span>
-                <span>收货地址：<?php echo $user_info[0]['address']; ?></span>
-                <a href="#">编辑</a>
+                <input type="hidden" id="rec_ids" value="<?php echo $a['id']; ?>">
+                <span id="rec_name"><?php echo $a['username']; ?></span>
+                <span id="rec_tel"><?php echo $a['tel']; ?></span>
+                <span id="rec_address"><?php echo $user_infoa['address']; ?></span>
+                <a href="../user/address" target="_blank" style="cursor: pointer">编辑</a>
             </div>
+            <?php endif; endforeach; endif; else: echo "" ;endif; ?>
         </div>
-        <!--<div class="freight">-->
+        <div class="freight">
             <!--<span>运费：</span>-->
             <!--<p><span>10</span>元</p>-->
-        <!--</div>-->
+        </div>
     </div>
 
     <!--输入密码-->
@@ -206,7 +209,31 @@
             <button type="button" onclick="clearing()">支付</button>
         </div>
     </div>
-
+    <!--选择地址-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">选择收货地址</h4>
+                </div>
+                <div class="modal-body">
+                    <?php if(is_array($addrs) || $addrs instanceof \think\Collection || $addrs instanceof \think\Paginator): $key = 0; $__LIST__ = $addrs;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$a): $mod = ($key % 2 );++$key;?>
+                    <div class="rec_details">
+                        <input type="radio" <?php if($a['default'] == '2'): ?> checked <?php endif; ?> name="select_rec" value="<?php echo $a['id']; ?>">
+                        <span><?php echo $a['username']; ?></span>
+                        <span><?php echo $a['tel']; ?></span>
+                        <span><?php echo $a['address']; ?></span>
+                    </div>
+                    <?php endforeach; endif; else: echo "" ;endif; ?>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="select_rec()">选择地址</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!--底部全选-->
     <div class="total_clear">
         <div class="totalBox">

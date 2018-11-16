@@ -354,7 +354,6 @@ class User extends Base
 		$wallet['user_frozen_bonus'] = $frozen_static + $frozen_dynamic + $frozen_welfare;	// 冻结奖金
 		// 积分(所有奖金)
 		$wallet['user_all_bonus'] = $user_bonus + $wallet['user_frozen_bonus'];
-		
 		/** 用户券 **/
 		$voucher = Db::name('voucher') -> field('id,name,is_sell') -> select();
 		foreach($voucher as $k => $v){
@@ -372,7 +371,21 @@ class User extends Base
 		
 		return $wallet;
 	}
-	
+
+	/**
+	 *
+	 * 用户静态积分总收入（主要来源为商城）
+	 * @param $uid
+	 * @return array|false|\PDOStatement|string|\think\Model
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 */
+	public function userInOutcome($uid)
+	{
+		return  Db::name('user_bouns')->where(['uid'=>$uid,'bouns_type'=>1])->find();
+	}
+
 	/**
 	 * model 用户奖金额
 	 */

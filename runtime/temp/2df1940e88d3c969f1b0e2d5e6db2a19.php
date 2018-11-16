@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:75:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\goods_order.html";i:1542270736;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:75:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\goods_order.html";i:1542340423;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -135,8 +135,7 @@ select{
                                             <option value="0" <?php echo $record_type=="0"?'selected':''; ?>>全部</option>
                                             <option value="1" <?php echo $record_type=="1"?'selected':''; ?>>待支付</option>
                                             <option value="2" <?php echo $record_type=="2"?'selected':''; ?>>待发货</option>
-                                            <option value="5" <?php echo $record_type=="5"?'selected':''; ?>>运输中</option>
-                                            <option value="3" <?php echo $record_type=="3"?'selected':''; ?>>已收货</option>
+                                            <option value="3" <?php echo $record_type=="3"?'selected':''; ?>>运输中</option>
                                             <option value="4" <?php echo $record_type=="4"?'selected':''; ?>>已完成</option>
                                         <?php if(is_array($record_type) || $record_type instanceof \think\Collection || $record_type instanceof \think\Paginator): $i = 0; $__LIST__ = $record_type;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
                                         <option value="<?php echo $vo['value']; ?>" <?php if($get_record_type == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
@@ -157,7 +156,7 @@ select{
                                         <th>商家</th>
                                         <th>交易数量</th>
                                         <th>交易金额</th>
-                                        <th style="width: 180px;">交易状态</th>
+                                        <th style="width: 150px;">交易状态</th>
                                         <th>收货人地址</th>
                                         <th>电话</th>
                                         <th>姓名</th>
@@ -176,14 +175,14 @@ select{
                                         <td><?php echo $vo['g_number']; ?></td>
                                         <td><?php echo $vo['money']; ?></td>
                                         <td>
-                                            <?php switch($vo['order_status']): case "1": ?><span style="margin-left: 0px">待支付</span><?php break; case "2": ?><span style="margin-left: 30px">待发货</span><?php break; case "3": ?><span style="margin-left: 60px">已收货</span><?php break; case "4": ?><span style="margin-left: 120px">已完成</span><?php break; case "5": ?><span style="margin-left: 90px">运输中</span><?php break; endswitch; ?>
+                                            <?php switch($vo['order_status']): case "1": ?><span style="margin-left: 0px">待支付</span><?php break; case "2": ?><span style="margin-left: 30px">待发货</span><?php break; case "3": ?><span style="margin-left: 60px">运输中</span><?php break; case "4": ?><span style="margin-left: 90px">已完成</span><?php break; endswitch; ?>
                                         </td>
                                         <td title="<?php echo $vo['address']; ?>"><?php echo $vo['address']; ?></td>
                                         <td><?php echo $vo['tel']; ?></td>
                                         <td><?php echo $vo['username']; ?></td>
                                         <td><?php echo date("Y年m月d日 H:i:s",$vo['create_time']); ?></td>
                                         <td><?php echo $vo['order_number']; ?></td>
-                                        <td class="center"><?php if(($user_type == 2)&&($vo['order_status'] == 2)): ?><button onclick="delivery(<?php echo $vo['order_number']; ?>,1)">发货</button><?php else: ?>--<?php endif; ?></td>
+                                        <td class="center"><?php if(($user_type == 2)&&($vo['order_status'] == 2)): ?><button onclick="javascript:layer.confirm('确认发货吗？',function (){delivery(<?php echo $vo['order_number']; ?>,1)})">发货</button><?php else: ?>--<?php endif; ?></td>
                                     </tr>
                                     <?php endforeach; endif; else: echo "" ;endif; ?>
                                     </tbody>

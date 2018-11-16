@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542272126;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542331144;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542367091;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,7 +36,7 @@
             <?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $i = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
             <li>
                 <?php if(($key == 2) OR ($key == 3)): ?>
-                <a onclick="javascript:layer.alert('功能待开发',{time:2000,title:'温馨提示'})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
+                <a onclick="javascript:layer.msg('功能待开发',{time:1500,})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
                 <?php else: ?>
                 <a href="/<?php echo $vo['name']; ?>" ><?php echo $vo['title']; ?></a>
                 <?php endif; ?>
@@ -103,9 +103,6 @@
             <li <?php if($type == 2): ?> class="active" <?php endif; ?>>
                 <a href="my_promotion?type=2">待发货</a>
             </li>
-            <li <?php if($type == 5): ?> class="active" <?php endif; ?>>
-            <a href="my_promotion?type=5">运输中</a>
-            </li>
             <li <?php if($type == 3): ?> class="active" <?php endif; ?>>
             <a href="my_promotion?type=3">待收货</a>
             </li>
@@ -147,7 +144,7 @@
                         <div class="indent_right">
                             <div></div>
                             <div>
-                                <?php switch($o['order_status']): case "1": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'pay_now',<?php echo $o['order_number']; ?>)" value="待支付" title="去支付"><?php break; case "2": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'notice',)" value="提醒发货"><input type="button" class="indentBtn_on" disabled value="待发货"><?php break; case "5": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="运输中" disabled><?php break; case "3": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'confirm',<?php echo $o['order_number']; ?>)" value="待收货"><?php break; case "4": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled><?php break; endswitch; ?>
+                                <?php switch($o['order_status']): case "1": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'pay_now',<?php echo $o['order_number']; ?>)" value="待支付" title="去支付"><?php break; case "2": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'notice',)" value="提醒发货"><input type="button" class="indentBtn_on" disabled value="待发货"><?php break; case "3": ?><input type="button" class="indentBtn_on" onclick="javascript:layer.confirm('确认收货吗？',function (){use_indent(this,'confirm',<?php echo $o['order_number']; ?>)})" value="待收货" title="点击收货"><?php break; case "4": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled><?php break; endswitch; ?>
                             </div>
                         </div>
                     </div>

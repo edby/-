@@ -30,10 +30,10 @@ class Goods extends Base
 		parent::__construct($request);
 
 //		获得优惠券后提示
-		$pre_card = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid']])->whereNotIn('notice',[1])->find();
+		$pre_card = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid']])->where(['notice'=>1])->find();
 		Db::startTrans();
 		try{
-			Db::name('user_vou')->where(['id'=>$pre_card['id']])->update(['notice'=>1]);
+			Db::name('user_vou')->where(['id'=>$pre_card['id']])->update(['notice'=>0]);
 			$this->assign('pre_card',$pre_card);
 			Db::commit();
 		}catch (\Exception $e){
@@ -298,15 +298,19 @@ class Goods extends Base
     {
     	if(!($_POST||$_GET)){
 //    		未接收到数据，自动后退
-			echo "<script>window.history = -1;</script>";
+			echo "<script>histroy.go(-1);</script>";
 	    }
 //	    从直接购买传递过来的
     	if($_GET['type'] == 'buy'){
-		    $user_info = Db::table('sn_user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
-		    $user_order = Db::table('sn_goods_order')->alias('a')->join('sn_goods_detail b','a.gid = b.gid')->where(['order_number'=>$_GET['ord'],'buy_uid'=>$_SESSION['think']['uid']])->select();
+		    $user_order = Db::table('sn_goods_order')->alias('a')->join('sn_goods_detail b','a.gid = b.gid')->where(['order_number'=>$_GET['ord'],'buy_uid'=>$_SESSION['think']['uid'],'order_status'=>1])->select();
 //		    echo Db::name('goods_order')->getLastSql();
-
-		    $this->assign('user_info',$user_info);
+//		    print_r($user_order[0]['order_number']);
+//		    exit();
+		    if(!$user_order[0]['order_number']){
+			    echo "<script>history.go(-1);</script>";
+		    }
+		    $user_info = Db::table('sn_user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+	        $this->assign('user_info',$user_info);
 		    $this->assign('user_order',$user_order);
 
 //			pre($user_order);
@@ -323,10 +327,11 @@ class Goods extends Base
 		    $this->assign('user_info',$user_info);
 		    $this->assign('user_order',$user_order);
 	    }else{
-    		echo "接收数据错误！";
+    		echo "<script>history.go(-1);</script>";
     		exit();
 	    }
 	    $addrs = Db::name('user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+//    	print_r($addrs);
 	    $this->assign("addrs",$addrs);
     	return $this->fetch();
     }
@@ -345,8 +350,23 @@ class Goods extends Base
 //    	exit();
     	$r = [
     		'code'=>1,
-		    'msg'=>'处理订单初始化'
+		    'msg'=>$_POST['rec_ids']
 	    ];
+//    	return json_encode($r);
+//    	exit();
+
+//	    获取用户收货地址
+	    $user_add = Db::name('user_addr')->where(['id'=>$_POST['rec_ids']])->find();
+//	    $r['msg'] = $user_add;
+//	    return json_encode($r);
+	    if(!$user_add){
+		    $r = [
+		    	'code'=>-1,
+			    'msg'=>'收货地址异常',
+		    ];
+		    return json_encode($r);
+	    }
+//      获取用户账户信息
 		$user_info = Db::name('user_bouns')->where(['id'=>$_SESSION['think']['uid']])->select();
 		if(!$user_info){
 			$r = [
@@ -375,25 +395,44 @@ class Goods extends Base
 				if($user_info['status' == '2']){
 					throw new Exception("帐户已被禁用");
 				}
-				$item_money = $goods_order['g_price'] * $item[1];
-				$item_const = $item_money;
-//				用户余额账户
-				$user_money = Db::name('user_bouns')->where(['uid'=>$_SESSION['think']['uid']])->order('bouns_type asc')->select();
-				if(!$user_money){
-					throw new Exception("用户不存在");
-				}
-				$consumer_num = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>6])->find();
-//				print_r($consumer_num);
-//				exit();
-			    if($consumer_num > $item_money){
-			    	throw new Exception("用户消费券不足");
-			    }else{
-			    	$consumer_num['number'] -= $item_money;
-				    $result = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>6])->update($consumer_num);
-				    if(!$result){
-						throw new Exception("更新用户消费券失败");
+//				购买的商品为优惠专区
+				if($goods_order['cid'] == 1){
+					$vou_where = [
+						'uid'=>$_SESSION['think']['uid'],
+						'vid'=>1
+					];
+					$vou = Db::name('user_vou')->where($vou_where)->find();
+//					用户优惠券不足
+					if(!($vou && $vou['number']>0)){
+						throw new Exception("用户券不足");
+					}
+					$result = Db::name('user_vou')->where($vou_where)->setDec('number',1);
+					if(!$result){
+						throw new Exception('更新用户优惠券失败');
+					}
+//                  用户购买的是特色专区商品
+				}else{
+					$item_money = $goods_order['g_price'] * $item[1];
+					$item_const = $item_money;
+	//				用户余额账户
+					$user_money = Db::name('user_bouns')->where(['uid'=>$_SESSION['think']['uid']])->order('bouns_type asc')->select();
+					if(!$user_money){
+						throw new Exception("用户不存在");
+					}
+					$consumer_num = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>6])->find();
+//					print_r($consumer_num);
+//					exit();
+				    if($consumer_num < $item_money){
+				        throw new Exception("用户消费券不足");
+				    }else{
+//				    	print_r($consumer_num);
+//				    	exit();
+				        $consumer_num['number'] -= $item_money;
+					    if(!(Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>6])->update($consumer_num))){
+							throw new Exception("商家状态写入失败");
+					    }
 				    }
-			    }
+				}
 
 ////				    遍历用户三个类型的奖金，依次扣款
 //			    $times = 1;
@@ -414,7 +453,7 @@ class Goods extends Base
 //					}
 //					$times++;
 //				}
-			    if(!(Db::name('goods_order')->where(['order_number' => $item[0]])->update(['order_status'=>2]))){
+			    if(!(Db::name('goods_order')->where(['order_number' => $item[0]])->update(['order_status'=>2,'addr_id'=>$_POST['rec_ids']]))){
 					throw new Exception('订单付款失败');
 			    }
 ////			    获取商家信息
@@ -599,12 +638,11 @@ class Goods extends Base
 
 		$page = $user_order->render();
 //	    echo Db::name('sn_goods_order')->getLastSql();
-
 //	    pre($user_order);
-//	    pre($user_info);
+//	    print_r($user_info);
 //	    exit;
 		$this->assign('page',$page);
-		$this->assign('user_info',$user_info);
+		$this->assign('addrs',$user_info);
 		$this->assign('user_order',$user_order);
 		return $this -> fetch();
 	}
@@ -698,9 +736,96 @@ class Goods extends Base
 	 */
 	public function select_addr()
 	{
-		$addrs = Db::name('user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+		if($_POST['id']){
+			$addrs = Db::name('user_addr')->where(['uid'=>$_SESSION['think']['uid'],'id'=>$_POST['id']])->find();
+			$r = [
+				'code'=>1,
+				'msg'=>$addrs
+			];
+			return json_encode($r);
+			exit();
+		}else{
+			$addrs = Db::name('user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
+		}
 		$this->assign("addrs",$addrs);
 		return $this->fetch();
 	}
-	public function
+
+	/**
+	 * 卖家确认订单，
+	 * 根据商户的商品收益比
+	 * 将消费券转换为积分存进商家静态积分中
+	 *
+	 * @return false|string
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 */
+	public function confirm_order()
+	{
+		$r = [
+			'code'=>1,
+			'msg'=>$_POST
+		];
+		if(!$_POST){
+			$r = [
+				'code'=>1,
+				'msg'=>'未传递数据'
+			];
+		}
+		$order_where = [
+			'order_number'=>$_POST['order_id'],
+			'buy_uid'=>$_SESSION['think']['uid'],
+			'order_status'=>3
+		];
+		$order = Db::name('goods_order')->where($order_where)->find();
+		$goods_detial = Db::name('goods_detail')->where(['gid'=>$order['gid']])->find();
+//		print_r($order);
+//		exit();
+		if(!$order){
+			$r = [
+				'code'=>-1,
+				'msg'=>'未查询到该数据'
+			];
+		}
+//		print_r($order);
+		Db::startTrans();
+		try{
+			$bouns_where = [
+				'uid' => $order['sell_sid'],
+				'bouns_type' =>1
+			];
+//			商品类型为2特色专区，将商品消费券转换为积分存进对应商家账户，类型为优惠专区，直接修改商品订单状态为已完成
+			if($order['cid'] == 2){
+				$user_bouns = Db::name('user_bouns')->where($bouns_where)->setInc('bouns_number',$order['money']*$goods_detial['profit_rate']);
+				$user_income = Db::name('user_bouns')->where($bouns_where)->setInc('bouns_income',$order['money']*$goods_detial['profit_rate']);
+				if(!$user_bouns){
+					throw new Exception("商家信息修改失败");
+				}
+				if(!$user_income){
+					throw new Exception("商家信息修改失败");
+				}
+			}
+			$order['order_status'] = 4;
+//			print_r($order_where);
+//			print_r($order);
+//			exit;
+			$result = Db::name('goods_order')->where($order_where)->update($order);
+			if(!$result){
+				throw new Exception("订单状态修改失败");
+			}
+			Db::commit();
+			$r = [
+				'code'=>1,
+				'msg'=>"已收货"
+			];
+		}catch (\Exception $e){
+			Db::rollback();
+			$r = [
+				'code'=>-1,
+				'msg'=>$e->getMessage()
+			];
+		}
+		return json_encode($r);
+	}
 }

@@ -71,7 +71,7 @@ class User extends Base
 		$this -> assign('uid',$uid);
 		$this -> assign('user',model('User') -> userInfo($uid));
 		$this -> assign('wallet',model('User') -> userWallet($uid));
-
+		$this -> assign('bouns_in_outcome',model('User') -> userInOutcome($uid));
 		return $this -> fetch();
 	}
 	

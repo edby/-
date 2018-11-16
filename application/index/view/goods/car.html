@@ -95,21 +95,26 @@
     <!--收货信息-->
     <div class="recipients">
         <div class="rec_box">
-            <div class="rec_title">
+            <div class="rec_title"  style="cursor: pointer;" onclick="select_addr()" data-toggle="modal" data-target="#myModal">
                 <span>收货信息：</span>
                 <img src="__IMG__/next.png">
             </div>
+            {volist name = "addrs" id = "a" key = "key"}
+            {eq name = "a.default" value = "2"}
             <div class="rec_details">
-                <span>姓名：{$user_info[0]['username']}</span>
-                <span>电话：{$user_info[0]['tel']}</span>
-                <span>收货地址：{$user_info[0]['address']}</span>
-                <a href="#">编辑</a>
+                <input type="hidden" id="rec_ids" value="{$a.id}">
+                <span id="rec_name">{$a['username']}</span>
+                <span id="rec_tel">{$a['tel']}</span>
+                <span id="rec_address">{$user_infoa['address']}</span>
+                <a href="../user/address" target="_blank" style="cursor: pointer">编辑</a>
             </div>
+            {/eq}
+            {/volist}
         </div>
-        <!--<div class="freight">-->
+        <div class="freight">
             <!--<span>运费：</span>-->
             <!--<p><span>10</span>元</p>-->
-        <!--</div>-->
+        </div>
     </div>
 
     <!--输入密码-->
@@ -125,7 +130,31 @@
             <button type="button" onclick="clearing()">支付</button>
         </div>
     </div>
-
+    <!--选择地址-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">选择收货地址</h4>
+                </div>
+                <div class="modal-body">
+                    {volist name = "addrs" id = "a" key = "key"}
+                    <div class="rec_details">
+                        <input type="radio" {eq name = "$a.default" value = "2"} checked {/eq} name="select_rec" value="{$a['id']}">
+                        <span>{$a['username']}</span>
+                        <span>{$a['tel']}</span>
+                        <span>{$a['address']}</span>
+                    </div>
+                    {/volist}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="select_rec()">选择地址</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!--底部全选-->
     <div class="total_clear">
         <div class="totalBox">

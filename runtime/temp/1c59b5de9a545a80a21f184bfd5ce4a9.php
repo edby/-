@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\clear.html";i:1542274158;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542094249;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\clear.html";i:1542362843;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542367091;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,7 +36,7 @@
             <?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $i = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
             <li>
                 <?php if(($key == 2) OR ($key == 3)): ?>
-                <a onclick="javascript:layer.alert('功能待开发',{time:2000,title:'温馨提示'})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
+                <a onclick="javascript:layer.msg('功能待开发',{time:1500,})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
                 <?php else: ?>
                 <a href="/<?php echo $vo['name']; ?>" ><?php echo $vo['title']; ?></a>
                 <?php endif; ?>
@@ -145,27 +145,23 @@
             </tbody>
         </table>
     </form>
-    <?php if(is_array($addrs) || $addrs instanceof \think\Collection || $addrs instanceof \think\Paginator): $key = 0; $__LIST__ = $addrs;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$a): $mod = ($key % 2 );++$key;?>
-        <input type="radio" name="addr_select">
-        <span>姓名：<?php echo $a['username']; ?></span>
-        <span>电话：<?php echo $a['tel']; ?></span>
-        <span>收货地址：<?php echo $a['address']; ?></span>
-        <br />
-    <?php endforeach; endif; else: echo "" ;endif; ?>
 
     <!--收货信息-->
     <div class="recipients">
         <div class="rec_box">
-            <div class="rec_title"  style="cursor: pointer;" onclick="select_addr()">
+            <div class="rec_title"  style="cursor: pointer;" onclick="select_addr()" data-toggle="modal" data-target="#myModal">
                 <span>收货信息：</span>
                 <img src="/static/ace/img/next.png">
             </div>
-            <div class="rec_details">
-                <span>姓名：<?php echo $user_info[0]['username']; ?></span>
-                <span>电话：<?php echo $user_info[0]['tel']; ?></span>
-                <span>收货地址：<?php echo $user_info[0]['address']; ?></span>
-                <a href="../user/address" target="_blank" style="cursor: pointer">编辑</a>
-            </div>
+            <?php if(is_array($addrs) || $addrs instanceof \think\Collection || $addrs instanceof \think\Paginator): $key = 0; $__LIST__ = $addrs;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$a): $mod = ($key % 2 );++$key;if($a['default'] == '2'): ?>
+                    <div class="rec_details">
+                        <input type="hidden" id="rec_ids" value="<?php echo $a['id']; ?>">
+                        <span id="rec_name"><?php echo $a['username']; ?></span>
+                        <span id="rec_tel"><?php echo $a['tel']; ?></span>
+                        <span id="rec_address"><?php echo $user_infoa['address']; ?></span>
+                        <a href="../user/address" target="_blank" style="cursor: pointer">编辑</a>
+                    </div>
+                <?php endif; endforeach; endif; else: echo "" ;endif; ?>
         </div>
         <div class="freight">
             <!--<span>运费：</span>-->
@@ -199,6 +195,32 @@
     </div>
     <div class="payment_btn">
         <button type="button" onclick="payment()">支付</button>
+    </div>
+</div>
+
+<!--选择地址-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">选择收货地址</h4>
+            </div>
+            <div class="modal-body">
+                <?php if(is_array($addrs) || $addrs instanceof \think\Collection || $addrs instanceof \think\Paginator): $key = 0; $__LIST__ = $addrs;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$a): $mod = ($key % 2 );++$key;?>
+                <div class="rec_details">
+                    <input type="radio" <?php if($a['default'] == '2'): ?> checked <?php endif; ?> name="select_rec" value="<?php echo $a['id']; ?>">
+                    <span><?php echo $a['username']; ?></span>
+                    <span><?php echo $a['tel']; ?></span>
+                    <span><?php echo $a['address']; ?></span>
+                </div>
+                <?php endforeach; endif; else: echo "" ;endif; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="select_rec()">选择地址</button>
+            </div>
+        </div>
     </div>
 </div>
 

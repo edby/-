@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1542088538;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1542348682;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -274,7 +274,6 @@
                 <span>已解冻积分：</span>
                 <span class="wallet_num"><?php echo $wallet['user_all_bonus']; ?></span>
             </div>
-            
             <?php if(is_array($wallet['voucher']) || $wallet['voucher'] instanceof \think\Collection || $wallet['voucher'] instanceof \think\Paginator): $i = 0; $__LIST__ = $wallet['voucher'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;if($vo['is_sell'] == '1'): ?>
 		            <div class="walletBox">
 		                <div class="wallet_box">
@@ -289,7 +288,14 @@
 		                <span class="wallet_num"><?php echo $vo['number']; ?></span>
 		            </div>
 		        <?php endif; endforeach; endif; else: echo "" ;endif; ?>
-            
+            <div class="wallet_box">
+                <span>静态积分总收入</span>
+                <span class="wallet_num"><?php echo $bouns_in_outcome['bouns_income']; ?></span>
+            </div>
+            <div class="wallet_box">
+                <span>静态积分总支出</span>
+                <span class="wallet_num"><?php echo $bouns_in_outcome['bouns_withdraw']; ?></span>
+            </div>
         </div>
     </div>
 </main>
