@@ -151,6 +151,9 @@ class User extends Base
 			// 删除用户奖金表中的数据
 			Db::name('user_bouns') -> where('uid',$id) -> delete();
 			
+			// 删除用户层级表中的数据
+			Db::name('user_floor') -> where('uid',$id) -> delete();
+			
 			// 判断是否有店铺,如果存在店铺则删除店铺信息
 			$have_shop = Db::name('user_shop') -> where('uid',$id) -> find();
 			if($have_shop){
@@ -302,6 +305,25 @@ class User extends Base
 		$finance['vou'] = $vou;
 		$finance['bouns'] = $bouns;
 		return $finance;
+	}
+	
+	/**
+	 * model 查看用户层级
+	 */
+	public function getFloor($id){
+		// 获取上一层用户信息
+		$up = Db::name('user_floor') -> where('left_uid|right_uid',$id) -> field('uid,left_uid,right_uid') -> find();
+		$up['user'] = Db::name('user') -> where('id',$up['uid']) -> field('account,parent_id') -> find();
+		$up['user']['parent_account'] = Db::name('user') -> where('id',$up['user']['parent_id']) -> value('account');
+		
+		// 获取当前用户信息
+		$current = Db::name('user_floor') -> where('uid',$id) -> field('uid,left_uid,right_uid') -> find();
+		$current['user'] = Db::name('user') -> where('id',$current['uid']) -> field('account,parent_id') -> find();
+		$current['user']['parent_account'] = Db::name('user') -> where('id',$up['user']['parent_id']) -> value('account');
+		
+		$return['up'] = $up;
+		$return['current'] = $current;
+		return $return;
 	}
 	
 	/**

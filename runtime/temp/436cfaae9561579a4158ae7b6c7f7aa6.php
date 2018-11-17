@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1542366700;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542367091;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1542444874;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -73,8 +73,8 @@
             <li><a href="feature.html">特色专区</a></li>
         </ul>
         <div>
-            <input type="text" id="search">
-            <button type="button" class="search_btn" onclick="searchBtn()">搜索</button>
+            <input type="text" value="" id="search">
+            <button type="button" class="search_btn" onclick="javascript:window.location.href='/index/goods/classify?search_text='+$('#search').val()">搜索</button>
         </div>
     </div>
 </div>
@@ -135,7 +135,7 @@
     </div>
     <div class="line"></div>
     <div class="item_subhead">
-        <ul id="myTab" class="nav nav-tabs">
+        <ul id="myTab" class="nav nav-tabs1">
             <li class="active">
                 <a href="#home" data-toggle="tab">宝贝详情</a>
             </li>
@@ -147,39 +147,6 @@
         <div id="myTabContent" class="tab-content">
             <!--宝贝详情-->
             <div class="tab-pane fade in active" id="home">
-                <!--<div class="row explain">-->
-                    <!--<div class="col-md-4">-->
-                        <!--<p>厂名：<span>澳大利亚双掌酒庄</span></p>-->
-                        <!--<p>配料表：<span>葡萄</span></p>-->
-                        <!--<p>食品添加剂：<span>无</span></p>-->
-                        <!--<p>葡萄酒等级：<span>澳大利亚产区</span></p>-->
-                        <!--<p>饮酒场合：<span>自斟自饮</span></p>-->
-                        <!--<p>包装种类：<span>裸瓶</span></p>-->
-                        <!--<p>系列：<span>嬉皮园</span></p>-->
-                    <!--</div>-->
-                    <!--<div class="col-md-4">-->
-                        <!--<p>厂址：<span>澳大利亚厂家</span></p>-->
-                        <!--<p>储藏方法：<span>阴凉避光</span></p>-->
-                        <!--<p>套装规格：<span>单支</span></p>-->
-                        <!--<p>葡萄品种：<span>西拉</span></p>-->
-                        <!--<p>产地：<span>澳大利亚</span></p>-->
-                        <!--<p>单瓶净含量：<span>750mL</span></p>-->
-                        <!--<p>采摘年份：<span>2008-09</span></p>-->
-                    <!--</div>-->
-                    <!--<div class="col-md-4">-->
-                        <!--<p>联系方式：<span>13300000001</span></p>-->
-                        <!--<p>保质期：<span>3600</span></p>-->
-                        <!--<p>葡萄酒种类：<span>红葡萄酒</span></p>-->
-                        <!--<p>糖分：<span>干葡萄酒（含糖量小于4克/升）</span></p>-->
-                        <!--<p>醒酒时间：<span>15分钟（含）-30分钟（含）</span></p>-->
-                        <!--<p>品牌：<span>Two hands</span></p>-->
-                        <!--<p>净含量：<span>750mL</span></p>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<div class="line"></div>-->
-                <!--<div class="produced">-->
-                    <!--<p>生产日期：<span>2008年09月25日 至 2008年09月25日</span></p>-->
-                <!--</div>-->
                 <div class="line"></div>
                 <div class="item_details">
                     <img src="<?php echo $goods_detail['detail_pic']; ?>">
@@ -188,39 +155,6 @@
             </div>
             <!--专享服务-->
             <div class="tab-pane fade" id="test">
-                <!--<div class="row explain">-->
-                    <!--<div class="col-md-4">-->
-                        <!--<p>厂名：<span>澳大利亚双掌酒庄</span></p>-->
-                        <!--<p>配料表：<span>葡萄</span></p>-->
-                        <!--<p>食品添加剂：<span>无</span></p>-->
-                        <!--<p>葡萄酒等级：<span>澳大利亚产区</span></p>-->
-                        <!--<p>饮酒场合：<span>自斟自饮</span></p>-->
-                        <!--<p>包装种类：<span>裸瓶</span></p>-->
-                        <!--<p>系列：<span>嬉皮园</span></p>-->
-                    <!--</div>-->
-                    <!--<div class="col-md-4">-->
-                        <!--<p>厂址：<span>澳大利亚厂家</span></p>-->
-                        <!--<p>储藏方法：<span>阴凉避光</span></p>-->
-                        <!--<p>套装规格：<span>单支</span></p>-->
-                        <!--<p>葡萄品种：<span>西拉</span></p>-->
-                        <!--<p>产地：<span>澳大利亚</span></p>-->
-                        <!--<p>单瓶净含量：<span>750mL</span></p>-->
-                        <!--<p>采摘年份：<span>2008-09</span></p>-->
-                    <!--</div>-->
-                    <!--<div class="col-md-4">-->
-                        <!--<p>联系方式：<span>13300000001</span></p>-->
-                        <!--<p>保质期：<span>3600</span></p>-->
-                        <!--<p>葡萄酒种类：<span>红葡萄酒</span></p>-->
-                        <!--<p>糖分：<span>干葡萄酒（含糖量小于4克/升）</span></p>-->
-                        <!--<p>醒酒时间：<span>15分钟（含）-30分钟（含）</span></p>-->
-                        <!--<p>品牌：<span>Two hands</span></p>-->
-                        <!--<p>净含量：<span>750mL</span></p>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<div class="line"></div>-->
-                <!--<div class="produced">-->
-                    <!--<p>生产日期：<span>2008年09月25日 至 2008年09月25日</span></p>-->
-                <!--</div>-->
                 <div class="line"></div>
                 <div class="item_details">
                     <img src="<?php echo $goods_detail['service_pic']; ?>">

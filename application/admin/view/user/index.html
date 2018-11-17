@@ -89,6 +89,7 @@
                         <td class='user_info_btn'>
                         	<a class="btn btn-sm btn-success" href="{:url('detail',array('id'=>$vo['id']))}" >详情</a>
                         	<a class="btn btn-sm btn-success" href="{:url('finance',array('id'=>$vo['id']))}" >资产</a>
+                        	<a class="btn btn-sm btn-success" href="{:url('floor',array('id'=>$vo['id']))}" >查看层级</a>
                         	{neq name='$vo.shop_apply' value='0'}
                         		<a class="btn btn-sm {$vo.apply_color}" href="{:url('shop',array('id'=>$vo['id']))}" >{$vo.shop_apply_text}</a>
                         	{/neq}

@@ -9,9 +9,8 @@
 }
 
 /* 审核状态开始 */
-.review_pass {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#87B87F;box-shadow:#87B87F 1px 1px 2px;}
-.review_fail {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#DD0C0C;box-shadow:#DD0C0C 1px 1px 2px;}
-.review_on {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#2E98F5;box-shadow:#2E98F5 1px 1px 2px;}
+.type_buy {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#87B87F;box-shadow:#87B87F 1px 1px 2px;}
+.type_sell {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#2E98F5;box-shadow:#2E98F5 1px 1px 2px;}
 /* 审核状态结束 */
 </style>
 </head>
@@ -29,7 +28,7 @@
       </div>
       <div class="page-content">
         <div class="page-header">
-          <h1> {$pagename} <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出{$list.count}条数据 </small> </h1>
+          <h1> {$pagename} <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出{$data.count}条数据 </small> </h1>
         </div>
         <!-- /.page-header -->
         <div class="row">
@@ -39,24 +38,24 @@
               <div class="col-xs-12" style="margin-bottom:10px;">
                 <form action="{:url('index')}" method="get" class="form-inline" role="form">
                   <div class="form-group">
-                    <label>提现记录查询</label>
-                    <input name="keywords" type="text" class="form-control search" placeholder="用户账号" />
+                    <label>订单号</label>
+                    <input name="keywords" type="text" class="form-control search" placeholder="订单号" />
                   </div>&nbsp;&nbsp;
                   
-                  <div class="form-group"><label>奖金类型</label>
-                    <select name="status" class="form-control" <!--onchange='look_state(this)'-->>
+                  <div class="form-group"><label>订单状态</label>
+                    <select name="order_status" class="form-control" <!--onchange='look_state(this)'-->>
                     	<option value="">全部</option>
-                      {volist name="bonus" id="vo"}
-                        <option value="{$vo.value}" {if condition='$get_bonus == $vo.value'}selected='selected'{/if}>{$vo.key}</option>
+                      {volist name="trade_status" id="vo"}
+                        <option value="{$vo.value}" {if condition='$get_status == $vo.value'}selected='selected'{/if}>{$vo.key}</option>
                       {/volist}
                     </select>
                   </div>&nbsp;&nbsp;
                   
-                  <div class="form-group"><label>审核状态</label>
-                    <select name="review" class="form-control" <!--onchange='look_state(this)'-->>
+                  <div class="form-group"><label>交易类型</label>
+                    <select name="trade_type" class="form-control" <!--onchange='look_state(this)'-->>
                     	<option value="">全部</option>
-                      {volist name="review" id="vo"}
-                        <option value="{$vo.value}" {if condition='$get_review == $vo.value'}selected='selected'{/if}>{$vo.key}</option>
+                      {volist name="trade_type" id="vo"}
+                        <option value="{$vo.value}" {if condition='$get_type == $vo.value'}selected='selected'{/if}>{$vo.key}</option>
                       {/volist}
                     </select>
                   </div>&nbsp;&nbsp;
@@ -70,44 +69,33 @@
                   <thead>
                     <tr>
                       <th class="center">记录ID</th>
-                      <th>用户账号</th>
-                      <th>用户银行卡</th>
-                      <th>奖金类型</th>
-                      <th>人民币数量</th>
-                      <th>消费券数量</th>
-                      <th>提交时间</th>
-                      <th>审核时间</th>
-                      <th>审核状态</th>
-                      <th>操作</th>
+                      <th>订单编号</th>
+                      <th>交易数量</th>
+                      <th>订单状态</th>
+                      <th>创建时间</th>
+                      <th>付款时间</th>
+                      <th>完成时间</th>
+                      <th>交易类型</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {volist name="list.list" id="vo" key="k"}
+                    {volist name="data.list" id="vo" key="k"}
                     <tr>
                         <td class="center">{$vo.id}</td>
-                        <td>{$vo.user_account}</td>
-                        <td>{$vo.user_card.bank_name}<br />{$vo.user_card.bank_number}</td>
-                        <td>{$vo.money_number}</td>
-                        <td>{$vo.vou_number}</td>
-                        <td>{$vo.create_time}</td>
-                        <td>{$vo.done_time}</td>
-                        <td>{$vo.service_charge}</td>
-                        <td><div class='{$vo.review_btn}'>{$vo.review_text}</div></td>
-	                      <td>
-	                      	{if condition = '$vo.recharge_status === 1'}
-	                      		<a class="btn btn-sm btn-success" href="javascript:void(0)" onclick="review(this,{$vo.id},2)">审核</a>
-	                      		<a class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="review(this,{$vo.id},3)">失败</a>
-	                      	{else/}
-	                      		--
-	                      	{/if}
-	                      </td>
+                        <td>{$vo.order}</td>
+                        <td>{$vo.order_number}</td>
+                        <td>{$vo.order_status_text}</td>
+                        <td>{$vo.create_date}</td>
+                        <td>{$vo.pay_date}</td>
+                        <td>{$vo.done_date}</td>
+                        <td><div class='{$vo.trade_btn}'>{$vo.trade_type_text}</div></td>
                     </tr>
                     {/volist}
                   </tbody>
                 </table>
                 <div style="width:100%;margin: 0 auto; text-align:center;">
                   <ul class="pagination" >
-                    {$list.page}
+                    {$data.page}
                   </ul>
                 </div>
               </div>
@@ -149,9 +137,6 @@
   $('a[href="/Admin/Method/index"]').parents().filter('li').addClass('open active');
   {if condition="input('get.keywords')"}
     $('input[name="keywords"]').val('{$_GET["keywords"]}');
-  {/if}
-  {if condition="is_numeric(input('get.state'))"}
-    $('select[name="state"]').val({$_GET['state']});
   {/if}
 </script>
 

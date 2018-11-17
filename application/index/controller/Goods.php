@@ -60,12 +60,12 @@ class Goods extends Base
 		$page_size = 5;
 		//获取优惠专区图片
 
-		$preferential = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where('area_type = 2')->select();
+		$preferential = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where(['area_type '=> 2,'status'=>3])->select();
 		//		传递优惠专区
 		$this->assign('preferential',$preferential);
 
 		//获取特色专区商品
-		$feature = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where('area_type = 1')->select();
+		$feature = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where(['area_type'=>1,'status'=>3])->select();
 		//        传递特色专区
 		 $this->assign('feature',$feature);
 //		print_r($feature);
@@ -74,16 +74,36 @@ class Goods extends Base
 		 $this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
-	
+
 	/**
-     * 输出上品的分类
-	 * controller 商品分类
+	 * 输出商品分类
+	 * @return mixed
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
 	 */
 	public function classify(){
-
 		$good_types = Db::name('goods_classify')->select();
 		$this->assign("classify",$good_types);
+		if($_GET['search_text']){
+//				exit;
+			$pagesize = 6;
+			$seach_area = null;
+			$seach_area = [
+				['name','LIKE','%'.$_GET['search_text'].'%'],
+			];
+			$configs = ['query'=>['search_text'=>$_GET['search_text']]];
+			$goods = Db::name('goods_detail')->where('name','like','%'.$_GET['search_text'].'%')->where(['status'=>3])->paginate($pagesize,false,$configs);
+			$pages = $goods->render();
+			$this->assign('pages',$pages);
+			$this->assign('goods_detail',$goods);
+			return $this->fetch();
+			exit;
+//			print_r($goods);
+//			exit;
+		}
 		try{
+//			print_r($_GET);
 			if(!$_GET['classify']){
 //				 "首次访问当前页面";
 				$echo_goods = $this->get_goods_by_type(1,1);
@@ -151,22 +171,16 @@ class Goods extends Base
 	}
 
     /**
-     * 特色专区,搜索商品也跳转此处
+     * 特色专区
      * @return mixed
      * @throws \think\exception\DbException
      */
     public function feature(){
-
-//    	搜索区域
-	if($_GET['search_text']){
-
-	}
-
         $page_size = 8;
 
     //        传递特色专区
     //查询特色专区
-        $feature = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->where('area_type = 2')->paginate($page_size);
+        $feature = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->where('area_type = 2')->where(['status'=>3])->paginate($page_size);
         $page = $feature->render();
         $this->assign('feature',$feature);
         $this->assign('page',$page);
@@ -236,9 +250,36 @@ class Goods extends Base
 	    }
 	    $gid = $_POST['gid'];
 //	    商品信息
-	    $googd_info = Db::table('sn_goods_detail')->where(['gid'=>$gid])->where(['status'=>3])->find();
+	    $googd_info = Db::table('sn_goods_detail')->alias('detail')->join('goods','detail.gid = goods.id')->where(['gid'=>$gid])->where(['status'=>3])->find();
 //	    print_r($googd_info);
 //	    exit();
+//		print_r($googd_info['shop_id']);
+//		print_r($_SESSION['think']['uid']);
+//		exit();
+
+//	    用户收货地址
+	    $user_add = Db::name('user_add')->where(['uid'=>$_SESSION['think']['uid']])->select();
+	    $user_addr_id = $user_add[0]['id'];
+	    if(!$user_add) {
+			$r = [
+				'code'=>-1,
+				'msg'=>'用户收货地址信息出错'
+			];
+			return json_encode($r);
+			exit;
+	    }
+	    for($i = 0;$i<sizeof($user_add);$i++){
+			if($user_add[$i]['default'] == 2){
+				$user_addr_id = $user_add[$i]['id'];
+			}
+	    }
+	    if($googd_info['gid'] == $_SESSION['think']['uid']){
+	    	$r = [
+	    		'code'=>-1,
+			    'msg'=>'不能购买自己的商品！'
+		    ];
+	    	return json_encode($r);
+	    }
 	    $uid = $_SESSION['think']['uid'];
 	    $number = $_POST['number'];
 //	    print_r($gid);
@@ -264,6 +305,7 @@ class Goods extends Base
 	    $order['order_status'] = 1;
 //	    订单号
 		$order['order_number'] = generateOrderNumber();
+		$order['addr_id'] = $user_addr_id;
 	    if($goods->insert($order)){
 //		    print_r($order);
 		    $r = [
@@ -540,7 +582,7 @@ class Goods extends Base
 		//				用户余额账户
 		$user_money = Db::name('user_bouns')->where(['uid'=>$_SESSION['think']['uid']])->order('bouns_type asc')->select();
 		if(!$user_money){
-			throw new Exception("cant find user account about money");
+			throw new Exception("用户帐户不存在");
 		}
 		Db::startTrans();
 		try{
@@ -558,8 +600,9 @@ class Goods extends Base
 					Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
 					break;
 				}
-				if(($times==3)&&($item_money>0)){
-					throw new Exception("user blance is low!");
+//				仅使用静态积分
+				if(($times==1)&&($item_money>0)){
+					throw new Exception("用户余额不足");
 				}
 				$times++;
 			}
@@ -574,7 +617,8 @@ class Goods extends Base
 			$active_order['create_time'] = time();
 			$active_order['g_price'] = $item_money;
 			$active_order['money'] = $item_money;
-			$active_order['addr'] = '购买激活券';
+			$active_order['addr_id'] = '0';
+			$active_order['remarks'] = '购买激活券';
 //			var_dump($active_order);
 //			exit();
 			if(!$Active_order->insert($active_order)){
@@ -697,7 +741,7 @@ class Goods extends Base
 		$where['buy_uid'] = $_SESSION['think']['uid'];
 //		print_r($_GET['type']);
 		if($_GET['type']){
-//			echo "是否为int".is_int($_GET['type'])."asfasdf";
+//			echo "是否为int".is_int($_GET['type']);
 			$_GET['type'] = (int)$_GET['type'];
 			if(($_GET['type']>5)||($_GET['type']<0)){
 				$_GET['type'] = null;

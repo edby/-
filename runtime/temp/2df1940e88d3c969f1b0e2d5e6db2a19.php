@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:75:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\goods_order.html";i:1542340423;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:75:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\shop\goods_order.html";i:1542449405;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1532051872;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -95,7 +95,7 @@ select{
         <b class="arrow"></b>
         <ul class="submenu">
           <?php if(is_array($vo['child']) || $vo['child'] instanceof \think\Collection || $vo['child'] instanceof \think\Paginator): $i = 0; $__LIST__ = $vo['child'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$sub): $mod = ($i % 2 );++$i;?>
-            <li <?php if($sub['name'] == $rule): ?>class="active"<?php endif; ?>><a href="<?php echo url('/'.$sub['name']); ?>"><i class="menu-icon fa fa-caret-right"></i> <?php echo $sub['title']; ?> </a><b class="arrow"></b></li>
+          <li <?php if($sub['name'] == $rule): ?>class="active"<?php endif; ?>><a href="<?php echo url('/'.$sub['name']); ?>"><i class="menu-icon fa fa-caret-right"></i> <?php echo $sub['title']; ?> </a><b class="arrow"></b></li>
           <?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
       </li>
@@ -170,8 +170,8 @@ select{
                                     <tr>
                                         <td class="center"><?php echo $k; ?></td>
                                         <td><?php echo $vo['account']; ?></td>
-                                        <td><?php echo $vo['name']; ?></td>
-                                        <td><?php echo $vo['gid']; ?></td>
+                                        <td><?php echo $vo['detail_name']; ?></td>
+                                        <td><?php echo $vo['sell_sid']; ?></td>
                                         <td><?php echo $vo['g_number']; ?></td>
                                         <td><?php echo $vo['money']; ?></td>
                                         <td>
@@ -179,10 +179,10 @@ select{
                                         </td>
                                         <td title="<?php echo $vo['address']; ?>"><?php echo $vo['address']; ?></td>
                                         <td><?php echo $vo['tel']; ?></td>
-                                        <td><?php echo $vo['username']; ?></td>
+                                        <td><?php echo $vo['addr_name']; ?></td>
                                         <td><?php echo date("Y年m月d日 H:i:s",$vo['create_time']); ?></td>
                                         <td><?php echo $vo['order_number']; ?></td>
-                                        <td class="center"><?php if(($user_type == 2)&&($vo['order_status'] == 2)): ?><button onclick="javascript:layer.confirm('确认发货吗？',function (){delivery(<?php echo $vo['order_number']; ?>,1)})">发货</button><?php else: ?>--<?php endif; ?></td>
+                                        <td class="center"><?php if(($vo['sell_sid'] == $_SESSION['think']['uid'])&&($vo['order_status'] == 2)): ?><button onclick="javascript:layer.confirm('确认发货吗？',function (){delivery(<?php echo $vo['order_number']; ?>,1)})">发货</button><?php else: ?>--<?php endif; ?></td>
                                     </tr>
                                     <?php endforeach; endif; else: echo "" ;endif; ?>
                                     </tbody>

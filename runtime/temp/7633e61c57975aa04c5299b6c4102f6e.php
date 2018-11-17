@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:1:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\publics\login.html";i:1541817028;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:1:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\publics\login.html";i:1542426268;}*/ ?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -11,8 +11,8 @@
 		<img src="/static/ace/img/logo_zc.png" class="logo"/>
 		<div class="login">
 			<h1>登录</h1>
-			<input id='login_account' value="18137885331" name='account' type='text' placeholder="请输入手机号"/>
-			<input id='login_password' name='password' value="12345678" type='password'  placeholder="请输入密码" type="password"/>
+			<input id='login_account' value="13300000002" name='account' type='text' placeholder="请输入手机号"/>
+			<input id='login_password' name='password' value="123456" type='password'  placeholder="请输入密码" type="password"/>
 			<button onclick="login()">登录</button>
 			<div class="login_bottom"><span class="wjmm">忘记密码</span></div>
 		</div>

@@ -114,8 +114,12 @@ class User extends Base
     		}
     		// 获取单个上级ID
     		$data['parent_id'] = $exist_user['id'];
-    		// 获取多俱上级ID
-    		$data['pids'] = $exist_user['pids'].','.$exist_user['id'];
+    		// 获取多个上级ID
+    		if($exist_user['pids']){
+    			$data['pids'] = $exist_user['pids'].','.$exist_user['id'];
+    		}else{
+    			$data['pids'] = $exist_user['id'];
+    		}
     	}
     	// 判断用户名
     	if($data['account']){
@@ -124,29 +128,71 @@ class User extends Base
 				return ['code' => 0,'msg' => '用户账号已存在!'];
 			}
     	}
-    	// 判断邀请券
-    	$user_vou_where['uid'] = session('uid');
-    	$user_vou_where['vid'] = 4;
-    	$user_vou_number = Db::name('user_vou') -> where($user_vou_where) -> value('number');
-        if($user_vou_number <= 0){
-        	return ['code' => 0,'msg' => '您的的邀请券不足,请先购买!'];
-        }
+//  	// 判断邀请券
+//  	$user_vou_where['uid'] = session('uid');
+//  	$user_vou_where['vid'] = 4;
+//  	$user_vou_number = Db::name('user_vou') -> where($user_vou_where) -> value('number');
+//      if($user_vou_number <= 0){
+//      	return ['code' => 0,'msg' => '您的的邀请券不足,请先购买!'];
+//      }
         
         $data['password'] = encrypt(trim($data['password']));
         $data['invitation_code'] = make_coupon_card();
 		$data['create_time'] = time();
-		$data['status'] = 1;
+		$data['status'] = 2;
 		unset($data['code']);
 		unset($data['repassword']);
 		
 		Db::startTrans();
 		$condition = 0;
 		try{
-			// 扣除用户的 激活券
-    		Db::name('user_vou') -> where($user_vou_where) -> setDec('number');
+//			// 扣除用户的 激活券
+//  		Db::name('user_vou') -> where($user_vou_where) -> setDec('number');
 			
-			// 注册用户
+			// 注册新用户
 			$result_id = Db::name('user') -> insertGetId($data);
+			
+			/** 获取用户层级并插入用户层级表 **/
+			// 获取当前用户层级信息
+			$floor = Db::name('user_floor') -> where('uid',$exist_user['id']) -> find();
+			if(!$floor['left_uid']){	// 当前用户的左分区
+				// 修改当前 用户层级表 中的 左区 的记录为 新用户ID
+				Db::name('user_floor') -> where('uid',$exist_user['id']) -> update(['left_uid' => $result_id]);
+				// 设置插入新注册 用户层级表 中的上级用户ID数据
+				$in_floor['p_left_uid'] = $exist_user['id'];
+			}else if(!$floor['right_uid']){	// 当前用户的右分区
+				// 修改当前 用户层级表 中的 右区 的记录
+				Db::name('user_floor') -> where('uid',$exist_user['id']) -> update(['right_uid' => $result_id]);
+				// 设置插入新注册 用户层级表 中的上级用户ID数据
+				$in_floor['p_right_uid'] = $exist_user['id'];
+			}else{	// 查询当前用户的下级并判断左分区或右分区
+				// 获取当前用户左分区下的子级用户数量
+		 		$left_count = Db::name('user_floor') -> where('p_left_uid',$exist_user['id']) -> count();
+		 		// 获取当前用户右分区下的子级用户数量
+		 		$right_count = Db::name('user_floor') -> where('p_right_uid',$exist_user['id']) -> count();
+		 		// 判断新建的用户属于左或右分区
+		 		if(($left_count-$right_count) === 0){	// 插入左分区的下级中
+		 			// 执行递归判断插入新用户ID的层级和区域
+					$floor_id = $this -> floor_postion($exist_user['id'],'left');
+					// 修改当前 用户层级表 中的 左区 的记录
+					Db::name('user_floor') -> where('id',$floor_id) -> update(['left_uid' => $result_id]);
+					// 设置插入新注册 用户层级表 中的上级用户ID数据
+					$in_floor['p_left_uid'] = $exist_user['id'];
+		 		}else{	// 插入右分区的下级中
+		 			// 执行递归判断插入新用户ID的层级和区域
+					$floor_id = $this -> floor_postion($exist_user['id'],'right');
+					// 修改当前 用户层级表 中的 右区 的记录
+					Db::name('user_floor') -> where('id',$floor_id) -> update(['left_uid' => $result_id]);
+					// 设置插入新注册 用户层级表 中的上级用户ID数据
+					$in_floor['p_right_uid'] = $exist_user['id'];
+		 		}
+			}
+			
+			// 插入用户层级表
+			$in_floor['uid'] = $result_id;
+			$in_floor['create_time'] = time();
+			Db::name('user_floor') -> insert($in_floor);
+			/** 获取用户层级并插入用户层级表 **/
 			
 			// 在用户券表中添加信息
 			$voucher = Db::name('voucher') -> field('id') -> select();
@@ -194,6 +240,40 @@ class User extends Base
 			return ['code' => 0,'msg' => '注册失败!'];
 		}
     }
+ 	
+ 	/**
+ 	 * 执行递归判断插入新用户ID的层级和区域
+ 	 */
+ 	public function floor_postion($uid,$area){
+ 		if($area === 'left'){	// 左区
+	 		// 获取以当前用户的左分区中最后一条直推子用户数据
+	 		$last_left = Db::name('user_floor') -> where('p_left_uid',$uid) -> order('create_time DESC') -> find();
+	 		if($last_left){	// 判断查询数据是否为空
+	 			if($last_left['left_uid']){
+		 			$left = $this -> floor_postion($last_left['uid'],'left');	// 递归执行自身方法
+		 			if(!is_array($left)){	// 判断查询结果不为数组
+		 				return $left;
+		 			}
+		 		}else{
+		 			return $last_left['id'];
+		 		}
+	 		}else{
+	 			// 获取左区中最后一条 p_right_uid 不为空的数据
+	 			return $last_left_id = Db::name('user_floor') -> whereNotNull('p_left_uid') -> order('create_time DESC') -> value('id');
+	 		}
+ 		}else{	// 右区
+ 			// 获取以当前用户的右分区中最后一条直推子用户数据
+	 		$last_right = Db::name('user_floor') -> where('p_right_uid',$uid) -> order('create_time DESC') -> find();
+	 		if($last_right['left_uid']){
+	 			$right = $this -> floor_postion($last_right['uid'],'left');	// 递归执行自身方法(并进入左区)
+	 			if(!is_array($right)){
+	 				return $right;
+	 			}
+	 		}else{
+	 			return $last_right['id'];
+	 		}
+ 		}
+ 	}
  	
     /**
      * 忘记密码
@@ -266,10 +346,16 @@ class User extends Base
 	}
 	
     /**
-     * model 修改用户信息
+     * model 完善/修改用户信息
      */
     public function editUser($data)
     {
+    	// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',session('uid')) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+    	
     	// 查询用户为修改情况下的 修改券 是否为空
     	$user_vou_where['uid'] = session('uid');
     	$user_vou_where['vid'] = 3;
@@ -420,6 +506,11 @@ class User extends Base
 				return ['code' => 0,'msg' => '超出最大转换数量!'];
 			}
 		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
 		
 		Db::startTrans();
 		$condition = 0;
@@ -459,16 +550,19 @@ class User extends Base
 					$bouns[$k]['select'] = '#static';
 					$bouns[$k]['short_name'] = '静态';
 					$bouns[$k]['div_id'] = 'static';
+					$bouns[$k]['notice'] = '满100提现且需要支付下一次交易预付款';
 					break;
 				case 2:
 					$bouns[$k]['select'] = '#active';
 					$bouns[$k]['short_name'] = '动态';
 					$bouns[$k]['div_id'] = 'active';
+					$bouns[$k]['notice'] = '满500提现且一个月只能提满两倍';
 					break;
 				case 3:
 					$bouns[$k]['select'] = '#welfare';
 					$bouns[$k]['short_name'] = '福利';
 					$bouns[$k]['div_id'] = 'welfare';
+					$bouns[$k]['notice'] = '满500提现不限次数';
 					break;
 			}
 			
@@ -503,6 +597,21 @@ class User extends Base
 		if(!$data['number']){
 			return ['code' => 0,'msg' => '请填写提现数额!'];
 		}
+		
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+		
+		// 判断用户是否绑定银行卡
+		$card_where['uid'] = $data['uid'];
+		$card_where['default'] = 2;
+		$exist_card = Db::name('user_card') -> where($card_where) -> find();
+		if(!$exist_card){
+			return ['code' => 0,'msg' => '请先绑定并设置默认银行卡!'];
+		}
+		
 		// 判断用户账户中的奖金是否足够
 		$user_bouns_where['uid'] = $data['uid'];
 		$user_bouns_where['bouns_type'] = $data['bonus_type'];
@@ -774,6 +883,11 @@ class User extends Base
 				return ['code' => 0,'msg' => '该账户不存在!'];
 			}
 		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
 		
 		Db::startTrans();
 		$condition = 0;
@@ -839,6 +953,11 @@ class User extends Base
 		if(!$data['type']){
 			return ['code' => 0,'msg' => '未获取银行卡状态!'];
 		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
 		
 		Db::startTrans();
 		$condition = 0;
@@ -902,6 +1021,12 @@ class User extends Base
 		if(!$data['bank_branch']){
 			return ['code' => 0,'msg' => '请输入分行名称!'];
 		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+		
 		$data['create_time'] = time();
 		$result = Db::name('user_card') -> insert($data);
 		if($result){
@@ -929,6 +1054,12 @@ class User extends Base
 			}
 			$data['payment_password'] = encrypt(trim($data['payment_password']));
 		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+		
 		
 		$result = Db::name('user') -> where('id',$data['uid']) -> update(['payment_password' => $data['payment_password']]);
 		if($result){
@@ -973,6 +1104,11 @@ class User extends Base
 		if(!$data['address']){
 			return ['code' => 0,'msg' => '请输入您的收货地址!'];
 		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
 		$data['create_time'] = time();
 		
 		$result = Db::name('user_addr') -> insert($data);
@@ -1014,6 +1150,11 @@ class User extends Base
 		if(!$data['address']){
 			return ['code' => 0,'msg' => '请输入您的收货地址!'];
 		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
 		
 		$where['id'] = $data['id'];
 		$mod['username'] = $data['username'];
@@ -1039,6 +1180,11 @@ class User extends Base
 		}
 		if(!$data['type']){
 			return ['code' => 0,'msg' => '未获取地址状态!'];
+		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
 		}
 		
 		Db::startTrans();
@@ -1084,6 +1230,76 @@ class User extends Base
 	}
 	
 	/**
+	 * model 我的推广
+	 */
+	public function myPromotion($uid){
+		$list = Db::name('user') -> where('parent_id',$uid) -> field('id,account,real_name,tel,status') -> select();
+		foreach($list as $k => $v){
+			// 推广用户状态
+			$dict_where['type'] = 'common_state';
+			$dict_where['value'] = $v['status'];
+			$list[$k]['status_text'] = Db::name('dict') -> where($dict_where) -> value('key');
+			// 推广用户激活功能
+			switch($v['status']){
+				case 1:
+					$list[$k]['status_click'] = 1;
+					break;
+				case 2:
+					$list[$k]['status_click'] = 2;
+					break;
+			}
+			// 推广用户区位
+			$floor = Db::name('user_floor') -> where('uid',$v['id']) -> find();
+			if(!$floor['p_left_uid']){
+				$list[$k]['area'] = '右区';
+			}else{
+				$list[$k]['area'] = '左区';
+			}
+		}
+		return $list;
+	}	
+	
+	/**
+	 * model 激活用户
+	 */
+	public function activation($data){
+		if(!$data['uid']){
+			return ['code' => 0,'msg' => '未获取用户信息!'];
+		}
+		if(!$data['id']){
+			return ['code' => 0,'msg' => '未获取激活人员信息!'];
+		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',session('uid')) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+		
+		Db::startTrans();
+		$condition = 0;
+		try{
+			// 减去当前用户的激活券
+			$vou_where['uid'] = $data['uid'];
+			$vou_where['vid'] = 4;
+			Db::name('user_vou') -> where($vou_where) -> setDec('number');
+			
+			// 激活目标用户
+			Db::name('user') -> where('id',$data['id']) -> update(['status' => 1]);
+			
+			$condition = 1;
+			Db::commit();
+		}catch(\exception $e){
+			Db::rollback();
+		}
+		
+		if($condition === 1){
+			return ['code' => 1,'msg' => '激活成功!'];
+		}else{
+			return ['code' => 0,'msg' => '激活失败!'];
+		}
+	}
+	
+	/**
 	 * model 关于我们
 	 */
 	public function aboutUs(){
@@ -1107,6 +1323,12 @@ class User extends Base
 		if(!$data['uid']){
 			return ['code' => 0,'msg' => '未获取用户信息!'];
 		}else{
+			// 判断用户是否未激活
+			$user_status = Db::name('user') -> where('id',session('uid')) -> value('status');
+			if($user_status != 1 ){
+				return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+			}
+			
 			// 判断是否达到入驻条件
 			$user = Db::name('user') -> where('id',$data['uid']) -> field('level') -> find();
 			if($user['level'] === 1){

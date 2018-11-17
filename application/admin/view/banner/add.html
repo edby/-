@@ -133,6 +133,7 @@ layui.use('upload', function(){
 $('a[href="/Admin/Banner/index"]').parents().filter('li').addClass('open active');
 //提交表单
 $(".form-post").find('button:submit').click(function() {
+	
   $.post("{:url('add')}", $(".form-post").serialize()).success(function(data) {
     $('#btn').text('正在保存').attr('disabled', "true");
     if (data.status === 0) {

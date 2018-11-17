@@ -23,6 +23,8 @@ return array(
         '__LAYUI__' => '/static/layui',
         
         '__ZOOM__' => '/static/ace/js/imgZoom',
+	
+        '__ZTREE__' => '/static/zTree_v3',
 
     ]
 

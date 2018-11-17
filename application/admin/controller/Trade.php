@@ -9,6 +9,23 @@ class Trade extends Admin
 {
 	
 	/**
+	 * controller 交易买入设置
+	 */
+	public function index(){
+		
+		$this -> assign('list',model('Trade') -> price_list());
+		$this -> assign('pagename','买入设置');
+		return $this -> fetch();
+	}
+	
+	/**
+	 * controller 添加/减去 交易买入金额
+	 */
+	public function buy_number($type){
+		return json(model('Trade') -> buyNumber($type));
+	}
+	
+	/**
 	 * controller 交易买入列表
 	 */
 	public function trade_buy($p = 1){

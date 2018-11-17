@@ -63,7 +63,13 @@ $('#add_addr').find('button[type="submit"]').click(function(){
 		data:$('#add_addr').serialize(),
 		success:function(ret){
 			if(ret.code === 0){
-				layer.msg(ret.msg);
+				if(ret.url){
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = ret.url;
+					});
+				}else{
+					layer.msg(ret.msg);
+				}
 			}else{
 				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
     				location.href = self.location.href;
@@ -93,6 +99,7 @@ function address_edit(id) {
 	            html += '<input type="number" name="tel" placeholder="请输入您的手机号" value="'+ ret.data.tel +'" />';
 	            html += '<input type="text" name="address" placeholder="请输入您的收货地址" value="'+ ret.data.address +'" />';
 	            html += '<input type="hidden" name="id" value="'+ret.data.id+'" />';
+	            html += '<input type="hidden" name="uid" value="'+ret.data.uid+'" />';
 	            html += '<button type="submit">保存</button>';
                 html += '</form>';
     		}
@@ -107,7 +114,13 @@ function address_edit(id) {
 					data:$('#edit_addr').serialize(),
 					success:function(ret){
 						if(ret.code === 0){
-							layer.msg(ret.msg);
+							if(ret.url){
+								layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+									location.href = ret.url;
+								});
+							}else{
+								layer.msg(ret.msg);
+							}
 						}else{
 							layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 			    				location.href = self.location.href;
@@ -133,7 +146,13 @@ function set_default(id,uid,type){
 			data:{id:id,uid:uid,type:type},
 			success:function(ret){
 				if(ret.code === 0){
-					layer.alert(ret.msg);
+					if(ret.url){
+	        			layer.alert(ret.msg,{icon:1500},function(){
+	        				location.href = ret.url;
+	        			});
+					}else{
+						layer.alert(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;
@@ -155,7 +174,13 @@ function address_del(id) {
         	data:{id:id},
         	success:function(ret){
         		if(ret.code === 0){
-					layer.msg(ret.msg);
+					if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 	    				location.href = self.location.href;

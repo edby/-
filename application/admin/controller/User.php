@@ -143,6 +143,87 @@ class User extends Admin
 	}
 	
 	/**
+	 * controller 查看用户层级
+	 */
+	public function floor($id){
+		$this -> assign('pagename','用户层级');
+		$this -> assign('list',model('User') -> getFloor($id));
+		return $this -> fetch();
+	}
+	
+	/**
+	 * controller zTree 中首次显示
+	 */
+	public function userinfo(){
+		$uid = trim(input('id'));
+		// 当前用户信息
+		$down_ids = Db::name('user_floor') -> where('uid',$uid) -> field('left_uid,right_uid') -> find();
+		// 当前用户左区用户信息
+		$left = Db::name('user_floor') -> where('uid',$down_ids['left_uid']) -> find();
+		if($left){
+			$data[0]['id'] = $down_ids['left_uid'];
+			$data[0]['name'] = Db::name('user') -> where('id',$left['uid']) -> value('account');
+			$exist = Db::name('user_floor') -> where('uid',$left['left_uid']) -> find();
+			if($exist){
+				$data[0]['icon'] = '/upload/group.png';
+			}else{
+				$data[0]['icon'] = '/upload/person.png';
+			}
+		}
+		
+		// 当前用户右区用户信息
+		$right = Db::name('user_floor') -> where('uid',$down_ids['right_uid']) -> find();
+		if($right){
+			$data[1]['id'] = $down_ids['right_uid'];
+			$data[1]['name'] = Db::name('user') -> where('id',$right['uid']) -> value('account');
+			$exist = Db::name('user_floor') -> where('uid',$right['left_uid']) -> find();
+			if($exist){
+				$data[1]['icon'] = '/upload/group.png';
+			}else{
+				$data[1]['icon'] = '/upload/person.png';
+			}
+		}
+		
+        return json($data);
+    }
+    
+    /**
+     * controller zTree 中点击列表显示
+     */
+    public function childinfo(){
+		$uid = trim(input('id'));
+		// 当前用户信息
+		$down_ids = Db::name('user_floor') -> where('uid',$uid) -> field('left_uid,right_uid') -> find();
+		// 当前用户左区用户信息
+		$left = Db::name('user_floor') -> where('uid',$down_ids['left_uid']) -> find();
+		if($left){
+			$data[0]['id'] = $down_ids['left_uid'];
+			$data[0]['name'] = Db::name('user') -> where('id',$left['uid']) -> value('account');
+			$exist = Db::name('user_floor') -> where('uid',$left['left_uid']) -> find();
+			if($exist){
+				$data[0]['icon'] = '/upload/group.png';
+			}else{
+				$data[0]['icon'] = '/upload/person.png';
+			}
+		}
+		
+		// 当前用户右区用户信息
+		$right = Db::name('user_floor') -> where('uid',$down_ids['right_uid']) -> find();
+		if($right){
+			$data[1]['id'] = $down_ids['rightt_uid'];
+			$data[1]['name'] = Db::name('user') -> where('id',$right['uid']) -> value('account');
+			$exist = Db::name('user_floor') -> where('uid',$right['left_uid']) -> find();
+			if($exist){
+				$data[1]['icon'] = '/upload/group.png';
+			}else{
+				$data[1]['icon'] = '/upload/person.png';
+			}
+		}
+		
+        return json($data);
+    }
+	
+	/**
 	 * controller 修改用户券
 	 */
 	public function mod_voucher(){

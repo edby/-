@@ -11,6 +11,38 @@ class Trade extends Base
 	const PATH_SHOW = 10;	// 显示分页菜单数量
 	
 	/**
+	 * model 买入设置
+	 */
+	public function price_list(){
+		$list = Db::name('set_buy_list') -> select();
+		return $list;
+	}
+	
+	/**
+	 * model 添加买入金额
+	 */
+	public function buyNumber($type){
+		if($type == 1){
+			$last = Db::name('set_buy_list') -> order('id DESC') -> find();
+			$in_set_buy['number'] = $last['number'] + 2000;
+			$result = Db::name('set_buy_list') -> insert($in_set_buy);
+			if($result){
+				return ['code' => 1,'msg' => '添加成功!'];
+			}else{
+				return ['code' => 0,'msg' => '添加失败!'];
+			}
+		}else{
+			$last = Db::name('set_buy_list') -> order('id DESC') -> find();
+			$result = Db::name('set_buy_list') -> where('id',$last['id']) -> delete();
+			if($result){
+				return ['code' => 1,'msg' => '减去成功!'];
+			}else{
+				return ['code' => 0,'msg' => '减去失败!'];
+			}
+		}
+	}
+	
+	/**
 	 * model 交易买入列表
 	 */
 	public function tradeBuy($map,$p){

@@ -66,7 +66,13 @@ $('#card_form').find('button[type="submit"]').click(function(){
 		data:$('#card_form').serialize(),
 		success:function(ret){
 			if(ret.code === 0){
-				layer.alert(ret.msg);
+				if(ret.url){
+        			layer.alert(ret.msg,{icon:1500},function(){
+        				location.href = ret.url;
+        			});
+				}else{
+					layer.alert(ret.msg);
+				}
 			}else{
 				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 					location.href = self.location.href;
@@ -88,7 +94,13 @@ function set_default(id,uid,type){
 			data:{id:id,uid:uid,type:type},
 			success:function(ret){
 				if(ret.code === 0){
-					layer.alert(ret.msg);
+					if(ret.url){
+	        			layer.alert(ret.msg,{icon:1500},function(){
+	        				location.href = ret.url;
+	        			});
+					}else{
+						layer.alert(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;
@@ -110,7 +122,13 @@ function bank_del(id) {
         	data:{id:id},
         	success:function(ret){
         		if(ret.code === 0){
-        			layer.msg(ret.msg);
+        			if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
         		}else{
         			layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;

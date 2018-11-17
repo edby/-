@@ -20,9 +20,19 @@ class Index extends Base
         $order_where['seller_ids'] = array('in',$uid);
         $order = Db::name('order') -> whereOr($order_where) -> count();
         
+        // 获取当前买用用户的最后一笔记交易金额
+        $last_num = Db::name('trade_burn') -> where('uid',$uid) -> order('create_time DESC') -> value('number');
+        if(!$last_num){
+        	$last_num = 0;
+        }
+        // 买入列表(判断用户每次买入金额不能小于等于上次买入金额)
+        $buy_num = Db::name('set_buy_list') -> where('number >= '.$last_num) -> field('number') -> select();
+        
         $result['buy'] = $buy;
         $result['sell'] = $sell;
         $result['order'] = $order;
+        $result['buy_num'] = $buy_num;
+		
         return $result;
     }
 	
@@ -207,11 +217,16 @@ class Index extends Base
 			return ['code' => 0,'msg' => '未获取用户信息!'];
 		}
 		if(!$data['number']){
-			return ['code' => 0,'msg' => '请输入买入数量!'];
+			return ['code' => 0,'msg' => '请选择买入数量!'];
 		}else{
 			if(!is_int($data['number']/2000)){
 				return ['code' => 0,'msg' => '买入只能为2000的倍数!'];
 			}
+		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1 ){
+			return ['code' => 0,'msg' => '禁止交易，请购买激活券后进行交易!','url' => url('Goods/activate')];
 		}
 		// 判断用户是否绑定银行卡
 		$card_where['uid'] = $data['uid'];
@@ -227,6 +242,10 @@ class Index extends Base
 //		if($burn_count >= 1){
 //			return ['code' => 0,'msg' => '一天最多只能交易一次!'];
 //		}
+		
+		// 执行用户对上级的奖金(见点奖[动态奖])
+		$result = $this -> point_bonus($data['uid'],$data['number'],0);
+		return ['code' => 0,'msg' => $result];
 		
 		Db::startTrans();
 		$condition = 0;
@@ -249,14 +268,14 @@ class Index extends Base
 			$in_trade_burn['number'] = $data['number'];
 			$in_trade_burn['create_time'] = time();
 			$in_trade_burn['trade_buy_ids'] = ','.$first_trade_id.','.$last_trade_id.',';
-			$in_trade_burn['back_status_bonus'] = $data['number'] + $data['number'] * 0.15;
+			$in_trade_burn['back_status_bonus'] = $data['number'] + $data['number'] * config('STATIC_BONUS');
 			$trade_burn_id = Db::name('trade_burn') -> insertGetId($in_trade_burn);
 			
 			// 执行用户对上级烧伤奖金记录(三代领导奖[动态奖])
 			$this -> bonus($data['uid'],$data['number'],$trade_burn_id);
 			
 			// 执行用户对上级的奖金(见点奖[动态奖])
-			$this -> point_bonus($data['uid'],$data['number']);
+			$this -> point_bonus($data['uid'],$data['number'],0);
 			
 			// 判断用户交易金额，每大于10000将增加一张优惠券
 			$vou = intval($data['number']/10000);
@@ -347,27 +366,99 @@ class Index extends Base
 	 * $uid		当前用户ID
 	 * $number	当前用户购买数量
 	 */
-	public function point_bonus($uid,$number){
-		// 获取当前用户邀请人数
-		$child_num = Db::name('user') -> where('parent_id',$uid) -> count();
-		$current = Db::name('user') -> where('id',$uid) -> find();
-		$user_ids = explode(',',$current['pids']);
-		
-		// 2*统计下级数据+5
-		$times = 2*$child_num+5;
-		if($child_num >= 5){
-			array_slice($user_ids,0,15);
+	public function point_bonus($uid,$number,$loop){
+		// 获取上层用户信息
+		$user_floor = Db::name('user_floor') -> where('left_uid|right_uid',$uid) -> find();
+		pre($user_floor);
+		if($user_floor){
+			if($loop <= 7){
+				$invite = Db::name('user') -> where('parent_id',$user_floor['uid']) -> count();	// 计算用户邀请人数
+				if($invite != 0){
+					$frozen = $number * 0.0005;
+					$user_bouns_where['uid'] = $user_floor['uid'];
+					$user_bouns_where['bouns_type'] = 2;
+					Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$frozen);
+					$loop++;
+					$this -> point_bonus($user_floor['uid'],$number,$loop);
+				}else{
+					$loop++;
+					$this -> point_bonus($user_floor['uid'],$number,$loop);
+				}
+			}else if($loop <= 9){
+				$invite = Db::name('user') -> where('parent_id',$user_floor['uid']) -> count();	// 计算用户邀请人数
+				if($invite >= 2){
+					$this -> loop($user_floor['uid'],$number);
+					$loop++;
+					$this -> point_bonus($number);
+				}else{
+					return;
+				}
+			}else if($loop <= 11){
+				$invite = Db::name('user') -> where('parent_id',$user_floor['uid']) -> count();	// 计算用户邀请人数
+				if($invite >= 11){
+					$this -> loop($user_floor['uid'],$number);
+					$loop++;
+					$this -> point_bonus($number);
+				}else{
+					return;
+				}
+			}else if($loop <= 13){
+				$invite = Db::name('user') -> where('parent_id',$user_floor['uid']) -> count();	// 计算用户邀请人数
+				if($invite >= 13){
+					$this -> loop($user_floor['uid'],$number);
+					$loop++;
+					$this -> point_bonus($number);
+				}else{
+					return;
+				}
+			}else if($loop <= 15){
+				$invite = Db::name('user') -> where('parent_id',$user_floor['uid']) -> count();	// 计算用户邀请人数
+				if($invite >= 15){
+					$this -> loop($user_floor['uid'],$number);
+					$loop++;
+					$this -> point_bonus($number);
+				}else{
+					return;
+				}
+			}else{
+				return;
+			}
 		}else{
-			array_slice($user_ids,0,$times);
-		}
-		
-		foreach($user_ids aS $k => $v){
-			$frozen = $number * 0.0005;
-			$user_bouns_where['uid'] = $v;
-			$user_bouns_where['bouns_type'] = 2;
-			Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$frozen);
+			return;
 		}
 	}
+	
+	/**
+	 * 7人以上通过判断返见点奖
+	 */
+	public function loop($number,$uid){
+		$frozen = $number * 0.0005;
+		$user_bouns_where['uid'] = $uid;
+		$user_bouns_where['bouns_type'] = 2;
+		Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$frozen);
+	}
+	
+//	public function point_bonus($uid,$number){
+//		// 获取当前用户邀请人数
+//		$child_num = Db::name('user') -> where('parent_id',$uid) -> count();
+//		$current = Db::name('user') -> where('id',$uid) -> find();
+//		$user_ids = explode(',',$current['pids']);
+//		
+//		// 2*统计下级数据+5
+//		$times = 2*$child_num+5;
+//		if($child_num >= 5){
+//			array_slice($user_ids,0,15);
+//		}else{
+//			array_slice($user_ids,0,$times);
+//		}
+//		
+//		foreach($user_ids aS $k => $v){
+//			$frozen = $number * 0.0005;
+//			$user_bouns_where['uid'] = $v;
+//			$user_bouns_where['bouns_type'] = 2;
+//			Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$frozen);
+//		}
+//	}
 	
 	/**
 	 * controller 买入订单详情

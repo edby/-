@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\method\index.html";i:1541420400;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1542003834;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:5:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/admin\view\method\index.html";i:1542096523;s:59:"D:\phpStudy\WWW\zcgj\application\admin\view\common\top.html";i:1522230592;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\header.html";i:1530500030;s:63:"D:\phpStudy\WWW\zcgj\application\admin\view\common\sidebar.html";i:1532051872;s:62:"D:\phpStudy\WWW\zcgj\application\admin\view\common\bottom.html";i:1490663526;}*/ ?>
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -45,9 +45,8 @@ select{
 }
 
 /* 审核状态开始 */
-.review_pass {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#87B87F;box-shadow:#87B87F 1px 1px 2px;}
-.review_fail {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#DD0C0C;box-shadow:#DD0C0C 1px 1px 2px;}
-.review_on {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#2E98F5;box-shadow:#2E98F5 1px 1px 2px;}
+.type_buy {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#87B87F;box-shadow:#87B87F 1px 1px 2px;}
+.type_sell {width:100px;height:26px;line-height:26px;text-align:center;color:white;border-radius:10px;background-color:#2E98F5;box-shadow:#2E98F5 1px 1px 2px;}
 /* 审核状态结束 */
 </style>
 </head>
@@ -98,7 +97,7 @@ select{
         <b class="arrow"></b>
         <ul class="submenu">
           <?php if(is_array($vo['child']) || $vo['child'] instanceof \think\Collection || $vo['child'] instanceof \think\Paginator): $i = 0; $__LIST__ = $vo['child'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$sub): $mod = ($i % 2 );++$i;?>
-            <li <?php if($sub['name'] == $rule): ?>class="active"<?php endif; ?>><a href="<?php echo url('/'.$sub['name']); ?>"><i class="menu-icon fa fa-caret-right"></i> <?php echo $sub['title']; ?> </a><b class="arrow"></b></li>
+          <li <?php if($sub['name'] == $rule): ?>class="active"<?php endif; ?>><a href="<?php echo url('/'.$sub['name']); ?>"><i class="menu-icon fa fa-caret-right"></i> <?php echo $sub['title']; ?> </a><b class="arrow"></b></li>
           <?php endforeach; endif; else: echo "" ;endif; ?>
         </ul>
       </li>
@@ -119,7 +118,7 @@ select{
       </div>
       <div class="page-content">
         <div class="page-header">
-          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出<?php echo $list['count']; ?>条数据 </small> </h1>
+          <h1> <?php echo $pagename; ?> <small> <i class="ace-icon fa fa-angle-double-right"></i> 查询出<?php echo $data['count']; ?>条数据 </small> </h1>
         </div>
         <!-- /.page-header -->
         <div class="row">
@@ -129,24 +128,24 @@ select{
               <div class="col-xs-12" style="margin-bottom:10px;">
                 <form action="<?php echo url('index'); ?>" method="get" class="form-inline" role="form">
                   <div class="form-group">
-                    <label>提现记录查询</label>
-                    <input name="keywords" type="text" class="form-control search" placeholder="用户账号" />
+                    <label>订单号</label>
+                    <input name="keywords" type="text" class="form-control search" placeholder="订单号" />
                   </div>&nbsp;&nbsp;
                   
-                  <div class="form-group"><label>奖金类型</label>
-                    <select name="status" class="form-control" <!--onchange='look_state(this)'-->>
+                  <div class="form-group"><label>订单状态</label>
+                    <select name="order_status" class="form-control" <!--onchange='look_state(this)'-->>
                     	<option value="">全部</option>
-                      <?php if(is_array($bonus) || $bonus instanceof \think\Collection || $bonus instanceof \think\Paginator): $i = 0; $__LIST__ = $bonus;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-                        <option value="<?php echo $vo['value']; ?>" <?php if($get_bonus == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
+                      <?php if(is_array($trade_status) || $trade_status instanceof \think\Collection || $trade_status instanceof \think\Paginator): $i = 0; $__LIST__ = $trade_status;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+                        <option value="<?php echo $vo['value']; ?>" <?php if($get_status == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
                       <?php endforeach; endif; else: echo "" ;endif; ?>
                     </select>
                   </div>&nbsp;&nbsp;
                   
-                  <div class="form-group"><label>审核状态</label>
-                    <select name="review" class="form-control" <!--onchange='look_state(this)'-->>
+                  <div class="form-group"><label>交易类型</label>
+                    <select name="trade_type" class="form-control" <!--onchange='look_state(this)'-->>
                     	<option value="">全部</option>
-                      <?php if(is_array($review) || $review instanceof \think\Collection || $review instanceof \think\Paginator): $i = 0; $__LIST__ = $review;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
-                        <option value="<?php echo $vo['value']; ?>" <?php if($get_review == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
+                      <?php if(is_array($trade_type) || $trade_type instanceof \think\Collection || $trade_type instanceof \think\Paginator): $i = 0; $__LIST__ = $trade_type;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+                        <option value="<?php echo $vo['value']; ?>" <?php if($get_type == $vo['value']): ?>selected='selected'<?php endif; ?>><?php echo $vo['key']; ?></option>
                       <?php endforeach; endif; else: echo "" ;endif; ?>
                     </select>
                   </div>&nbsp;&nbsp;
@@ -160,44 +159,33 @@ select{
                   <thead>
                     <tr>
                       <th class="center">记录ID</th>
-                      <th>用户账号</th>
-                      <th>用户银行卡</th>
-                      <th>奖金类型</th>
-                      <th>人民币数量</th>
-                      <th>消费券数量</th>
-                      <th>提交时间</th>
-                      <th>审核时间</th>
-                      <th>审核状态</th>
-                      <th>操作</th>
+                      <th>订单编号</th>
+                      <th>交易数量</th>
+                      <th>订单状态</th>
+                      <th>创建时间</th>
+                      <th>付款时间</th>
+                      <th>完成时间</th>
+                      <th>交易类型</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php if(is_array($list['list']) || $list['list'] instanceof \think\Collection || $list['list'] instanceof \think\Paginator): $k = 0; $__LIST__ = $list['list'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
+                    <?php if(is_array($data['list']) || $data['list'] instanceof \think\Collection || $data['list'] instanceof \think\Paginator): $k = 0; $__LIST__ = $data['list'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($k % 2 );++$k;?>
                     <tr>
                         <td class="center"><?php echo $vo['id']; ?></td>
-                        <td><?php echo $vo['user_account']; ?></td>
-                        <td><?php echo $vo['user_card']['bank_name']; ?><br /><?php echo $vo['user_card']['bank_number']; ?></td>
-                        <td><?php echo $vo['money_number']; ?></td>
-                        <td><?php echo $vo['vou_number']; ?></td>
-                        <td><?php echo $vo['create_time']; ?></td>
-                        <td><?php echo $vo['done_time']; ?></td>
-                        <td><?php echo $vo['service_charge']; ?></td>
-                        <td><div class='<?php echo $vo['review_btn']; ?>'><?php echo $vo['review_text']; ?></div></td>
-	                      <td>
-	                      	<?php if($vo['recharge_status'] === 1): ?>
-	                      		<a class="btn btn-sm btn-success" href="javascript:void(0)" onclick="review(this,<?php echo $vo['id']; ?>,2)">审核</a>
-	                      		<a class="btn btn-sm btn-danger" href="javascript:void(0)" onclick="review(this,<?php echo $vo['id']; ?>,3)">失败</a>
-	                      	<?php else: ?>
-	                      		--
-	                      	<?php endif; ?>
-	                      </td>
+                        <td><?php echo $vo['order']; ?></td>
+                        <td><?php echo $vo['order_number']; ?></td>
+                        <td><?php echo $vo['order_status_text']; ?></td>
+                        <td><?php echo $vo['create_date']; ?></td>
+                        <td><?php echo $vo['pay_date']; ?></td>
+                        <td><?php echo $vo['done_date']; ?></td>
+                        <td><div class='<?php echo $vo['trade_btn']; ?>'><?php echo $vo['trade_type_text']; ?></div></td>
                     </tr>
                     <?php endforeach; endif; else: echo "" ;endif; ?>
                   </tbody>
                 </table>
                 <div style="width:100%;margin: 0 auto; text-align:center;">
                   <ul class="pagination" >
-                    <?php echo $list['page']; ?>
+                    <?php echo $data['page']; ?>
                   </ul>
                 </div>
               </div>
@@ -242,8 +230,6 @@ select{
   $('a[href="/Admin/Method/index"]').parents().filter('li').addClass('open active');
   <?php if(input('get.keywords')): ?>
     $('input[name="keywords"]').val('<?php echo $_GET["keywords"]; ?>');
-  <?php endif; if(is_numeric(input('get.state'))): ?>
-    $('select[name="state"]').val(<?php echo $_GET['state']; ?>);
   <?php endif; ?>
 </script>
 

@@ -17,14 +17,18 @@
 					<tr>
 						<th>昵称</th>
 						<th>手机号</th>
+						<th>区位</th>
+						<th>状态</th>
 					</tr>
 					{volist name='promotion' id='vo'}
 						<tr>
 							<td>{notempty name='$vo.real_name'}{$vo.real_name}{else/}-{/notempty}</td>
 							<td>{$vo.account}</td>
+							<td>{$vo.area}</td>
+							<td {eq name='$vo.status_click' value='2'}onclick="activation({$vo.id})" style='color:#4780F7;cursor:pointer;'{/eq}>{$vo.status_text}</td>
 						</tr>
 					{/volist}
-				</table>					
+				</table>
 			</div>
 		</div>
 	</div>
@@ -33,5 +37,59 @@
 {include file='common/bottom'}
 <script>
 	vipNav(7)
+</script>
+<script>
+// 帮新会员激活
+function activation(id) {
+	layer.confirm('帮新会员激活需要使用激活券!',{
+		btn: ['激活会员','稍后再说']
+	},function(){
+		var uid = $('.user_name').attr('data-uid');
+		$.ajax({
+			type:'post',
+			url:'{:url("user_vou")}',
+			data:{uid:uid,vid:4},
+			success:function(ret){
+    			if(ret.code === 0){
+    				layer.msg(ret.msg);
+    			}else{
+    				if(ret.num <= 0){
+    					layer.confirm('激活券不足！', {
+				            btn: ['现在购买','稍后再说'] //按钮
+				        }, function(){
+				        	window.location.href = '{:url("goods/activate")}';
+				        });
+    				}else{
+    					do_activation(uid,id);
+    				}
+    			}
+    		}
+		});
+	});
+}
+
+// 执行激活用户
+function do_activation(uid,id){
+	$.ajax({
+		type:'post',
+		url:'{:url("my_promotion")}',
+		data:{uid:uid,id:id},
+		success:function(ret){
+			if(ret.code === 0){
+				if(ret.url){
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = ret.url;
+					});
+				}else{
+					layer.msg(ret.msg);
+				}
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+					location.href = self.location.href;
+				});
+			}
+		}
+    });
+}
 </script>
 

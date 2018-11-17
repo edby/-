@@ -41,7 +41,13 @@ $('#mod_pwd').click(function(){
 		data:data,
 		success:function(ret){
 			if(ret.code === 0){
-				layer.msg(ret.msg);
+				if(ret.url){
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = ret.url;
+					});
+				}else{
+					layer.msg(ret.msg);
+				}
 			}else{
 				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
     				location.href = self.location.href;

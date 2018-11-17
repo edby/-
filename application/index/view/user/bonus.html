@@ -156,7 +156,13 @@ function in_con() {
         	data:{uid:uid,number:number,bouns_type:bouns_type},
         	success:function(ret){
         		if(ret.code === 0){
-        			layer.alert(ret.msg);
+        			if(ret.url){
+	        			layer.alert(ret.msg,{icon:1500},function(){
+	        				location.href = ret.url;
+	        			});
+					}else{
+						layer.alert(ret.msg);
+					}
         		}else{
         			$('#integral').val('');
         			$('#consume').val('0');
@@ -185,7 +191,13 @@ function quiet_con() {
         	data:{uid:uid,number:number,bouns_type:bouns_type},
         	success:function(ret){
         		if(ret.code === 0){
-        			layer.alert(ret.msg);
+        			if(ret.url){
+	        			layer.alert(ret.msg,{icon:1500},function(){
+	        				location.href = ret.url;
+	        			});
+					}else{
+						layer.alert(ret.msg);
+					}
         		}else{
         			$('#quiet').val('');
         			$('#sta_con').val('0');
@@ -213,7 +225,13 @@ function weal_con() {
         	data:{uid:uid,number:number,bouns_type:bouns_type},
         	success:function(ret){
         		if(ret.code === 0){
-        			layer.alert(ret.msg);
+        			if(ret.url){
+	        			layer.alert(ret.msg,{icon:1500},function(){
+	        				location.href = ret.url;
+	        			});
+					}else{
+						layer.alert(ret.msg);
+					}
         		}else{
         			$('#weal').val('');
         			$('#weal_con').val('0');

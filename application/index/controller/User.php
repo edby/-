@@ -3,6 +3,7 @@ namespace app\index\controller;
 
 use app\common\controller\Base;
 use think\Db;
+use think\Exception;
 use think\Request;
 use think\Session;
 
@@ -90,7 +91,52 @@ class User extends Base
 		$this -> assign('bonus',model('User') -> userBouns($uid));
 		return $this -> fetch();
 	}
-	
+
+
+	public function active_user()
+	{
+		$r = [
+			'code'=>1,
+			'msg'=>'初始化用户激活方法',
+		];
+		$user_active = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>4])->find();
+//		检查用户激活券状态
+		if(!($user_active && $user_active['number'] >1)){
+			$r = [
+				'code'=>-1,
+				'msg'=>'用户激活券不足2张',
+			];
+			return json_encode($r);
+		}
+		Db::startTrans();
+		try{
+			$user_info = Db::name('user')->where(['id'=>$_SESSION['think']['uid']])->find();
+//		用户为三类封号
+			if($user_info['status'] != 3){
+				throw new Exception('非封号类禁用!激活失败');
+			}
+			if(!Db::name('user')->where(['id'=>$_SESSION['think']['uid']])->update(['status'=>1])){
+				throw new Exception("修改用户状态失败");
+			}
+			if(!Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>4])->setDec('number',2)){
+				throw new Exception('修改用户激活券失败');
+			}
+			Db::commit();
+			$r = [
+				'code'=>1,
+				'msg'=>'激活成功'
+			];
+
+		}catch (\Exception $e){
+			Db::rollback();
+			$r = [
+				'code'=>-1,
+				'msg'=>$e->getMessage()
+			];
+		}
+		return json_encode($r);
+	}
+
 	/**
 	 * controller 提现
 	 */
@@ -251,10 +297,14 @@ class User extends Base
 	 * controller 我的推广
 	 */
 	public function my_promotion(){
+		if(Request::instance() -> isPost()){
+			return json(model('User') -> activation(input('post.')));
+		}
+		
 		// 获取用户ID
 		$uid = is_login($uid);
 		$this -> assign('user',model('User') -> userInfo($uid));
-		$this -> assign('promotion',Db::name('user') -> where('parent_id',$uid) -> field('id,account,real_name,tel') -> select());
+		$this -> assign('promotion',model('User') ->myPromotion($uid));
 		return $this -> fetch();
 	}
 	

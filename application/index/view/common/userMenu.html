@@ -17,7 +17,11 @@
                 </small>
             </div>
             <div class="user_phone">{$user.account}</div>
-            <button type="button">会员已激活</button>
+            {if condition = "$user.status neq 1" }
+            <button type="button" title="消耗激活券进行激活" onclick="javascript:layer.confirm('确认激活??',function (){active_user()})">激活会员</button>
+            {else}
+            <button type="button" disabled>会员已激活</button>
+            {/if}
             {neq name='$user.is_set' value='1'}
             	<div class="user_full" data-toggle="modal" data-target="#myModal">完善个人信息 >></div>
         	{/neq}
@@ -51,6 +55,25 @@
         <span onclick="go_reg()">去帮新会员注册 >></span>
     </div>
 </div>
+<script>
+    function active_user() {
+        $.ajax(
+            {
+                url:'active_user',
+                type:'post',
+                data:'',
+                success:function (r) {
+                    r = JSON.parse(r);
+                    if(r['code'] == 1){
+                        layer.msg('激活成功！');
+                    }else{
+                        layer.alert(r['msg']);
+                    }
+                }
+            }
+        )
+    }
+</script>
 <div class="vip_nav">
     <ul>
         <li><a href="{:url('wallet')}">钱包</a></li>

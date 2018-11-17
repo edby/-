@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1542089305;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1542088332;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1542426238;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1542367104;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,7 +20,7 @@
 			<?php if(is_array($sidebar) || $sidebar instanceof \think\Collection || $sidebar instanceof \think\Paginator): $key = 0; $__LIST__ = $sidebar;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($key % 2 );++$key;?>
 				<li>
 					<?php if(($key == 3) OR ($key == 4)): ?>
-					<a onclick="javascript:layer.alert('功能待开发',{time:2000,title:'温馨提示'})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
+					<a onclick="javascript:layer.msg('功能待开发',{time:1500})" style="cursor:pointer" ><?php echo $vo['title']; ?></a>
 					<?php else: ?>
 					<a href="/<?php echo $vo['name']; ?>" ><?php echo $vo['title']; ?></a>
 					<?php endif; ?>
@@ -66,7 +66,8 @@
 					<p>买入</p>
 					<p>P U R C H A S E</p>
 				</li>
-				<li class="reser_buy" data-toggle="modal" data-target="#reser_buy">
+				<!-- <li class="reser_buy" data-toggle="modal" data-target="#reser_buy"> -->
+				<li onclick='continued()'>
 					<p>预约买入</p>
 					<p>RESERVATION LIST</p>
 				</li>
@@ -241,8 +242,14 @@
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 						<h4 class="modal-title">买入</h4>
 					</div>
-					<div class="modal-body">
-						<input id='buy_number' name='number' placeholder="请输入买入金额" class="modol_ipt" />
+					<div class="modal-body" style='text-align:center;'>
+						<!--<input id='buy_number' name='number' placeholder="请输入买入金额" class="modol_ipt" />-->
+						<select id='buy_number' name='number'>
+							<option class="modol_ipt" value=''>请选择</option>
+							<?php if(is_array($data['buy_num']) || $data['buy_num'] instanceof \think\Collection || $data['buy_num'] instanceof \think\Paginator): $i = 0; $__LIST__ = $data['buy_num'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
+								<option class="modol_ipt" value='<?php echo $vo['number']; ?>'><?php echo $vo['number']; ?></option>
+							<?php endforeach; endif; else: echo "" ;endif; ?>
+						</select>
 						<p>积分必须是2000的整数倍</p>
 					</div>
 					<div class="modal-footer">
@@ -351,6 +358,12 @@
 	</script>
 </html>
 
+<script>
+function continued(){
+	layer.alert('功能待开发');
+}
+</script>
+
 <script type='text/javascript'>
     // 实例化layui
     layui.use(['layer', 'form'], function(){
@@ -390,7 +403,13 @@ function trade_buy(){
 			data:data,
 			success:function(ret){
 				if(ret.code === 0){
-					layer.msg(ret.msg);
+					if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;
@@ -443,7 +462,13 @@ function trade_sell(){
 			data:data,
 			success:function(ret){
 				if(ret.code === 0){
-					layer.msg(ret.msg);
+					if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;

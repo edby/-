@@ -316,17 +316,28 @@ class Shop extends Admin
 			$querys=[
 				'keywords'=>$_GET['keywords']
 			];
-			$where['order_number'] = $_GET['keywords'];
+			$where = ['order_number'=> $_GET['keywords']];
 		}
 		$page_config = [
 			'query'=>$querys
 		];
 //		print_r($_SESSION['think']['user_type']);
 		if($_SESSION['think']['user_type'] == 2){
-			$where['buy_uid'] =$_SESSION['think']['uid'];
+			$where = [
+				'buy_uid'=>$_SESSION['think']['uid']
+			];
+//			$where['buy_uid'] =$_SESSION['think']['uid'];
 		}
 //    	$goods_order = Db::table('sn_goods_order')->alias('order')->join('sn_goods_detail detail','order.gid = detail.gid')->join('sn_user','sn_goods_order.buy_uid = sn_user.id')->field('sn_user.account as user,sn_goods_detail.name as goods_name,sn_goods_order.sell_sid as sid,sn_goods_order.g_number as number,order.sn_goods_order.order_status as status,sn_goods_order.create_time as time')->paginate($page_size);
-		$goods_order = Db::name('goods_order')->alias('order')->join('goods_detail detail','order.gid = detail.gid','LEFT')->join('user u','u.id = order.buy_uid','LEFT')->join('user_addr addr','addr.id = order.addr_id')->where($where)->paginate($page_size,false,$page_config);
+		$goods_order = Db::name('goods_order')
+			->alias('order')
+			->join('goods_detail detail','order.gid = detail.gid','LEFT')
+			->join('user u','u.id = order.buy_uid','LEFT')
+			->join('user_addr addr','addr.id = order.addr_id')
+			->where($where)
+			->field('u.account,detail.name as detail_name,order.sell_sid,order.g_number,order.money,order_status,addr.address,addr.tel,addr.username as addr_name,order.create_time,order.order_number')
+			->paginate($page_size,false,$page_config);
+//		print_r(Db::name('goods_order')->getLastSql());
 //		echo Db::name('goods_order')->getLastSql();
     	$page = $goods_order->render();
 //    	print_r($goods_order);
@@ -353,6 +364,18 @@ class Shop extends Admin
     		if(!$result){
     			throw new Exception("数据未更改！");
 		    }
+		    $goods_order = Db::name('goods_order')->where(['order_number'=>$_POST['order_number']])->find();
+		    $goods = Db::name('goods_detail')->where(['gid'=>$goods_order['gid']])->find();
+    		if(!$goods){
+			    throw new Exception("商品信息错误");
+		    }
+//		    throw new Exception(Db::name('goods_detail')->getLastSql());
+//		    print_r($goods);
+//    		exit();
+		    $result = Db::name('goods_detail')->where(['gid'=>$goods['gid']])->setDec('number',$goods_order['g_number']);
+    		if(!$result){
+			    throw new Exception("商品信息修改失败");
+		    }
 			Db::commit();
 			$r = [
 				'code'=>1,
@@ -361,8 +384,8 @@ class Shop extends Admin
 	    }catch (\Exception $e){
     		Db::rollback();
     		$r = [
-    			'code'=>1,
-			    'msg'=>'数据已更新'
+    			'code'=>-1,
+			    'msg'=>$e->getMessage()
 		    ];
 	    }
     	return json_encode($r);

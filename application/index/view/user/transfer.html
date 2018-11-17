@@ -91,7 +91,13 @@ function move(vid) {
 	    	data:data,
 	    	success:function(ret){
 	    		if(ret.code === 0){
-	    			layer.alert(ret.msg);
+	    			if(ret.url){
+	        			layer.alert(ret.msg,{icon:1500},function(){
+	        				location.href = ret.url;
+	        			});
+					}else{
+						layer.alert(ret.msg);
+					}
 	    		}else{
 	    			layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 	    				location.href = self.location.href;

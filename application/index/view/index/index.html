@@ -18,7 +18,8 @@
 					<p>买入</p>
 					<p>P U R C H A S E</p>
 				</li>
-				<li class="reser_buy" data-toggle="modal" data-target="#reser_buy">
+				<!-- <li class="reser_buy" data-toggle="modal" data-target="#reser_buy"> -->
+				<li onclick='continued()'>
 					<p>预约买入</p>
 					<p>RESERVATION LIST</p>
 				</li>
@@ -193,8 +194,14 @@
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 						<h4 class="modal-title">买入</h4>
 					</div>
-					<div class="modal-body">
-						<input id='buy_number' name='number' placeholder="请输入买入金额" class="modol_ipt" />
+					<div class="modal-body" style='text-align:center;'>
+						<!--<input id='buy_number' name='number' placeholder="请输入买入金额" class="modol_ipt" />-->
+						<select id='buy_number' name='number'>
+							<option class="modol_ipt" value=''>请选择</option>
+							{volist name='data.buy_num' id='vo'}
+								<option class="modol_ipt" value='{$vo.number}'>{$vo.number}</option>
+							{/volist}
+						</select>
 						<p>积分必须是2000的整数倍</p>
 					</div>
 					<div class="modal-footer">
@@ -274,6 +281,12 @@
 <script type="text/javascript" src="__JS__/store.js"></script>
 {include file='common/bottom'}
 
+<script>
+function continued(){
+	layer.alert('功能待开发');
+}
+</script>
+
 <script type='text/javascript'>
     // 实例化layui
     layui.use(['layer', 'form'], function(){
@@ -313,7 +326,13 @@ function trade_buy(){
 			data:data,
 			success:function(ret){
 				if(ret.code === 0){
-					layer.msg(ret.msg);
+					if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;
@@ -366,7 +385,13 @@ function trade_sell(){
 			data:data,
 			success:function(ret){
 				if(ret.code === 0){
-					layer.msg(ret.msg);
+					if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;
