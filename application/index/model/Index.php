@@ -235,6 +235,14 @@ class Index extends Base
 		if(!$exist_card){
 			return ['code' => 0,'msg' => '请先绑定并设置默认银行卡!'];
 		}
+		// 判断用户的手续费是否足够
+		$num = $data['number']/2000;
+		$vou_where['uid'] = $data['uid'];
+		$vou_where['vid'] = 2;
+		$user_vou_num = Db::name('user_vou') -> where($vou_where) -> value('number');
+		if($user_vou_num < $num){
+			return ['code' => 0,'msg' => '您的手续费不够,请先购买!','url' => url('Goods/tip')];
+		}
 		
 		// 判断一天只能买一次
 //		$burn_where['uid'] = $data['uid'];
@@ -242,10 +250,6 @@ class Index extends Base
 //		if($burn_count >= 1){
 //			return ['code' => 0,'msg' => '一天最多只能交易一次!'];
 //		}
-		
-		// 执行用户对上级的奖金(见点奖[动态奖])
-		$result = $this -> point_bonus($data['uid'],$data['number'],0);
-		return ['code' => 0,'msg' => $result];
 		
 		Db::startTrans();
 		$condition = 0;
@@ -369,7 +373,6 @@ class Index extends Base
 	public function point_bonus($uid,$number,$loop){
 		// 获取上层用户信息
 		$user_floor = Db::name('user_floor') -> where('left_uid|right_uid',$uid) -> find();
-		pre($user_floor);
 		if($user_floor){
 			if($loop <= 7){
 				$invite = Db::name('user') -> where('parent_id',$user_floor['uid']) -> count();	// 计算用户邀请人数
@@ -625,15 +628,15 @@ class Index extends Base
 			// 查询 用户买入 表中关联的两条数据,如果其中有一条不达标奖按不达标条件处理
 			$burn = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> find();
 			
-			if($burn['start_timezone'] === 1 && $burn['start_timezone'] === 1){
+			if($burn['start_timezone'] === 1 && $burn['end_timezone'] === 1){
 				// 为用户增加 1% 的静态奖金
 				$bonus_num = $burn['number'] * 0.01;
 				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> setInc('back_status_bonus',$bonus_num);
-			}else if($burn['start_timezone'] === 2 || $burn['start_timezone'] === 2){
+			}else if($burn['start_timezone'] === 2 || $burn['end_timezone'] === 2){
 				// 为用户扣除 2% 的静态奖金
 				$bonus_num = $burn['number'] * 0.02;
 				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> setDec('back_status_bonus',$bonus_num);
-			}else if($burn['start_timezone'] === 3 || $burn['start_timezone'] === 3){
+			}else if($burn['start_timezone'] === 3 || $burn['end_timezone'] === 3){
 				// 为用户扣除 10% 的静态奖金
 				$bonus_num = $burn['number'] * 0.1;
 				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> setDec('back_status_bonus',$bonus_num);

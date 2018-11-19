@@ -23,6 +23,7 @@ class Shop extends Admin
 	
 	/**
 	 * controller 添加分类
+	 * @return mixed|\think\response\Json
 	 */
 	public function add(){
 		if(Request::instance() -> isPost()){
@@ -35,6 +36,11 @@ class Shop extends Admin
 	
 	/**
 	 * controller 修改分类
+	 * @param $id
+	 * @return mixed|\think\response\Json
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
 	 */
 	public function edit($id){
 		if(Request::instance() -> isPost()){
@@ -55,7 +61,9 @@ class Shop extends Admin
 	
     /**
      * controller 优惠专区
-     */
+	 * @param int $p
+	 * @return mixed
+	 */
     public function preferential($p = 1){
     	$map['area_type'] = 1;
     	$this -> assign('goods',model('Shop') -> preferential($map,$p));
@@ -64,6 +72,7 @@ class Shop extends Admin
     
     /**
 	 * controller 优惠专区添加商品
+	 * @return mixed|\think\response\Json
 	 */
 	public function add_preferential_goods(){
 		if(Request::instance() -> isPost()){
@@ -117,6 +126,12 @@ class Shop extends Admin
 	/**
 	 * 改变商品审核状态
 	 * @return array|bool|string|true
+	 * @return array|false|string|true
+	 * @throws Exception
+	 * @throws \think\db\exception\DataNotFoundException
+	 * @throws \think\db\exception\ModelNotFoundException
+	 * @throws \think\exception\DbException
+	 * @throws \think\exception\PDOException
 	 */
     public function validate()
     {
@@ -190,7 +205,11 @@ class Shop extends Admin
 		return $this -> fetch('add_feature_goods');
     }
 	
-	// 上传图片
+
+	/**
+	 * 上传图片
+	 * @return \think\response\Json
+	 */
     public function upload_pic(){
     	$type = trim(input('type'));
     	$shop_id = input('shop_id');	// 店铺ID
@@ -212,8 +231,12 @@ class Shop extends Admin
     	}
     	return json($ret);
     }
-    
-    // 上传多张图片
+
+
+	/**
+	 * 上传多张图片
+	 * @return \think\response\Json
+	 */
     public function upload_pics(){
     	$type = trim(input('type'));
     	$shop_id = input('shop_id');	// 店铺ID
@@ -335,6 +358,7 @@ class Shop extends Admin
 			->join('user u','u.id = order.buy_uid','LEFT')
 			->join('user_addr addr','addr.id = order.addr_id')
 			->where($where)
+//			->field('u.*,addr.*,order.create_time.*')
 			->field('u.account,detail.name as detail_name,order.sell_sid,order.g_number,order.money,order_status,addr.address,addr.tel,addr.username as addr_name,order.create_time,order.order_number')
 			->paginate($page_size,false,$page_config);
 //		print_r(Db::name('goods_order')->getLastSql());

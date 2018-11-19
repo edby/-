@@ -195,7 +195,6 @@ class Goods extends Base
 
 
 	/**
-	 *
 	 * 处理该订单信息，生成订单号
 	 * @return false|string
 	 * @throws \think\db\exception\DataNotFoundException
@@ -258,7 +257,7 @@ class Goods extends Base
 //		exit();
 
 //	    用户收货地址
-	    $user_add = Db::name('user_add')->where(['uid'=>$_SESSION['think']['uid']])->select();
+	    $user_add = Db::name('user_addr')->where(['uid'=>$_SESSION['think']['uid']])->select();
 	    $user_addr_id = $user_add[0]['id'];
 	    if(!$user_add) {
 			$r = [
@@ -729,7 +728,7 @@ class Goods extends Base
 	}
 
 	/**
-	 * 查询订单
+	 * 查看全部订单，待支付，待发货，待签收，已完成
 	 * @return mixed
 	 * @throws \think\exception\DbException
 	 */
@@ -772,6 +771,7 @@ class Goods extends Base
 	}
 
 	/**
+	 * 前端发起请求
 	 * 选择地址
 	 * @return mixed
 	 * @throws \think\db\exception\DataNotFoundException
@@ -799,6 +799,7 @@ class Goods extends Base
 	 * 卖家确认订单，
 	 * 根据商户的商品收益比
 	 * 将消费券转换为积分存进商家静态积分中
+	 *根据收益比
 	 *
 	 * @return false|string
 	 * @throws \think\db\exception\DataNotFoundException

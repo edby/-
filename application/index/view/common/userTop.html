@@ -81,7 +81,21 @@
 		
 		// 帮新会员注册
 		function go_reg() {
-	        window.location.href = '{:url("user/userreg")}';			
+			var uid = $('.user_name').attr('data-uid');
+			$.ajax({
+				type:'post',
+				url:'{:url("user_status")}',
+				data:{uid:uid},
+				success:function(ret){
+					if(ret.code === 0){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						window.location.href = '{:url("user/userreg")}';
+					}
+				}
+			});
 		}
 		
 		// 去购买

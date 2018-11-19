@@ -22,7 +22,7 @@ class Index extends Base
 
 	    $page_size = 5;
 	    //获取优惠专区商品
-	    $preferential = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where('area_type = 1')->select();
+	    $preferential = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where(['area_type' =>1,'status'=>3])->select();
 	    //		传递优惠专区
 	    $this->assign('pre',$preferential);
 		
@@ -228,6 +228,41 @@ class Index extends Base
     }
     
     /**
+     * controller 超过12小时未打款情况(将买家封号处理,并将卖家信息设置为重新匹配)(每天00:00:00执行)
+     */
+    public function pass_pay_time(){
+    	$time = time();
+    	$twelve = 60*60*12;
+    	// 获取订单状态为 待支付 的数据
+    	$order_where['order_status'] = 1;
+    	$order_where['trade_type'] = 2;	// 搜索 交易类型 为求购(相应的数据比较全)
+    	$order = Db::name('order') -> where($order_where) -> select();
+    	foreach($order as $k => $v){
+    		// 判断是否超过12个小时
+    		$actual = $time - $order['create_time'];
+    		if($actual >= $twelve){
+				// 修改 买家状态为 封号
+				Db::name('user') -> where('id',$order['buyer_id']) -> update(['status' => 3]);
+				// 修改 买单信息为 已取消
+				Db::name('trade_buy') -> where('id',$v['trade_buy_id']) -> update(['buy_status' => 5]);
+				// 修改 用户交易烧伤记录表 中状态为 已取消
+				$burn_buy_id = ','.$v['trade_buy_id'].',';
+				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$burn_buy_id.'%') -> update(['status' => 2]);
+				// 修改 卖家信息设置为重新匹配
+				$sell_mod['trade_buy_id'] = '';
+				$sell_mod['matching'] = 1;
+				$trade_sell_ids = explode(',',$v['trade_sell_ids']);
+				foreach($trade_sell_ids as $sell_k => $sell_v){
+					Db::name('trade_sell') -> where('id',$sell_v) -> update($sell_mod);
+				}
+				// 修改 订单状态为 已取消
+				Db::name('order') -> where('trade_buy_id',$v['trade_buy_id']) -> update(['order_status' => 5]);
+			}
+			
+		}
+    }
+    
+    /**
      * controller 判断用户冻结是否已过10天(每天00:00:00点执行)
      */
     public function thaw_bonus(){
@@ -235,6 +270,7 @@ class Index extends Base
     	$ten_day = $beginToday - 60*60*24*10;	// 10天前的00:00:00点时间戳
     	
     	// 获取烧伤表中未解冻的数据
+    	$burn_where['status'] = array('neq',2);
     	$burn_where['start_timezone'] = array('neq',null);
     	$burn_where['end_timezone'] = array('neq',null);
     	$burn_where['create_time'] = array('<=',$ten_day);
@@ -259,11 +295,11 @@ class Index extends Base
     	}
     }
     // 执行返奖金
-    public function back_bonus($uid,$type){
+    public function back_bonus($uid,$type,$number){
     	$user_where['uid'] = $uid;
     	$user_where['bouns_type'] = $type;
-    	Db::name('user_bouns') -> where($user_where) -> setInc('bouns_number',$v['back_status_bonus']);
-    	Db::name('user_bouns') -> where($user_where) -> setDec('frozen_bouns_number',$v['back_status_bonus']);
+    	Db::name('user_bouns') -> where($user_where) -> setInc('bouns_number',$number);
+    	Db::name('user_bouns') -> where($user_where) -> setDec('frozen_bouns_number',$number);
     }
     
 }

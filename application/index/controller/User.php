@@ -3,12 +3,18 @@ namespace app\index\controller;
 
 use app\common\controller\Base;
 use think\Db;
-use think\Exception;
 use think\Request;
 use think\Session;
 
 class User extends Base
 {
+	
+	/**
+	 * controller 判断用户是否被禁用
+	 */
+	public function user_status($uid){
+		return json(model('User') -> userStatus($uid));
+	}
 	
     /**
      * controller 去帮新会员注册
@@ -20,6 +26,7 @@ class User extends Base
         }
         // 获取用户ID
 		$uid = is_login($uid);
+		$this -> assign('uid',$uid);
 		$this -> assign('user',model('User') -> userInfo($uid));
         return $this -> fetch();
     }
@@ -218,8 +225,10 @@ class User extends Base
 	/**
 	 * controller 解绑银行卡
 	 */
-	public function bank_untie($id){
-		return json(model('User') -> bankUntie($id));
+	public function bank_untie(){
+		if(Request::instance() -> isPost()){
+			return json(model('User') -> bankUntie(input('post.')));
+		}
 	}
 	
 	/**
@@ -289,8 +298,10 @@ class User extends Base
 	/**
 	 * controller 删除地址
 	 */
-	public function del_addr($id){
-		return json(model('User') -> delAddr($id));
+	public function del_addr(){
+		if(Request::instance() -> isPost()){
+			return json(model('User') -> delAddr(input('post.')));
+		}
 	}
 	
 	/**

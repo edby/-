@@ -51,9 +51,32 @@ class User extends Base
     }
 	
 	/**
+	 * 判断用户是否被禁用
+	 */
+	public function userStatus($uid){
+		if(!$uid){
+			return ['code' => 0,'msg' => '未获取用户信息!'];
+		}
+		
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',session('uid')) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}else{
+			return ['code' => 1];
+		}
+	}
+	
+	/**
 	 * 注册获取验证码
 	 */
 	public function getVerify($data){
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',session('uid')) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+		
 		if(!$data['account']){
  			return ['code' => 0,'msg' => '请输入手机号码!'];
  		}else{
@@ -85,6 +108,12 @@ class User extends Base
      */
     public function userReg($data)
     {
+    	// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',session('uid')) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+		
     	if(!$data['account']){
     		return ['code' => 0,'msg' => '请输入手机号码!'];
     	}
@@ -989,12 +1018,20 @@ class User extends Base
 	/**
 	 * model 解绑银行卡
 	 */
-	public function bankUntie($id){
-		if(!$id){
+	public function bankUntie($data){
+		if(!$data['id']){
 			return ['code' => 0,'msg' => '未获取银行卡信息!'];
 		}
+		if(!$data['uid']){
+			return ['code' => 0,'msg' => '未获取用户信息!'];
+		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
 		
-		$result = Db::name('user_card') -> where('id',$id) -> delete();
+		$result = Db::name('user_card') -> where('id',$data['id']) -> delete();
 		if($result){
 			return ['code' => 1,'msg' => '解绑银行卡成功!'];
 		}else{
@@ -1217,11 +1254,20 @@ class User extends Base
 	/**
 	 * model 删除地址
 	 */
-	public function delAddr($id){
-		if(!$id){
+	public function delAddr($data){
+		if(!$data['id']){
 			return ['code' => 0,'msg' => '未获取地址信息!'];
 		}
-		$result = Db::name('user_addr') -> where('id',$id) -> delete();
+		if(!$data['uid']){
+			return ['code' => 0,'msg' => '未获取用户信息!'];
+		}
+		// 判断用户是否未激活
+		$user_status = Db::name('user') -> where('id',$data['uid']) -> value('status');
+		if($user_status != 1){
+			return ['code' => 0,'msg' => '禁止操作，请先购买激活券激活!','url' => url('Goods/activate')];
+		}
+		
+		$result = Db::name('user_addr') -> where('id',$data['id']) -> delete();
 		if($result){
 			return ['code' => 1,'msg' => '删除地址成功!'];
 		}else{
