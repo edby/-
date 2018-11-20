@@ -162,6 +162,8 @@ class Index extends Base
     	$users_where['status'] = 1;
     	$users_where['timing'] = array('neq',0);
     	$users = Db::name('user') -> where($users_where) -> field('id,timing') -> select();
+//    	echo \app\index\model\User::getLastSql();
+//    	print_r($users);
     	foreach($users as $k => $v){
     		switch($v['timing']){
     			case 1:

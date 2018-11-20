@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1542348682;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542426177;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542444000;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1542622259;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542452401;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542452364;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -82,7 +82,21 @@
 		
 		// 帮新会员注册
 		function go_reg() {
-	        window.location.href = '<?php echo url("user/userreg"); ?>';			
+			var uid = $('.user_name').attr('data-uid');
+			$.ajax({
+				type:'post',
+				url:'<?php echo url("user_status"); ?>',
+				data:{uid:uid},
+				success:function(ret){
+					if(ret.code === 0){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						window.location.href = '<?php echo url("user/userreg"); ?>';
+					}
+				}
+			});
 		}
 		
 		// 去购买
@@ -242,6 +256,7 @@
                     r = JSON.parse(r);
                     if(r['code'] == 1){
                         layer.msg('激活成功！');
+						window.location.reload();
                     }else{
                         layer.alert(r['msg']);
                     }
@@ -293,13 +308,13 @@
 		            </div>
 		        <?php endif; endforeach; endif; else: echo "" ;endif; ?>
             <div class="wallet_box">
-                <span>静态积分总收入</span>
+                <span>商家店铺累计总收入：</span>
                 <span class="wallet_num"><?php echo $bouns_in_outcome['bouns_income']; ?></span>
             </div>
-            <div class="wallet_box">
-                <span>静态积分总支出</span>
-                <span class="wallet_num"><?php echo $bouns_in_outcome['bouns_withdraw']; ?></span>
-            </div>
+            <!--<div class="wallet_box">-->
+                <!--<span>静态积分总支出</span>-->
+                <!--<span class="wallet_num"><?php echo $bouns_in_outcome['bouns_withdraw']; ?></span>-->
+            <!--</div>-->
         </div>
     </div>
 </main>

@@ -4,6 +4,7 @@ namespace app\index\controller;
 use app\admin\model\Banner;
 use app\common\controller\Base;
 use app\index\model\GoodsOrder;
+use app\index\model\UserBouns;
 use app\index\model\UserVou;
 use think\Build;
 use think\Db;
@@ -287,6 +288,8 @@ class Goods extends Base
 	    $goods = new GoodsOrder();
 //	    商品id
 	    $order['gid'] = $gid;
+//	    商品类型id
+	    $order['cid'] = $googd_info['area_type']==1?1:2;
 //	    买家id
 	    $order['buy_uid'] = $uid;
 //	    创建时间
@@ -475,39 +478,9 @@ class Goods extends Base
 				    }
 				}
 
-////				    遍历用户三个类型的奖金，依次扣款
-//			    $times = 1;
-//				foreach ($user_money as $money_type){
-////					  依次扣除静态奖金、动态奖、福利奖
-//					if($money_type['bouns_number'] < $item_money){
-//						$money_type['bouns_number'] = 0;
-//						$item_money -= $money_type['bouns_number'];
-//						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
-//					}else{
-//						$money_type['bouns_number'] -= $item_money;
-//						Db::name('user_bouns')->where(['id'=>$money_type['id']])->update($money_type);
-//						break;
-//					}
-////					按客户要求，只能使用静态奖金，含泪将循环次数改为1
-//					if(($times==1)&&($item_money>0)){
-//						throw new Exception("用户余额不足");
-//					}
-//					$times++;
-//				}
 			    if(!(Db::name('goods_order')->where(['order_number' => $item[0]])->update(['order_status'=>2,'addr_id'=>$_POST['rec_ids']]))){
 					throw new Exception('订单付款失败');
 			    }
-////			    获取商家信息
-//			    $goods_detail = Db::name('goods_detail')->where(['gid'=>$goods_order['sell_sid']])->find();
-//			    if(!$goods_order){
-//				    throw new Exception("未找到该商家！");
-//			    }
-////			    付款时候，资金暂时不转到商家账户中，等到用户确认收货之后再将资金转入到商家账户和平台中
-//			    $shop = Db::name('user_bouns')->where(['uid'=>$goods_order['sell_sid']])->setInc(['frozen_bouns_number'=>($item_const*$goods_detail['profit_rate'])]);
-//			    echo Db::name('user_bouns')->getLastSql();
-//			    if(!($shop)){
-//			    	throw new Exception("商家信息写入失败！");
-//			    }
 		    }
 		    Db::commit();
 		    $r = [
@@ -646,7 +619,9 @@ class Goods extends Base
 		$this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
-	
+
+
+
 	/**
 	 * controller 手续费券
 	 */
@@ -655,7 +630,35 @@ class Goods extends Base
 		$this->assign('banner',$this->banner);
 		return $this -> fetch();
 	}
-	
+
+	/**
+	 * 购买各种券
+	 * @return false|string
+	 */
+	public function buy_tickets()
+	{
+		$post_data = array('buy_tip','buy_change','buy_active','buy_shop_tic');
+		$r = null;
+		if(!(isset($_POST) && in_array($_POST['data'],$post_data) )){
+			return return_json(deal_json(-1,'数据错误'));
+		}
+//		购买手续费
+		if($_POST['data'] == 'buy_tip'){
+			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,20,2,1);
+//		购买修改券
+			}else if($_POST['data'] == 'buy_change'){
+			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,20,3,1);
+//		购买商城入驻券
+		}else if($_POST['data'] == 'buy_shop_tic'){
+			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,500,5,1);
+//		类型错误
+		}else{
+			$r = deal_json(-1,'类型错误');
+		}
+		return return_json($r);
+
+	}
+
 	/**
 	 * controller 入驻券
 	 */
@@ -759,7 +762,13 @@ class Goods extends Base
 		}
 //		print_r($where);
 		$page_size = 5;
-		$goods_order = Db::table('sn_goods_order')->alias('a')->join('sn_goods_detail b','a.gid = b.gid')->where($where)->paginate($page_size,false,$querys);
+		$goods_order = Db::table('sn_goods_order')
+			->alias('a')
+			->join('sn_goods_detail b','a.gid = b.gid')
+			->where($where)
+			->field('a.money,b.detail_pic,b.name,a.g_number,a.order_number,a.order_status,a.create_time')
+			->order(['b.create_time desc'])
+			->paginate($page_size,false,$querys);
 //		echo Db::name('goods_order')->getLastSql();
 		$pages = $goods_order->render();
 		$this->assign('type',$_GET['type']);
@@ -799,8 +808,7 @@ class Goods extends Base
 	 * 卖家确认订单，
 	 * 根据商户的商品收益比
 	 * 将消费券转换为积分存进商家静态积分中
-	 *根据收益比
-	 *
+	 * 根据收益比
 	 * @return false|string
 	 * @throws \think\db\exception\DataNotFoundException
 	 * @throws \think\db\exception\ModelNotFoundException
@@ -825,15 +833,12 @@ class Goods extends Base
 		];
 		$order = Db::name('goods_order')->where($order_where)->find();
 		$goods_detial = Db::name('goods_detail')->where(['gid'=>$order['gid']])->find();
-//		print_r($order);
-//		exit();
 		if(!$order){
 			$r = [
 				'code'=>-1,
 				'msg'=>'未查询到该数据'
 			];
 		}
-//		print_r($order);
 		Db::startTrans();
 		try{
 			$bouns_where = [
@@ -845,24 +850,21 @@ class Goods extends Base
 				$user_bouns = Db::name('user_bouns')->where($bouns_where)->setInc('bouns_number',$order['money']*$goods_detial['profit_rate']);
 				$user_income = Db::name('user_bouns')->where($bouns_where)->setInc('bouns_income',$order['money']*$goods_detial['profit_rate']);
 				if(!$user_bouns){
-					throw new Exception("商家信息修改失败");
+//					throw new Exception("商家信息修改失败");
 				}
 				if(!$user_income){
-					throw new Exception("商家信息修改失败");
+//					throw new Exception("商家信息修改失败");
 				}
 			}
 			$order['order_status'] = 4;
-//			print_r($order_where);
-//			print_r($order);
-//			exit;
-			$result = Db::name('goods_order')->where($order_where)->update($order);
+			$result = Db::name('goods_order')->where($order_where)->update(['order_status'=>4]);
 			if(!$result){
 				throw new Exception("订单状态修改失败");
 			}
 			Db::commit();
 			$r = [
 				'code'=>1,
-				'msg'=>"已收货"
+				'msg'=>'购买成功'
 			];
 		}catch (\Exception $e){
 			Db::rollback();

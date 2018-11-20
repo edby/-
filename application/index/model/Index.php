@@ -272,7 +272,17 @@ class Index extends Base
 			$in_trade_burn['number'] = $data['number'];
 			$in_trade_burn['create_time'] = time();
 			$in_trade_burn['trade_buy_ids'] = ','.$first_trade_id.','.$last_trade_id.',';
-			$in_trade_burn['back_status_bonus'] = $data['number'] + $data['number'] * config('STATIC_BONUS');
+			// 判断用户上次交易是否有超时惩罚
+			$penalty_where['uid'] = $data['uid'];
+			$penalty_where['bouns_type'] = 1;
+			$penalty = Db::name('user_bouns') -> where($penalty_where) -> value('next_trade_condition');
+			if(!$penalty){
+				$in_trade_burn['back_status_bonus'] = $data['number'] + $data['number'] * config('STATIC_BONUS');
+			}else{
+				$in_trade_burn['back_status_bonus'] = ($data['number'] + $data['number'] * config('STATIC_BONUS')) - ($data['number'] * 0.1);
+				// 清空用户惩罚状态
+				Db::name('user_bouns') -> where($penalty_where) -> update(['next_trade_condition' => null]);
+			}
 			$trade_burn_id = Db::name('trade_burn') -> insertGetId($in_trade_burn);
 			
 			// 执行用户对上级烧伤奖金记录(三代领导奖[动态奖])
@@ -291,6 +301,9 @@ class Index extends Base
 			
 			// 福利奖
 			model('Profit') -> welfare();
+			
+			// 扣除用户相应的手续费券数量
+			$user_vou_num = Db::name('user_vou') -> where($vou_where) -> setDec('number',$num);
 			
 			$condition = 1;
 			Db::commit();

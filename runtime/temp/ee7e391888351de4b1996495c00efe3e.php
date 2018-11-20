@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542425552;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542622871;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -144,7 +144,7 @@
                         <div class="indent_right">
                             <div></div>
                             <div>
-                                <?php switch($o['order_status']): case "1": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'pay_now',<?php echo $o['order_number']; ?>)" value="待支付" title="去支付"><?php break; case "2": ?><input type="button" class="indentBtn_on" ondblclick="use_indent(this,'notice',)" value="提醒发货" title="双击提醒发货"><input type="button" class="indentBtn_on" disabled value="待发货"><?php break; case "3": ?><input type="button" class="indentBtn_on" onclick="javascript:layer.confirm('确认收货吗？',function (){use_indent(this,'confirm',<?php echo $o['order_number']; ?>)})" value="待收货" title="点击收货"><?php break; case "4": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled><?php break; endswitch; ?>
+                                <?php switch($o['order_status']): case "1": ?><input type="button" class="indentBtn_on" onclick="use_indent(this,'pay_now',<?php echo $o['order_number']; ?>)" value="待支付" title="去支付"><?php break; case "2": ?><input type="button" class="indentBtn_on" ondblclick="use_indent(this,'notice',)" value="提醒发货" title="双击提醒发货"><input type="button" class="indentBtn_on" disabled value="待发货"><?php break; case "3": ?><input type="button" class="indentBtn_on" onclick="javascript:layer.confirm('确认收货吗？',function (){use_indent(this,'confirm',<?php echo $o['order_number']; ?>)})" value="确认收货" title="点击收货"><?php break; case "4": ?><input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled><?php break; endswitch; ?>
                             </div>
                         </div>
                     </div>

@@ -171,6 +171,7 @@ class User extends Base
 		$data['status'] = 2;
 		unset($data['code']);
 		unset($data['repassword']);
+		unset($data['uid']);
 		
 		Db::startTrans();
 		$condition = 0;
@@ -391,7 +392,7 @@ class User extends Base
     	$user_vou_number = Db::name('user_vou') -> where($user_vou_where) -> value('number');
     	$user_is_set = Db::name('user') -> where('id',$user_vou_where['uid']) -> value('is_set');
         if($user_vou_number <= 0 && ($user_is_set === 1)){
-        	return ['code' => 0,'msg' => '您的的修改券不足,请先购买!'];
+        	return ['code' => 0,'msg' => '您的的修改券不足,请先购买!','url' => url('Goods/change')];
         }
     	
     	Db::startTrans();

@@ -202,6 +202,32 @@ function generateOrderNumber()
     return date('Ymd') . substr(implode('', array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8);
 }
 
+/**
+ * 预处理json数据
+ * @param $code
+ * @param $msg
+ * @return array
+ */
+function deal_json($code,$msg)
+{
+	$r = [
+		'code'=>$code,
+		'msg'=>$msg
+	];
+	return $r;
+}
+
+/**
+ * 返回json格式数据
+ * @param $code
+ * @param $msg
+ * @return false|string
+ */
+function return_json($r)
+{
+	return json_encode($r);
+//	exit;
+}
 
 /**
 *获取当月之间时间戳

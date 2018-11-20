@@ -66,7 +66,7 @@
                                 {switch name = '$o.order_status'}
                                 {case value = '1'}<input type="button" class="indentBtn_on" onclick="use_indent(this,'pay_now',{$o.order_number})" value="待支付" title="去支付">{/case}
                                 {case value = '2'}<input type="button" class="indentBtn_on" ondblclick="use_indent(this,'notice',)" value="提醒发货" title="双击提醒发货"><input type="button" class="indentBtn_on" disabled value="待发货">{/case}
-                                {case value = '3'}<input type="button" class="indentBtn_on" onclick="javascript:layer.confirm('确认收货吗？',function (){use_indent(this,'confirm',{$o.order_number})})" value="待收货" title="点击收货">{/case}
+                                {case value = '3'}<input type="button" class="indentBtn_on" onclick="javascript:layer.confirm('确认收货吗？',function (){use_indent(this,'confirm',{$o.order_number})})" value="确认收货" title="点击收货">{/case}
                                 {case value = '4'}<input type="button" class="indentBtn_on" onclick="use_indent(this)" value="已完成" disabled>{/case}
                                 {/switch}
                             </div>

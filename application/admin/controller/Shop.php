@@ -324,12 +324,9 @@ class Shop extends Admin
     public function goods_order()
     {
     	$page_size = 10;
-//    	$query =$_GET['record_type']!=null?"?record_type=".$_GET['record_type']."&":null;
-//    	$query.=$_GET['keywords']!=null?"?keywords=".$_GET['keywords']:null;
-//		print_r($page_config);
 		$where = null;
 		$querys = null;
-		if($_GET['record_type'] && $_GET['record_type'] != 0){
+		if($_GET['record_type'] && $_GET['record_type'] > 0){
 			$querys = [
 				'record_type'=>$_GET['record_type']
 			];
@@ -344,27 +341,18 @@ class Shop extends Admin
 		$page_config = [
 			'query'=>$querys
 		];
-//		print_r($_SESSION['think']['user_type']);
 		if($_SESSION['think']['user_type'] == 2){
-			$where = [
-				'buy_uid'=>$_SESSION['think']['uid']
-			];
-//			$where['buy_uid'] =$_SESSION['think']['uid'];
+			$where['buy_uid'] =$_SESSION['think']['aid'];
 		}
-//    	$goods_order = Db::table('sn_goods_order')->alias('order')->join('sn_goods_detail detail','order.gid = detail.gid')->join('sn_user','sn_goods_order.buy_uid = sn_user.id')->field('sn_user.account as user,sn_goods_detail.name as goods_name,sn_goods_order.sell_sid as sid,sn_goods_order.g_number as number,order.sn_goods_order.order_status as status,sn_goods_order.create_time as time')->paginate($page_size);
 		$goods_order = Db::name('goods_order')
 			->alias('order')
-			->join('goods_detail detail','order.gid = detail.gid','LEFT')
-			->join('user u','u.id = order.buy_uid','LEFT')
+			->join('goods_detail detail','order.gid = detail.gid')
+			->join('user u','u.id = order.buy_uid')
 			->join('user_addr addr','addr.id = order.addr_id')
 			->where($where)
-//			->field('u.*,addr.*,order.create_time.*')
 			->field('u.account,detail.name as detail_name,order.sell_sid,order.g_number,order.money,order_status,addr.address,addr.tel,addr.username as addr_name,order.create_time,order.order_number')
 			->paginate($page_size,false,$page_config);
-//		print_r(Db::name('goods_order')->getLastSql());
-//		echo Db::name('goods_order')->getLastSql();
     	$page = $goods_order->render();
-//    	print_r($goods_order);
     	$this->assign('record_type',$_GET['record_type']!=null?$_GET['record_type']:null);
     	$this->assign('goods_order',$goods_order);
     	$this->assign('user_type',$_SESSION['think']['user_type']);
