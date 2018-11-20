@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542622871;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542622871;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -233,7 +233,7 @@
 		</div>
 		<div class="mask"></div>
         <?php endif; ?>
-		</body>
+	</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();

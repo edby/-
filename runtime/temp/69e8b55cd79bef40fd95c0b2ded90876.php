@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:76:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\my_promotion.html";i:1541724926;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:76:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\my_promotion.html";i:1542426295;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542452401;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542452364;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,7 +64,13 @@
 		        	data:data,
 		        	success:function(ret){
 		        		if(ret.code === 0){
-		        			layer.alert(ret.msg);
+		        			if(ret.url){
+			        			layer.alert(ret.msg,{icon:1500},function(){
+			        				location.href = ret.url;
+			        			});
+							}else{
+								layer.alert(ret.msg);
+							}
 		        		}else{
 		        			$('#myModal').modal('hide');
 		        			layer.msg(ret.msg);
@@ -76,30 +82,20 @@
 		
 		// 帮新会员注册
 		function go_reg() {
-			layer.confirm('帮新会员注册需要使用激活券!',{
-				btn: ['激活会员','稍后再说']
-			},function(){
-				var uid = $('.user_name').attr('data-uid');
-				$.ajax({
-					type:'post',
-					url:'<?php echo url("user_vou"); ?>',
-					data:{uid:uid,vid:4},
-					success:function(ret){
-	        			if(ret.code === 0){
-	        				layer.msg(ret.msg);
-	        			}else{
-	        				if(ret.num <= 0){
-	        					layer.confirm('激活券不足！', {
-						            btn: ['现在购买','稍后再说'] //按钮
-						        }, function(){
-						        	window.location.href = '<?php echo url("goods/activate"); ?>';
-						        });
-	        				}else{
-	        					window.location.href = '<?php echo url("user/userreg"); ?>';
-	        				}
-	        			}
-	        		}
-				});
+			var uid = $('.user_name').attr('data-uid');
+			$.ajax({
+				type:'post',
+				url:'<?php echo url("user_status"); ?>',
+				data:{uid:uid},
+				success:function(ret){
+					if(ret.code === 0){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						window.location.href = '<?php echo url("user/userreg"); ?>';
+					}
+				}
 			});
 		}
 		
@@ -212,8 +208,11 @@
                 </small>
             </div>
             <div class="user_phone"><?php echo $user['account']; ?></div>
-            <button type="button">会员已激活</button>
-            <?php if($user['is_set'] != '1'): ?>
+            <?php if($user['status'] != 1): ?>
+            <button type="button" title="消耗激活券进行激活" onclick="javascript:layer.confirm('确认激活??',function (){active_user()})">激活会员</button>
+            <?php else: ?>
+            <button type="button" disabled>会员已激活</button>
+            <?php endif; if($user['is_set'] != '1'): ?>
             	<div class="user_full" data-toggle="modal" data-target="#myModal">完善个人信息 >></div>
         	<?php endif; ?>
         </span>
@@ -246,6 +245,26 @@
         <span onclick="go_reg()">去帮新会员注册 >></span>
     </div>
 </div>
+<script>
+    function active_user() {
+        $.ajax(
+            {
+                url:'active_user',
+                type:'post',
+                data:'',
+                success:function (r) {
+                    r = JSON.parse(r);
+                    if(r['code'] == 1){
+                        layer.msg('激活成功！');
+						window.location.reload();
+                    }else{
+                        layer.alert(r['msg']);
+                    }
+                }
+            }
+        )
+    }
+</script>
 <div class="vip_nav">
     <ul>
         <li><a href="<?php echo url('wallet'); ?>">钱包</a></li>
@@ -272,14 +291,18 @@
 					<tr>
 						<th>昵称</th>
 						<th>手机号</th>
+						<th>区位</th>
+						<th>状态</th>
 					</tr>
 					<?php if(is_array($promotion) || $promotion instanceof \think\Collection || $promotion instanceof \think\Paginator): $i = 0; $__LIST__ = $promotion;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
 						<tr>
 							<td><?php if(!(empty($vo['real_name']) || (($vo['real_name'] instanceof \think\Collection || $vo['real_name'] instanceof \think\Paginator ) && $vo['real_name']->isEmpty()))): ?><?php echo $vo['real_name']; else: ?>-<?php endif; ?></td>
 							<td><?php echo $vo['account']; ?></td>
+							<td><?php echo $vo['area']; ?></td>
+							<td <?php if($vo['status_click'] == '2'): ?>onclick="activation(<?php echo $vo['id']; ?>)" style='color:#4780F7;cursor:pointer;'<?php endif; ?>><?php echo $vo['status_text']; ?></td>
 						</tr>
 					<?php endforeach; endif; else: echo "" ;endif; ?>
-				</table>					
+				</table>
 			</div>
 		</div>
 	</div>
@@ -298,7 +321,7 @@
 		</div>
 		<div class="mask"></div>
         <?php endif; ?>
-		</body>
+	</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();
@@ -317,5 +340,59 @@
 </html>
 <script>
 	vipNav(7)
+</script>
+<script>
+// 帮新会员激活
+function activation(id) {
+	layer.confirm('帮新会员激活需要使用激活券!',{
+		btn: ['激活会员','稍后再说']
+	},function(){
+		var uid = $('.user_name').attr('data-uid');
+		$.ajax({
+			type:'post',
+			url:'<?php echo url("user_vou"); ?>',
+			data:{uid:uid,vid:4},
+			success:function(ret){
+    			if(ret.code === 0){
+    				layer.msg(ret.msg);
+    			}else{
+    				if(ret.num <= 0){
+    					layer.confirm('激活券不足！', {
+				            btn: ['现在购买','稍后再说'] //按钮
+				        }, function(){
+				        	window.location.href = '<?php echo url("goods/activate"); ?>';
+				        });
+    				}else{
+    					do_activation(uid,id);
+    				}
+    			}
+    		}
+		});
+	});
+}
+
+// 执行激活用户
+function do_activation(uid,id){
+	$.ajax({
+		type:'post',
+		url:'<?php echo url("my_promotion"); ?>',
+		data:{uid:uid,id:id},
+		success:function(ret){
+			if(ret.code === 0){
+				if(ret.url){
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = ret.url;
+					});
+				}else{
+					layer.msg(ret.msg);
+				}
+			}else{
+				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+					location.href = self.location.href;
+				});
+			}
+		}
+    });
+}
 </script>
 

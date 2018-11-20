@@ -160,7 +160,7 @@ class Goods extends Base
 	public function preferential(){
 	    $page_size = 6 ;
 
-		$preferential = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->where('area_type = 1')->paginate($page_size);
+		$preferential = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->where(['area_type '=>1])->where(['b.status'=>3])->paginate($page_size);
 		$page = $preferential->render();
 		$this->assign("preferential",$preferential);
 		$this->assign("pre_page",$page);
@@ -850,10 +850,10 @@ class Goods extends Base
 				$user_bouns = Db::name('user_bouns')->where($bouns_where)->setInc('bouns_number',$order['money']*$goods_detial['profit_rate']);
 				$user_income = Db::name('user_bouns')->where($bouns_where)->setInc('bouns_income',$order['money']*$goods_detial['profit_rate']);
 				if(!$user_bouns){
-//					throw new Exception("商家信息修改失败");
+					throw new Exception("商家信息修改失败");
 				}
 				if(!$user_income){
-//					throw new Exception("商家信息修改失败");
+					throw new Exception("商家信息修改失败");
 				}
 			}
 			$order['order_status'] = 4;
@@ -864,7 +864,7 @@ class Goods extends Base
 			Db::commit();
 			$r = [
 				'code'=>1,
-				'msg'=>'购买成功'
+				'msg'=>'收货成功'
 			];
 		}catch (\Exception $e){
 			Db::rollback();

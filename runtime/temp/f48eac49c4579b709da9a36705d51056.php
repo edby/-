@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1542622259;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542452401;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542452364;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\wallet.html";i:1542684051;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542452401;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542452364;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -286,12 +286,12 @@
             <p class="vip_hint">钱包（请妥善保管您的资金）：</p>
             <div class="wallet_box">
                 <span>总积分：</span>
-                <span class="wallet_num"><?php echo $wallet['user_frozen_bonus']; ?></span>
+                <span class="wallet_num"><?php echo $wallet['user_all_bonus']; ?></span>
                 <small>（包含冻结区、解冻区积分）</small>
             </div>
             <div class="wallet_box">
                 <span>已解冻积分：</span>
-                <span class="wallet_num"><?php echo $wallet['user_all_bonus']; ?></span>
+                <span class="wallet_num"><?php echo $wallet['user_all_bonus']-$wallet['user_frozen_bonus']; ?></span>
             </div>
             <?php if(is_array($wallet['voucher']) || $wallet['voucher'] instanceof \think\Collection || $wallet['voucher'] instanceof \think\Paginator): $i = 0; $__LIST__ = $wallet['voucher'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;if($vo['is_sell'] == '1'): ?>
 		            <div class="walletBox">
@@ -332,7 +332,7 @@
 		</div>
 		<div class="mask"></div>
         <?php endif; ?>
-		</body>
+	</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();

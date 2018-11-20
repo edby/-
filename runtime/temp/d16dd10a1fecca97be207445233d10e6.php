@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\index.html";i:1541753344;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\index.html";i:1542708249;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -180,7 +180,7 @@
             </div>
         </div>
     </div>
-    <p class="check_more"><a href="discounts.html">查看更多</a></p>
+    <p class="check_more"><a href="/index/goods/preferential">查看更多</a></p>
     <div class="headline">
         <div>特色专区</div>
         <p>SPECIAL AREA</p>
@@ -208,7 +208,7 @@
             </div>
             <div class="more_choices">
                 <div>
-                    <span><a href="feature.html">查看更多 >></a></span>
+                    <span><a href="/index/goods/feature">查看更多 >></a></span>
                     <p>More choices</p>
                 </div>
             </div>

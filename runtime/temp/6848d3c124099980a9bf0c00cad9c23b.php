@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1542426238;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1542367104;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\index\index.html";i:1542697680;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\indexTop.html";i:1542367104;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -244,7 +244,7 @@
 					</div>
 					<div class="modal-body" style='text-align:center;'>
 						<!--<input id='buy_number' name='number' placeholder="请输入买入金额" class="modol_ipt" />-->
-						<select id='buy_number' name='number'>
+						<select id='buy_number' name='number' style="font-size: 18px;width: 150px;height: 30px">
 							<option class="modol_ipt" value=''>请选择</option>
 							<?php if(is_array($data['buy_num']) || $data['buy_num'] instanceof \think\Collection || $data['buy_num'] instanceof \think\Paginator): $i = 0; $__LIST__ = $data['buy_num'];if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?>
 								<option class="modol_ipt" value='<?php echo $vo['number']; ?>'><?php echo $vo['number']; ?></option>
@@ -340,7 +340,7 @@
 		</div>
 		<div class="mask"></div>
         <?php endif; ?>
-		</body>
+	</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();

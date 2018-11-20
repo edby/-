@@ -1,13 +1,16 @@
 <?php
 namespace app\admin\controller;
 
+use app\admin\validate\Useradd;
 use app\common\controller\AdminBase;
 use app\index\model\Goods;
+use app\index\model\GoodsOrder;
+use app\admin\model\UserAddr;
 use think\Exception;
 use think\Request;
 use think\Db;
 use app\admin\model\GoodsDetail;
-
+use app\admin\model\User;
 
 class Shop extends Admin
 {
@@ -342,17 +345,27 @@ class Shop extends Admin
 			'query'=>$querys
 		];
 		if($_SESSION['think']['user_type'] == 2){
-			$where['buy_uid'] =$_SESSION['think']['aid'];
+			$where['sell_sid'] =$_SESSION['think']['aid'];
 		}
-		$goods_order = Db::name('goods_order')
-			->alias('order')
-			->join('goods_detail detail','order.gid = detail.gid')
-			->join('user u','u.id = order.buy_uid')
-			->join('user_addr addr','addr.id = order.addr_id')
-			->where($where)
-			->field('u.account,detail.name as detail_name,order.sell_sid,order.g_number,order.money,order_status,addr.address,addr.tel,addr.username as addr_name,order.create_time,order.order_number')
-			->paginate($page_size,false,$page_config);
+//		print_r($where);
+		$goods_order = Db::name('goods_order')->where($where)->field('gid,sell_sid,create_time,g_number,money,order_status,buy_uid,order_number')->order('create_time desc')->paginate($page_size,false,$page_config);
     	$page = $goods_order->render();
+		$goods_order = $goods_order->toArray();
+		$goods_order = $goods_order['data'];
+//		print_r(GoodsOrder::getLastSql());
+//		var_dump($goods_order);
+//		exit();
+		foreach ($goods_order as $k => $v){
+//			$goods_order[$k]['account'] = User::get(['id'=>$goods_order[$k]['buy_uid']]);
+			$goods_order[$k]['account'] = User::get(['id'=>$goods_order[$k]['buy_uid']])['account'];
+			$goods_order[$k]['detail_name'] = GoodsDetail::get(['gid'=>$goods_order[$k]['gid']])['name'];
+			$goods_order[$k]['address'] = UserAddr::get(['uid'=>$goods_order[$k]['buy_uid']])['address'];
+			$goods_order[$k]['tel'] = UserAddr::get(['uid'=>$goods_order[$k]['buy_uid']])['tel'];
+			$goods_order[$k]['addr_name'] = UserAddr::get(['uid'=>$goods_order[$k]['buy_uid']])['username'];
+//			print_r($v);
+//			echo User::getLastSql();
+		}
+//		pre($goods_order);
     	$this->assign('record_type',$_GET['record_type']!=null?$_GET['record_type']:null);
     	$this->assign('goods_order',$goods_order);
     	$this->assign('user_type',$_SESSION['think']['user_type']);

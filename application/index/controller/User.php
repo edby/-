@@ -161,6 +161,8 @@ class User extends Base
 	 * controller 点击提现
 	 */
 	public function do_withdraw(){
+//		print_r($_POST);
+//		exit();
 		if(Request::instance() -> isPost()){
 			return json(model('User') -> doWithdraw(input('post.')));
 		}

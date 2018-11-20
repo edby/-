@@ -29,7 +29,7 @@
 	                        <span>{$vo.bank_name}</span>
 	                        <span>{$vo.bank_branch}</span>
 	                    </p>
-	                    <span class="bank_del" onclick="bank_del({$vo.id})">删除</span>
+	                    <span class="bank_del" onclick="bank_del({$vo.id},{$vo.uid})">删除</span>
 	                </div>
                 {/volist}
                 <div class="add_bank">
@@ -112,14 +112,14 @@ function set_default(id,uid,type){
 }
 
 // 解绑银行卡
-function bank_del(id) {
+function bank_del(id,uid) {
     layer.confirm('确定解绑这张银行卡？', {
         btn: ['确定','取消']
     }, function(){
         $.ajax({
         	type:'post',
         	url:'{:url("bank_untie")}',
-        	data:{id:id},
+        	data:{uid:uid,id:id},
         	success:function(ret){
         		if(ret.code === 0){
         			if(ret.url){

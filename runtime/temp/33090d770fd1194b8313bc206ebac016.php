@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\address.html";i:1541724918;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542088388;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1541724639;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\address.html";i:1542684344;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542452401;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542452364;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,7 +64,13 @@
 		        	data:data,
 		        	success:function(ret){
 		        		if(ret.code === 0){
-		        			layer.alert(ret.msg);
+		        			if(ret.url){
+			        			layer.alert(ret.msg,{icon:1500},function(){
+			        				location.href = ret.url;
+			        			});
+							}else{
+								layer.alert(ret.msg);
+							}
 		        		}else{
 		        			$('#myModal').modal('hide');
 		        			layer.msg(ret.msg);
@@ -76,30 +82,20 @@
 		
 		// 帮新会员注册
 		function go_reg() {
-			layer.confirm('帮新会员注册需要使用激活券!',{
-				btn: ['激活会员','稍后再说']
-			},function(){
-				var uid = $('.user_name').attr('data-uid');
-				$.ajax({
-					type:'post',
-					url:'<?php echo url("user_vou"); ?>',
-					data:{uid:uid,vid:4},
-					success:function(ret){
-	        			if(ret.code === 0){
-	        				layer.msg(ret.msg);
-	        			}else{
-	        				if(ret.num <= 0){
-	        					layer.confirm('激活券不足！', {
-						            btn: ['现在购买','稍后再说'] //按钮
-						        }, function(){
-						        	window.location.href = '<?php echo url("goods/activate"); ?>';
-						        });
-	        				}else{
-	        					window.location.href = '<?php echo url("user/userreg"); ?>';
-	        				}
-	        			}
-	        		}
-				});
+			var uid = $('.user_name').attr('data-uid');
+			$.ajax({
+				type:'post',
+				url:'<?php echo url("user_status"); ?>',
+				data:{uid:uid},
+				success:function(ret){
+					if(ret.code === 0){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						window.location.href = '<?php echo url("user/userreg"); ?>';
+					}
+				}
 			});
 		}
 		
@@ -215,8 +211,11 @@
                 </small>
             </div>
             <div class="user_phone"><?php echo $user['account']; ?></div>
-            <button type="button">会员已激活</button>
-            <?php if($user['is_set'] != '1'): ?>
+            <?php if($user['status'] != 1): ?>
+            <button type="button" title="消耗激活券进行激活" onclick="javascript:layer.confirm('确认激活??',function (){active_user()})">激活会员</button>
+            <?php else: ?>
+            <button type="button" disabled>会员已激活</button>
+            <?php endif; if($user['is_set'] != '1'): ?>
             	<div class="user_full" data-toggle="modal" data-target="#myModal">完善个人信息 >></div>
         	<?php endif; ?>
         </span>
@@ -249,6 +248,26 @@
         <span onclick="go_reg()">去帮新会员注册 >></span>
     </div>
 </div>
+<script>
+    function active_user() {
+        $.ajax(
+            {
+                url:'active_user',
+                type:'post',
+                data:'',
+                success:function (r) {
+                    r = JSON.parse(r);
+                    if(r['code'] == 1){
+                        layer.msg('激活成功！');
+						window.location.reload();
+                    }else{
+                        layer.alert(r['msg']);
+                    }
+                }
+            }
+        )
+    }
+</script>
 <div class="vip_nav">
     <ul>
         <li><a href="<?php echo url('wallet'); ?>">钱包</a></li>
@@ -277,7 +296,7 @@
 	                    <p><?php echo $vo['tel']; ?></p><span class='<?php echo $vo['default_class']; ?>' onclick="set_default(<?php echo $vo['id']; ?>,<?php echo $vo['uid']; ?>,2)"><?php echo $vo['default_text']; ?></span>
 	                    <p><?php echo $vo['address']; ?></p>
 	                    <span class="bank_del" onclick="address_edit(<?php echo $vo['id']; ?>)">编辑</span>
-	                    <span class="bank_del" onclick="address_del(<?php echo $vo['id']; ?>)">删除</span>
+	                    <span class="bank_del" onclick="address_del(<?php echo $vo['id']; ?>,<?php echo $vo['uid']; ?>)">删除</span>
 	                </div>
                 <?php endforeach; endif; else: echo "" ;endif; ?>
                 <div class="add_bank">
@@ -318,7 +337,7 @@
 		</div>
 		<div class="mask"></div>
         <?php endif; ?>
-		</body>
+	</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();
@@ -347,7 +366,13 @@ $('#add_addr').find('button[type="submit"]').click(function(){
 		data:$('#add_addr').serialize(),
 		success:function(ret){
 			if(ret.code === 0){
-				layer.msg(ret.msg);
+				if(ret.url){
+					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+						location.href = ret.url;
+					});
+				}else{
+					layer.msg(ret.msg);
+				}
 			}else{
 				layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
     				location.href = self.location.href;
@@ -377,6 +402,7 @@ function address_edit(id) {
 	            html += '<input type="number" name="tel" placeholder="请输入您的手机号" value="'+ ret.data.tel +'" />';
 	            html += '<input type="text" name="address" placeholder="请输入您的收货地址" value="'+ ret.data.address +'" />';
 	            html += '<input type="hidden" name="id" value="'+ret.data.id+'" />';
+	            html += '<input type="hidden" name="uid" value="'+ret.data.uid+'" />';
 	            html += '<button type="submit">保存</button>';
                 html += '</form>';
     		}
@@ -391,7 +417,13 @@ function address_edit(id) {
 					data:$('#edit_addr').serialize(),
 					success:function(ret){
 						if(ret.code === 0){
-							layer.msg(ret.msg);
+							if(ret.url){
+								layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+									location.href = ret.url;
+								});
+							}else{
+								layer.msg(ret.msg);
+							}
 						}else{
 							layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 			    				location.href = self.location.href;
@@ -408,7 +440,7 @@ function address_edit(id) {
 
 // 设置为默认地址
 function set_default(id,uid,type){
-	layer.confirm('确定设置默认银行卡？', {
+	layer.confirm('确定设置默认地址？', {
         btn: ['确定','取消']
     }, function(){
 		$.ajax({
@@ -417,7 +449,13 @@ function set_default(id,uid,type){
 			data:{id:id,uid:uid,type:type},
 			success:function(ret){
 				if(ret.code === 0){
-					layer.alert(ret.msg);
+					if(ret.url){
+	        			layer.alert(ret.msg,{icon:1500},function(){
+	        				location.href = ret.url;
+	        			});
+					}else{
+						layer.alert(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 						location.href = self.location.href;
@@ -429,17 +467,23 @@ function set_default(id,uid,type){
 }
 
 // 删除地址
-function address_del(id) {
+function address_del(id,uid) {
     layer.confirm('确定删除该地址？', {
         btn: ['确定','取消']
     }, function(){
         $.ajax({
         	type:'post',
         	url:'<?php echo url("del_addr"); ?>',
-        	data:{id:id},
+        	data:{id:id,uid:uid},
         	success:function(ret){
         		if(ret.code === 0){
-					layer.msg(ret.msg);
+					if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
 	    				location.href = self.location.href;

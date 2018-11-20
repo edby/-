@@ -162,8 +162,6 @@ class Index extends Base
     	$users_where['status'] = 1;
     	$users_where['timing'] = array('neq',0);
     	$users = Db::name('user') -> where($users_where) -> field('id,timing') -> select();
-//    	echo \app\index\model\User::getLastSql();
-//    	print_r($users);
     	foreach($users as $k => $v){
     		switch($v['timing']){
     			case 1:
@@ -230,7 +228,7 @@ class Index extends Base
     }
     
     /**
-     * controller 超过12小时未打款情况(将买家封号处理,并将卖家信息设置为重新匹配)(每天00:00:00执行)
+     * controller 买家超过12小时未打款情况(将买家封号处理,并将卖家信息设置为重新匹配)(每天00:00:00执行)
      */
     public function pass_pay_time(){
     	$time = time();
@@ -265,6 +263,34 @@ class Index extends Base
     }
     
     /**
+     * controller 卖家超过5个小时未确认惩罚(扣除10%下一轮静态奖金)(每10分钟执行一次)
+     */
+    public function pass_confirm_time(){
+    	$time = time();
+    	$five = 60*60*5;
+    	// 获取订单状态为 已支付 的数据
+    	$order_where['order_status'] = 2;
+    	$order_where['trade_type'] = 2;
+    	$order_where['pay_time'] = array('neq',null);
+    	$order = Db::name('order') -> where($order_where) -> select();
+    	foreach($order as $k => $v){
+    		// 判断是否超过5个小时
+    		$actual = $time - $order['pay_time'];
+    		if($actual >= $five){
+    			// 执行确认订单
+    			$data['id'] = $v['id'];
+    			$data['trade_sell_ids'] = $v['trade_sell_ids'];
+    			model('Index') -> tradeDeal($data);
+    			// 记录卖家惩罚信息
+    			$seller_ids = explode(',',$v['seller_ids']);
+    			foreach($seller_ids as $seller_k => $seller_v){
+    				Db::name('user_bouns') -> where('uid',$seller_v) -> update(['next_trade_condition' => 1]);
+    			}
+    		}
+    	}
+    }
+    
+    /**
      * controller 判断用户冻结是否已过10天(每天00:00:00点执行)
      */
     public function thaw_bonus(){
@@ -293,6 +319,23 @@ class Index extends Base
 			// 修改上三级用户烧伤(动态)
 			if($burn['three_number'] != 0){
     			$this -> back_bonus($v['three_id'],2,$v['three_number']);	// 动态奖
+			}
+			
+			// 返还上一层用户福利奖
+			if($burn['welfare1_id']){
+				$this -> back_bonus($burn['welfare1_id'],3,$burn['welfare1_num']);
+			}
+			// 返还上二层用户福利奖
+			if($burn['welfare2_id']){
+				$this -> back_bonus($burn['welfare2_id'],3,$burn['welfare2_num']);
+			}
+			// 返还上三层用户福利奖
+			if($burn['welfare3_id']){
+				$this -> back_bonus($burn['welfare3_id'],3,$burn['welfare3_num']);
+			}
+			// 返还上四层用户福利奖
+			if($burn['welfare4_id']){
+				$this -> back_bonus($burn['welfare4_id'],3,$burn['welfare4_num']);
 			}
     	}
     }

@@ -127,6 +127,7 @@ var uid = $('.user_name').attr('data-uid');
 
 // 执行提现
 function withdraw(id){
+    // console.log($("#number_1").val());
 	layer.confirm('确定要提现吗?',{
 		btn: ['确定','关闭']
 	},function(){
@@ -144,7 +145,8 @@ function withdraw(id){
 					layer.alert(ret.msg);
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
-						location.href = self.location.href;
+						// return false;
+					    location.href = self.location.href;
 					});
 				}
 			}

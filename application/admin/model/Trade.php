@@ -97,6 +97,9 @@ class Trade extends Base
 			}else{
 				$list[$k]['end_date'] = '-';
 			}
+			
+			// 关联卖出ID
+			$list[$k]['trade_sell_ids'] = trim($v['trade_sell_ids'],',');
 		}
 		
 		$return['list'] = $list;
@@ -173,7 +176,7 @@ class Trade extends Base
 		$condition = 0;
 		try{
 			// 修改 交易买入表 信息
-			$trade_buy_mod['trade_sell_ids'] = $trade_sell_ids;
+			$trade_buy_mod['trade_sell_ids'] = ','.$trade_sell_ids.',';
 			$trade_buy_mod['matching'] = 2;
 			Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> update($trade_buy_mod);
 			
@@ -210,7 +213,7 @@ class Trade extends Base
 			$in_buy_order['seller_ids'] = trim($sell_uids,',');	// 卖家ID(可能匹配多个)
 			$in_buy_order['create_time'] = time();	// 创建时间
 			$in_buy_order['trade_buy_id'] = $data['trade_buy_id'];	// 交易买入表ID
-			$in_buy_order['trade_sell_ids'] = $trade_sell_ids;	// 交易卖出表ID(可能匹配多个)
+			$in_buy_order['trade_sell_ids'] = ','.$trade_sell_ids.',';	// 交易卖出表ID(可能匹配多个)
 			$in_buy_order['trade_type'] = 2;	// 交易类型 1出信 2求购
 			$get_order_id = Db::name('order') -> insertGetId($in_buy_order);
 			

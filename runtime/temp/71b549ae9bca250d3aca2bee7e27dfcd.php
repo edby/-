@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1542366147;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:68:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\car.html";i:1542708429;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -96,7 +96,7 @@
             <div class="clearing">
                 <span>已选商品（不含运费）</span>
                 <p class="red"><span name = "total_money">-</span>消费券</p>
-                <button type="button" onclick="clearing()">结算</button>
+                <button type="button" onclick="submit_order()">结算</button>
             </div>
         </div>
     </div>
@@ -279,7 +279,7 @@
 		</div>
 		<div class="mask"></div>
         <?php endif; ?>
-		</body>
+	</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();

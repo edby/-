@@ -5,6 +5,8 @@ use think\Request;
 use think\db;
 use think\Validate;
 use think\Session;
+use app\index\model\UserBouns;
+use think\Exception;
 class Index extends Base
 {
     /**
@@ -141,7 +143,7 @@ class Index extends Base
 		// 查询 当前用户卖出订单
 		$sell_where['seller_ids'] = array('in',$data['uid']);
 		$sell_where['trade_type'] = 1;
-		$sell = Db::name('order') -> where($sell_where) ->select();
+		$sell = Db::name('order') -> where($sell_where) -> select();
 		// 合并 买入&卖出 数组
 		$order = array_merge($buy,$sell);
 		foreach($order as $k => $v){
@@ -263,9 +265,15 @@ class Index extends Base
 			$in_trade_buy['start_time'] = time();
 			$in_trade_buy['class'] = 1;
 			$first_trade_id = Db::name('trade_buy') -> insertGetId($in_trade_buy);	// 在买入交易表中插入首款记录
+			if(!$first_trade_id){
+				throw new Exception('插入首款失败!');
+			}
 			$in_trade_buy['number'] = $last_money;
 			$in_trade_buy['class'] = 2;
 			$last_trade_id = Db::name('trade_buy') -> insertGetId($in_trade_buy);	// 在买入交易表中插入尾款记录
+			if(!$last_trade_id){
+				throw new Exception('插入尾款失败!');
+			}
 			
 			// 将当前的记录插入 用户交易烧伤记录表 中
 			$in_trade_burn['uid'] = $data['uid'];
@@ -281,9 +289,14 @@ class Index extends Base
 			}else{
 				$in_trade_burn['back_status_bonus'] = ($data['number'] + $data['number'] * config('STATIC_BONUS')) - ($data['number'] * 0.1);
 				// 清空用户惩罚状态
-				Db::name('user_bouns') -> where($penalty_where) -> update(['next_trade_condition' => null]);
+				if(!Db::name('user_bouns') -> where($penalty_where) -> update(['next_trade_condition' => null])){
+					throw new Exception('清空用户处罚状态失败!');
+				}
 			}
 			$trade_burn_id = Db::name('trade_burn') -> insertGetId($in_trade_burn);
+			if(!$trade_burn_id){
+				throw new Exception('插入烧伤信息失败!');
+			}
 			
 			// 执行用户对上级烧伤奖金记录(三代领导奖[动态奖])
 			$this -> bonus($data['uid'],$data['number'],$trade_burn_id);
@@ -296,19 +309,25 @@ class Index extends Base
 			if($vou != 0){
 				$vou_where['uid'] = $data['uid'];
 				$vou_where['vid'] = 1;
-				Db::name('user_vou') -> where($vou_where) -> setInc('number',$vou);
+				if(Db::name('user_vou') -> where($vou_where) -> setInc('number',$vou)){
+					throw new Exception('赠送优惠券失败!');
+				}
 			}
 			
 			// 福利奖
-			model('Profit') -> welfare();
+			$this -> welfare($data['uid'],$trade_burn_id);
 			
 			// 扣除用户相应的手续费券数量
 			$user_vou_num = Db::name('user_vou') -> where($vou_where) -> setDec('number',$num);
+			if(!$user_vou_num){
+				throw new Exception('扣除手续费失败!');
+			}
 			
 			$condition = 1;
 			Db::commit();
-		}catch(\exception $e){
+		}catch(\Exception $e){
 			Db::rollback();
+			return ['code' => 0,'msg' => $e -> getMessage()];
 		}
 		
 		if($condition === 1){
@@ -498,7 +517,8 @@ class Index extends Base
 		$order['last_pay_date'] = date('Y-m-d H:i:s',$order['create_time'] + 60*60*12);
 		
 		// 获取匹配的卖出交易信息
-		$trade_sell_ids = explode(',',$order['trade_sell_ids']);
+		$trade_sell_ids = trim($order['trade_sell_ids'],',');
+		$trade_sell_ids = explode(',',$trade_sell_ids);
 		foreach($trade_sell_ids as $k => $v){
 			$order['trade_sell'][$k] = Db::name('trade_sell') -> where('id',$v) -> find();
 			$order['trade_sell'][$k]['start_date'] = date('Y-m-d H:i:s',$order['trade_sell'][$k]['start_time']);
@@ -570,7 +590,9 @@ class Index extends Base
 			$sell_mod['sell_status'] = 2;
 			$sell_mod['pay_pic'] = $data['pay_pic'];
 			$sell_mod['pay_type'] = $data['type'];
-			Db::name('trade_sell') -> where('id',$data['id']) -> update($sell_mod);
+			if(!Db::name('trade_sell') -> where('id',$data['id']) -> update($sell_mod)){
+				throw new Exception('修改交易卖出信息失败!');
+			}
 			
 			// 判断修改 买入&订单 状态
 			$sell_ids = Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> value('trade_sell_ids');
@@ -578,18 +600,39 @@ class Index extends Base
 			$sell_pay_count_where['id'] = array('in',$sell_ids);
 			$sell_pay_count_where['pay_type'] = array('neq',null);
 			$sell_pay_count = Db::name('trade_sell') -> where('id','in',$sell_ids) -> where('pay_type<>0') -> count();
+			
 			// 判断支付多条订单的最后一条
 			if($sell_pay_count === $sell_count){
 				// 修改 交易买入信息
 				$buy_mod['buy_status'] = 2;
-				Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> update($buy_mod);
-				// 修改 订单信息
-				$trade_sell_ids = Db::name('order') -> where('id',$data['order_id']) -> value('trade_sell_ids');	// 获取 买入&卖出 订单关联的 trade_sell_ids 的ID
-				$trade_sell_ids = explode(',',$trade_sell_ids);
-				foreach($trade_sell_ids as $k => $v){	// 修改 买入&卖出 相关联的订单
+				if(!Db::name('trade_buy') -> where('id',$data['trade_buy_id']) -> update($buy_mod)){
+					throw new Exception('修改交易买入卖出信息失败!');
+				}
+				
+				$trade_sell_ids = trim(Db::name('order') -> where('id',$data['order_id']) -> value('trade_sell_ids'),',');	// 获取 买入&卖出 订单关联的 trade_sell_ids 的ID
+				if(strpos($trade_sell_ids,',')){	// 判断是否为尾款
+					// 修改单条订单状态
+					$order_id = Db::name('trade_sell') -> where('id',$data['id']) -> value('order_id');
 					$order_mod['order_status'] = 2;
 					$order_mod['pay_time'] = time();
-					Db::name('order') -> where('trade_sell_ids','LIKE','%'.$v) -> update($order_mod);
+					if(!Db::name('order') -> where('id',$order_id) -> update($order_mod)){
+						throw new Exception('修改订单信息失败!');
+					}
+					
+					// 修改总订单订单信息
+					$order_mod['order_status'] = 2;
+					$order_mod['pay_time'] = time();
+					$trade_sell_ids = ','.$trade_sell_ids.',';
+					if(!Db::name('order') -> where('trade_sell_ids',$trade_sell_ids) -> update($order_mod)){
+						throw new Exception('修改订单信息失败!');
+					}
+				}else{	// 判断是否为首款
+					// 修改单条订单状态
+					$order_mod['order_status'] = 2;
+					$order_mod['pay_time'] = time();
+					if(!Db::name('order') -> where('trade_sell_ids',$trade_sell_ids) -> update($order_mod)){
+						throw new Exception('修改订单信息失败!');
+					}
 				}
 				
 				// 判断用户打款时间(1.是否在8~12点打款;2.是否超过5个小时未打款;3.是否超过12个小时未打款)
@@ -614,12 +657,20 @@ class Index extends Base
 				if($time >= $thirteen_oclock && $time <= $tomorrow){
 					$this -> pay_timezone($trade_buy['class'],$data['trade_buy_id'],3);
 				}
+			}else{	// 支付单条订单
+				$order_id = Db::name('trade_sell') -> where('id',$data['id']) -> value('order_id');
+				$order_mod['order_status'] = 2;
+				$order_mod['pay_time'] = time();
+				if(!Db::name('order') -> where('id',$order_id) -> update($order_mod)){
+					throw new Exception('修改订单信息失败!');
+				}
 			}
 			
 			$condition = 1;
 			Db::commit();
 		}catch(\exception $e){
 			Db::rollback();
+			return ['code' => 0,'msg' => $e -> getMessage()];
 		}
 		
 		if($condition === 1){
@@ -727,7 +778,7 @@ class Index extends Base
 	 */
 	public function tradeDeal($data){
 		if(!$data['id']){
-			return ['code' => 0,'msg' => '未获取订单信息!'];
+			return ['code' => 0,'msg' => '未获取交易卖出信息!'];
 		}
 		if(!$data['trade_sell_ids']){
 			return ['code' => 0,'msg' => '未获取交易信息!'];
@@ -736,72 +787,98 @@ class Index extends Base
 		Db::startTrans();
 		$condition = 0;
 		try{
-			// 修改 买入交易 信息
-			$trade_buy_id = Db::name('order') -> where('id',$data['id']) -> value('trade_buy_id');	// 获取 交易买入ID
-			$buy_mod['buy_status'] = 3;
-			$buy_mod['end_time'] = time();
-			Db::name('trade_buy') -> where('id',$trade_buy_id) -> update($buy_mod);
+			// 获取 交易买入ID
+			$trade_buy_id = Db::name('order') -> where('id',$data['id']) -> value('trade_buy_id');
+			
+			// 修改 卖出交易 信息
+			$sell_mod['sell_status'] = 3;
+			$sell_mod['end_time'] = time();
+			$result = Db::name('trade_sell') -> where('id',$data['trade_sell_ids']) -> update($sell_mod);
+			if(!$result){
+				throw new Exception('修改卖出交易失败!');
+			}
 			
 			// 修改 订单
-			$trade_sell_ids = explode(',',$data['trade_sell_ids']);
-			foreach($trade_sell_ids as $k => $v){
-				// 修改 卖出交易 信息
-				$sell_mod['sell_status'] = 3;
-				$sell_mod['end_time'] = time();
-				$result = Db::name('trade_sell') -> where('id','LIKE',$v) -> update($sell_mod);
+			$class = Db::name('trade_buy') -> where('id',$trade_buy_id) -> value('class');
+			$order_mod['order_status'] = 3;
+			$order_mod['done_time'] = time();
+			if($class === 1){	// 判断首款时:修改 买入交易 信息&修改买入订单状态
+				// 修改 买入交易 信息
+				$buy_mod['buy_status'] = 3;
+				$buy_mod['end_time'] = time();
+				if(!Db::name('trade_buy') -> where('id',$trade_buy_id) -> update($buy_mod)){
+					throw new Exception('修改买入交易失败!');
+				}
 				
-				// 修改 订单 信息
-				$order_mod['order_status'] = 3;
-				$order_mod['done_time'] = time();
-				Db::name('order') -> where('trade_sell_ids','LIKE',$v) -> update($order_mod);
+				// 修改 买入订单状态
+				$buy_order_id = Db::name('trade_buy') -> where('id',$trade_buy_id) -> value('order_id');				// 获取买入对应订单ID
+				if(!Db::name('order') -> where('id',$buy_order_id) -> update($order_mod)){	// 修改买入对应的订单状态
+					throw new Exception('修改买入订单信息失败!');
+				}
+			}
+			$sell_order_id = Db::name('trade_sell') -> where('id',$data['trade_sell_ids']) -> value('order_id');	// 获取卖出对应订单ID
+			if(!Db::name('order') -> where('id',$sell_order_id) -> update($order_mod)){	// 修改卖出对应的订单状态
+				throw new Exception('修改卖出订单信息失败!');
 			}
 			
-			// 判断卖出的订单是否已经完成支付,如果完成,则修改买入的订单状态,并将静态奖金冻结
-			$order_buy_id = Db::name('order') -> where('trade_sell_ids',$data['trade_sell_ids']) -> value('trade_buy_id');	// 获取匹配的同一买入订单ID
-			$count_where['trade_buy_id'] = $order_buy_id;
-			$count_where['trade_type'] = 1;
-			$sell_order_count = Db::name('order') -> where($count_where) -> count();	// 获取卖出订单的总数
-			$status3_where['trade_buy_id'] = $order_buy_id;
-			$status3_where['order_status'] = 3;
-			$sell_order_status3_count = Db::name('order') -> where($status3_where) -> count();	// 获取卖出已确认订单的总数
-			// 判断如果卖出订单总数和已确认卖出订单总数相同则修改订单状态
-			if($sell_order_count === $sell_order_status3_count){
-				// 修改买入订单状态
-				$buy_where['trade_buy_id'] = $order_buy_id;
-				$buy_where['trade_type'] = 2;
-				$order_buy_mod['order_status'] = 3;
-				$order_buy_mod['done_time'] = time();
-				Db::name('order') -> where($buy_where) -> update($order_buy_mod);
-			}
-			
-			// 将 用户交易烧伤表中的相应数据 冻结
-			$burn = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%,'.$order_buy_id.',%') -> find();
-			$bonus_where['uid'] = $burn['uid'];
-			$bonus_where['bouns_type'] = 1;
-			Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',$burn['back_status_bonus']);
-			// 增加上一级用户烧伤
-			if($burn['one_number'] != 0){
-				$one_where['uid'] = $burn['one_id'];
-				$one_where['bouns_type'] = 1;
-				Db::name('user_bouns') -> where($one_where) -> setInc('frozen_bouns_number',$burn['one_number']);
-			}
-			// 增加上二级用户烧伤
-			if($burn['two_number'] != 0){
-				$two_where['uid'] = $burn['two_id'];
-				$two_where['bouns_type'] = 1;
-				Db::name('user_bouns') -> where($two_where) -> setInc('frozen_bouns_number',$burn['two_number']);
-			}
-			// 增加上三级用户烧伤
-			if($burn['three_number'] != 0){
-				$three_where['uid'] = $burn['three_id'];
-				$three_where['bouns_type'] = 1;
-				Db::name('user_bouns') -> where($three_where) -> setInc('frozen_bouns_number',$burn['two_number']);
+			// 判断是否确认的为最后一个订单，如果为最后一个订单则修改总订单状态和 买入交易 状态等
+			$single_where['order_status'] = 3;
+			$single_where['trade_buy_id'] = $trade_buy_id;
+			$single_count = Db::name('order') -> where($single_where) -> count();	// 获取已确认的订单总数
+			$complex_where['trade_buy_id'] = $trade_buy_id;
+			$complex_count = Db::name('order') -> where($complex_where) -> count();	// 获取该次匹配的订单总数
+			if(($complex_count-$single_count) === 1){
+				// 修改 买入交易 信息
+				$buy_mod['buy_status'] = 3;
+				$buy_mod['end_time'] = time();
+				if(!Db::name('trade_buy') -> where('id',$trade_buy_id) -> update($buy_mod)){
+					throw new Exception('修改买入交易失败!');
+				}
+				
+				// 修改总订单状态
+				$buy_order_id = Db::name('trade_buy') -> where('id',$trade_buy_id) -> value('order_id');				// 获取买入对应订单ID
+				if(!Db::name('order') -> where('id',$buy_order_id) -> update($order_mod)){	// 修改买入对应的订单状态
+					throw new Exception('修改买入订单信息失败!');
+				}
+				
+				// 将 用户交易烧伤表中的相应数据 冻结
+				$burn = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%,'.$trade_buy_id.',%') -> find();
+				$bonus_where['uid'] = $burn['uid'];
+				$bonus_where['bouns_type'] = 1;
+				if(!Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',$burn['back_status_bonus'])){
+					throw new Exception('冻结奖金失败!');
+				}
+				// 增加上一级用户烧伤
+				if($burn['one_number'] != 0){
+					$one_where['uid'] = $burn['one_id'];
+					$one_where['bouns_type'] = 1;
+					if(!Db::name('user_bouns') -> where($one_where) -> setInc('frozen_bouns_number',$burn['one_number'])){
+						throw new Exception('增加上一级用户奖金失败!');
+					}
+				}
+				// 增加上二级用户烧伤
+				if($burn['two_number'] != 0){
+					$two_where['uid'] = $burn['two_id'];
+					$two_where['bouns_type'] = 1;
+					if(!Db::name('user_bouns') -> where($two_where) -> setInc('frozen_bouns_number',$burn['two_number'])){
+						throw new Exception('增加上二级用户奖金失败!');
+					}
+				}
+				// 增加上三级用户烧伤
+				if($burn['three_number'] != 0){
+					$three_where['uid'] = $burn['three_id'];
+					$three_where['bouns_type'] = 1;
+					if(!Db::name('user_bouns') -> where($three_where) -> setInc('frozen_bouns_number',$burn['two_number'])){
+						throw new Exception('增加上三级用户奖金失败!');
+					}
+				}
 			}
 			
 			$condition = 1;
 			Db::commit();
-		}catch(\exception $e){
+		}catch(\Exception $e){
 			Db::rollback();
+			return ['code' => 0,'msg' => $e -> getMessage()];
 		}
 		
 		if($condition === 1){
@@ -813,5 +890,194 @@ class Index extends Base
 	}
 	
 	
+	
+	/**
+	 * 会员福利(上一层)
+	 * $uid				当前购买用户ID
+	 * $burn_id			当前用户对应的烧伤表(用户存储上层用户 ID和福利奖数量，10天冻结后可根据对应的ID和数量进行返福利)
+	 */
+	public function welfare($uid,$burn_id){
+		$myself = Db::name('user') -> where('id',$uid) -> value('level');	// 本人等级
+		$parent = Db::name('user_floor') -> where('left_uid|right_uid',$uid) -> find();	// 上层用户
+		$parent_info = Db::name('user') -> where('id',$parent['uid']) -> find();	// 上层用户信息
+		$time = time();
+		
+		// 用户奖金表条件
+		$bonus_where['uid'] = $parent['uid'];
+		$bonus_where['bouns_type'] = 3;
+		
+		if($parent){	// 判断用户是否有上层
+			// 判断上层用户的等级,并且本人的等级 小于 上层的等级
+			if($parent_info['level'] == 2 && $myself < $parent_info['level']){
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',2);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare1_id'] = $parent['uid'];
+				$burn_mod['welfare1_num'] = 2;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上一层用户福利奖金
+				$result = $this -> parent($parent['uid'],2,$burn_id);
+				
+			}elseif($parent_info['level'] == 3 && $myself < $parent_info['level']){
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',4);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare1_id'] = $parent['uid'];
+				$burn_mod['welfare1_num'] = 4;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上一层用户福利奖金
+				$result = $this -> parent($parent['uid'],3,$burn_id);
+				
+			}elseif($parent_info['level'] == 4 && $myself < $parent_info['level']){
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',6);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare1_id'] = $parent['uid'];
+				$burn_mod['welfare1_num'] = 6;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上一层用户福利奖金
+				$result = $this -> parent($parent['uid'],4,$burn_id);
+
+			}elseif($parent_info['level'] == 5 && $myself < $parent_info['level']){
+				// 本人的父级等级如果是5 那么代表着 本人直属 董事级管理 只给予董事级福利
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',10);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare1_id'] = $parent['uid'];
+				$burn_mod['welfare1_num'] = 10;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上一层用户福利奖金
+				
+			}else{
+				return array(0,'该会员的上级没有福利');
+			}
+		}else{
+			return array(0,'该会员没有上级');
+		}
+	}
+	/**
+	 * 查询上层(上二层)
+	 * $uid				是判断里面传过来的上层ID 通过这个uid查询这个上层的上层信息
+	 * $type			一个判断 参数:2县 3市 4省
+	 * $burn_id			当前用户对应的烧伤表(用户存储上层用户 ID和福利奖数量，10天冻结后可根据对应的ID和数量进行返福利)
+	 */
+	public function parent($uid,$type,$burn_id)
+	{
+		$myself = Db::name('user') -> where('id',$uid) -> value('level');	// 本人等级
+		$parent = Db::name('user_floor') -> where('left_uid|right_uid',$uid) -> find();	// 上层用户
+		$parent_info = Db::name('user') -> where('id',$parent['uid']) -> find();	// 上层用户信息
+		
+		// 用户奖金表条件
+		$bonus_where['uid'] = $parent['uid'];
+		$bonus_where['bouns_type'] = 3;
+		
+		if($type == 2){	// 县
+			if($myself < $parent_info['level']){
+				if($myself < $parent_info['level'] && $parent_info['level'] == 3){
+					Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',2); 	// 在用户奖金表中添加对应的福利奖数量
+					$burn_mod['welfare2_id'] = $parent['uid'];
+					$burn_mod['welfare2_num'] = 2;
+					Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上二层用户福利奖金
+					$this -> orther_cases($parent['uid'],3,$burn_id);	// 传入上层用户的uid
+					
+				}elseif($myself < $parent_info['level'] && $parent_info['level'] == 4){
+					Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',4);	// 在用户奖金表中添加对应的福利奖数量
+					$burn_mod['welfare2_id'] = $parent['uid'];
+					$burn_mod['welfare2_num'] = 4;
+					Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上二层用户福利奖金
+					$result = $this -> orther_cases($parent['uid'],4,$burn_id);	// 传入上层用户的uid
+					
+				}elseif($myself < $parent_info['level'] && $parent_info['level'] == 5){
+					Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',8);	// 在用户奖金表中添加对应的福利奖数量
+					$burn_mod['welfare2_id'] = $parent['uid'];
+					$burn_mod['welfare2_num'] = 8;
+					Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上二层用户福利奖金
+					
+				}else{
+					return array(0,'该会员没有上级');
+				}
+			}
+		}elseif($type == 3) {	// 市
+			if($myself < $parent_info['level'] && $parent_info['level'] == 4){
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',2);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare2_id'] = $parent['uid'];
+				$burn_mod['welfare2_num'] = 2;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上二层用户福利奖金
+				$this -> orther_cases($parent['uid'],4,$burn_id);
+				
+			}elseif($myself < $parent_info['level'] && $parent_info['level'] == 5){
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',6);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare2_id'] = $parent['uid'];
+				$burn_mod['welfare2_num'] = 6;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上二层用户福利奖金
+				
+			}else{
+				return array(0,'该会员没有上级');
+			}
+		}elseif($type == 4){	// 省
+			if($myself < $parent_info['level']){
+				// 如果我的等级 小于 上层等级 必定等于5 如果不等于五就到头了
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',4);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare2_id'] = $parent['uid'];
+				$burn_mod['welfare2_num'] = 4;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上二层用户福利奖金
+			}else{
+				return array(0,'该会员没有上级');
+			}
+		}
+	}
+	/**
+	 * 查询上级(上三层)
+	 * $uid				是判断里面传过来的上层ID 通过这个uid查询这个上层的上层信息
+	 * $type			一个判断 参数:2县 3市 4省
+	 * $burn_id			当前用户对应的烧伤表(用户存储上层用户 ID和福利奖数量，10天冻结后可根据对应的ID和数量进行返福利)
+	 */
+	public function orther_cases($uid,$type,$burn_id){
+		$myself = Db::name('user') -> where('id',$uid) -> value('level');	// 本人等级
+		$parent = Db::name('user_floor') -> where('left_uid|right_uid',$uid) -> find();	// 上层用户
+		$parent_info = Db::name('user') -> where('id',$parent['uid']) -> find();	// 上层用户信息
+		
+		// 用户奖金表条件
+		$bonus_where['uid'] = $parent['uid'];
+		$bonus_where['bouns_type'] = 3;
+		
+		if($type == 3){	// 市
+			if($myself < $parent_info['level'] && $parent_info['level'] == 4){
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',2);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare3_id'] = $parent['uid'];
+				$burn_mod['welfare3_num'] = 2;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上三层用户福利奖金
+				$this -> orther_data($parent['uid'],$burn_id);
+			}elseif($myself < $parent_info['level'] && $parent_info['level'] == 5){
+				Db::name('user_bouns') -> where($bonus_where) -> setInc('frozen_bouns_number',6);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare3_id'] = $parent['uid'];
+				$burn_mod['welfare3_num'] = 6;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上三层用户福利奖金
+			}else{
+				return array(0,'该会员没有上级');
+			}
+		}else{
+			if($myself < $parent_info['level']){
+				// 如果我的等级 小于 上级等级
+				$parent_where['uid'] = $parent_info['id'];
+				$parent_where['bouns_type'] = 3;
+				Db::name('user_bouns') -> where($parent_where) -> setInc('frozen_bouns_number',4);	// 在用户奖金表中添加对应的福利奖数量
+				$burn_mod['welfare3_id'] = $parent['uid'];
+				$burn_mod['welfare3_num'] = 4;
+				Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上三层用户福利奖金
+			}
+		}
+	}
+	/**
+	 * 查询上级(上四层)
+	 * $uid			是判断里面传过来的上层ID 通过这个uid查询这个上层的上层信息
+	 * $burn_id		当前用户对应的烧伤表(用户存储上层用户 ID和福利奖数量，10天冻结后可根据对应的ID和数量进行返福利)
+	 */
+	  public function orther_data($uid,$burn_id)
+	  {
+	  	$myself = Db::name('user') -> where('id',$uid) -> value('level');	// 本人等级
+		$parent = Db::name('user_floor') -> where('left_uid|right_uid',$uid) -> find();	// 上层用户
+		$parent_info = Db::name('user') -> where('id',$parent['uid']) -> find();	// 上层用户信息
+		
+		if($myself < $parent_info['level']){
+			//如果我的等级 小于 上级等级
+			$parent_where['uid'] = $parent_info['id'];
+			$parent_where['bouns_type'] = 3;
+			Db::name('user_bouns') -> where($parent_where) -> setInc('frozen_bouns_number',4);	// 在用户奖金表中添加对应的福利奖数量
+			$burn_mod['welfare4_id'] = $parent['uid'];
+			$burn_mod['welfare4_num'] = 4;
+			Db::name('trade_burn') -> where('id',$burn_id) -> update($burn_mod);	// 在 用户烧伤表 中修改上三层用户福利奖金
+		}else{
+			return array(0,'该会员没有上级');
+		}
+	 }
 	
 }
