@@ -32,11 +32,11 @@
             <input type="hidden" id="gid" value="{$goods_detail.gid}">
             <div class="goods_price">
                 售价：
-                <label class="red">{$goods_detail.price}</label>
-                <small class="red">消费券</small>
+                <label class="red">{if condition = "$goods_detail.area_type eq 1"}1{else}{$goods_detail.original_price}{/if}</label>
+                <small class="red">{if condition = "$goods_detail.area_type eq 1"}张_优惠券{else}消费券{/if}</small>
                 <s>
-                    <span>{$goods_detail.original_price}</span>
-                    <span>消费券</span>
+                    <span>{if condition = "$goods_detail.area_type eq 1"}{else}{$goods_detail.original_price}{/if}</span>
+                    <span>{if condition = "$goods_detail.area_type eq 1"}{else}消费券{/if}</span>
                 </s>
             </div>
             <div class="goods_num">

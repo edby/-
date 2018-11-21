@@ -239,26 +239,35 @@ class Index extends Base
     	$order = Db::name('order') -> where($order_where) -> select();
     	foreach($order as $k => $v){
     		// 判断是否超过12个小时
-    		$actual = $time - $order['create_time'];
+    		$actual = $time - $v['create_time'];
     		if($actual >= $twelve){
 				// 修改 买家状态为 封号
-				Db::name('user') -> where('id',$order['buyer_id']) -> update(['status' => 3]);
+				Db::name('user') -> where('id',$v['buyer_id']) -> update(['status' => 3]);
 				// 修改 买单信息为 已取消
-				Db::name('trade_buy') -> where('id',$v['trade_buy_id']) -> update(['buy_status' => 5]);
+				$buy_mod['buy_status'] = 5;
+				$buy_mod['trade_sell_ids'] = '';
+				$buy_mod['order_id'] = '';
+				$buy_mod['matching'] = 3;
+				Db::name('trade_buy') -> where('id',$v['trade_buy_id']) -> update($buy_mod);
 				// 修改 用户交易烧伤记录表 中状态为 已取消
 				$burn_buy_id = ','.$v['trade_buy_id'].',';
 				Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$burn_buy_id.'%') -> update(['status' => 2]);
 				// 修改 卖家信息设置为重新匹配
 				$sell_mod['trade_buy_id'] = '';
 				$sell_mod['matching'] = 1;
-				$trade_sell_ids = explode(',',$v['trade_sell_ids']);
-				foreach($trade_sell_ids as $sell_k => $sell_v){
-					Db::name('trade_sell') -> where('id',$sell_v) -> update($sell_mod);
+				$sell_mod['order_id'] = '';
+				$v['trade_sell_ids'] = trim($v['trade_sell_ids'],',');
+				if(strpos($v['trade_sell_ids'],',')){
+					$trade_sell_ids = explode(',',$v['trade_sell_ids']);
+					foreach($trade_sell_ids as $sell_k => $sell_v){
+						Db::name('trade_sell') -> where('id',$sell_v) -> update($sell_mod);
+					}
+				}else{
+					Db::name('trade_sell') -> where('id',$v['trade_sell_ids']) -> update($sell_mod);
 				}
 				// 修改 订单状态为 已取消
 				Db::name('order') -> where('trade_buy_id',$v['trade_buy_id']) -> update(['order_status' => 5]);
 			}
-			
 		}
     }
     
@@ -271,20 +280,40 @@ class Index extends Base
     	// 获取订单状态为 已支付 的数据
     	$order_where['order_status'] = 2;
     	$order_where['trade_type'] = 2;
-    	$order_where['pay_time'] = array('neq',null);
+    	$order_where['pay_time'] = array('neq','');
     	$order = Db::name('order') -> where($order_where) -> select();
     	foreach($order as $k => $v){
     		// 判断是否超过5个小时
-    		$actual = $time - $order['pay_time'];
+    		$actual = $time - $v['pay_time'];
     		if($actual >= $five){
     			// 执行确认订单
-    			$data['id'] = $v['id'];
-    			$data['trade_sell_ids'] = $v['trade_sell_ids'];
-    			model('Index') -> tradeDeal($data);
+    			$sell_ids = trim($v['trade_sell_ids'],',');
+    			if(strpos($sell_ids,',')){
+    				$trade_sell_ids = explode(',',$sell_ids);
+    				foreach($trade_sell_ids as $sell_k => $sell_v){
+    					$data['id'] = Db::name('trade_sell') -> where('id',$sell_v) -> value('order_id');
+    					$data['trade_sell_ids'] = $sell_v;
+    					model('Index') -> tradeDeal($data);
+    				}
+				}
+				if(strpos($sell_ids,',') === false){
+					$data['id'] = Db::name('trade_sell') -> where('id',$sell_ids) -> value('order_id');
+					$data['trade_sell_ids'] = $sell_ids;
+					model('Index') -> tradeDeal($data);
+				}
+				
     			// 记录卖家惩罚信息
-    			$seller_ids = explode(',',$v['seller_ids']);
-    			foreach($seller_ids as $seller_k => $seller_v){
-    				Db::name('user_bouns') -> where('uid',$seller_v) -> update(['next_trade_condition' => 1]);
+    			if(strpos($v['seller_ids'],',')){
+    				$seller_ids = explode(',',$v['seller_ids']);
+		  			foreach($seller_ids as $seller_k => $seller_v){
+		  				$bouns_where['uid'] = $seller_v;
+    					$bouns_where['bouns_type'] = 1;
+		  				Db::name('user_bouns') -> where($bouns_where) -> update(['next_trade_condition' => 1]);
+		  			}
+    			}else{
+    				$bouns_where['uid'] = $v['seller_ids'];
+    				$bouns_where['bouns_type'] = 1;
+    				Db::name('user_bouns') -> where($bouns_where) -> update(['next_trade_condition' => 1]);
     			}
     		}
     	}
@@ -298,16 +327,15 @@ class Index extends Base
     	$ten_day = $beginToday - 60*60*24*10;	// 10天前的00:00:00点时间戳
     	
     	// 获取烧伤表中未解冻的数据
-    	$burn_where['status'] = array('neq',2);
-    	$burn_where['start_timezone'] = array('neq',null);
-    	$burn_where['end_timezone'] = array('neq',null);
-    	$burn_where['create_time'] = array('<=',$ten_day);
+    	$burn_where['status'] = array('eq',1);
+    	$burn_where['start_timezone'] = array('neq','');
+    	$burn_where['end_timezone'] = array('neq','');
+    	$burn_where['pay_time'] = array('<=',$ten_day);
     	$burn = Db::name('trade_burn') -> where($burn_where) -> select();
     	foreach($burn as $k => $v){
     		// 修改用户冻结的静态奖金
-    		$this -> back_bonus($v['uid'],1,$v['frozen_bouns_number']);	// 静态奖
-    		$this -> back_bonus($v['uid'],2,$v['frozen_bouns_number']);	// 动态奖
-    		
+    		$this -> back_bonus($v['uid'],1,$v['back_status_bonus']);	// 静态奖
+    		$this -> back_bonus($v['uid'],2,$v['back_status_bonus']);	// 动态奖
     		// 修改上一级用户烧伤(动态)
 			if($v['one_number'] != 0){
     			$this -> back_bonus($v['one_id'],2,$v['one_number']);	// 动态奖
@@ -337,6 +365,9 @@ class Index extends Base
 			if($burn['welfare4_id']){
 				$this -> back_bonus($burn['welfare4_id'],3,$burn['welfare4_num']);
 			}
+			
+			// 修改烧伤表状态为 已返款
+			Db::name('trade_burn') -> where('id',$v['id']) -> update(['status' => 3]);
     	}
     }
     // 执行返奖金

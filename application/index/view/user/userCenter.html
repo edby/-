@@ -86,10 +86,32 @@
             <small class="vip_rank">
                 我的会员等级：
                 <small>
-                    省代
-                    <img src="__IMG__/moon.png">
-                    <img src="__IMG__/moon.png">
-                    <img src="__IMG__/moon.png">
+                    {switch name = "$user_info.level"}
+                        {case value = "1"}
+                            普通会员
+                        {/case}
+                        {case value = "2"}
+                            县代
+                            <img src="__IMG__/moon.png">
+                        {/case}
+                        {case value = "3"}
+                            市代
+                            <img src="__IMG__/moon.png">
+                            <img src="__IMG__/moon.png">
+                        {/case}
+                        {case value = "4"}
+                            省代
+                            <img src="__IMG__/moon.png">
+                            <img src="__IMG__/moon.png">
+                            <img src="__IMG__/moon.png">
+                        {/case}
+                        {case value = "5"}
+                            董事
+                            <img src="__IMG__/sun.png">
+                        {/case}
+                        {default}
+                            普通会员
+                    {/switch}
                 </small>
             </small>
         </div>

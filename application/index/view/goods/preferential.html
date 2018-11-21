@@ -15,13 +15,14 @@
     <div class="container">
         {volist name="preferential" id="goods" key="key"}
 		    <div class="show3 col-md-4">
-		        <a href="detail?id={$goods.id}"><img src="{$goods.detail_pic}"></a>
+		        <a href="detail?id={$goods.id}"><img src="{$goods.detail_pic}">
 		        <div class="buyBox">
 		            <div>
-		                <p>售价：<span>{$goods.price}</span> <span>消费券</span></p>
+		                <p>售价：<span style="color: red">1</span> <span>优惠券</span></p>
 		            </div>
 		            <button type="button" >立即购买</button>
 		        </div>
+                </a>
 		    </div>
         {/volist}
     </div>

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\classify.html";i:1541754659;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:73:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\classify.html";i:1542771456;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -112,18 +112,6 @@
 
     <!--分类列表-->
     <div class="headline">
-        <!--<ul class="all-sale">
-            <li><a href="#">生活/办公</a></li>
-            <li><a href="#">数码/手机</a></li>
-            <li><a href="#">食品/百货</a></li>
-            <li><a href="#" class="red">烟酒/副食</a></li>
-            <li><a href="#">鞋靴/箱包</a></li>
-            <li><a href="#">男装/女装</a></li>
-            <li><a href="#">工具/五金</a></li>
-            <li><a href="#">眼镜/手表</a></li>
-            <li><a href="#">美妆/洗护</a></li>
-            <li><a href="#" style="font-weight: 600;">...</a></li>
-        </ul>-->
     	<ul class="all-sale">
 	        <?php if(is_array($classify) || $classify instanceof \think\Collection || $classify instanceof \think\Paginator): $$key = 0; $__LIST__ = $classify;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$classify): $mod = ($$key % 2 );++$$key;?>
 	    		<li><a href = "classify?classify=<?php echo $classify['id']; ?>"><?php echo $classify['name']; ?></a></li>
@@ -144,21 +132,11 @@
 		            <button type="button" >立即购买</button>
 		        </div>
 		    </div>
-        
+
         <?php endforeach; endif; else: echo "" ;endif; ?>
     </div>
    <center> <?php echo $pages; ?>  </center>
-    <!--分页-->
-    <!--<ul class="page">
-        <li><a href="#"><</a></li>
-        <li><a href="#">1</a></li>
-        <li><a href="#">2</a></li>
-        <li><a href="#">3</a></li>
-        <li><a href="#">4</a></li>
-        <li><a href="#">5</a></li>
-        <li><a href="#">...</a></li>
-        <li><a href="#">></a></li>
-    </ul>-->
+
 </main>
 
 <script type="text/javascript" src="/static/ace/js/jquery.min.js" ></script>

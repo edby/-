@@ -179,34 +179,41 @@ $('input[type="checkbox"]').on('change',function(){
 
 // 提交绑定
 function sub_bind(){
+	var lock = false; 	// 默认未锁定
 	layer.confirm('确定要匹配交易吗?',{
 		btn: ['确定','关闭']
 	},function(){
-		var trade_sell_ids = '';
-		$.each($('input:checkbox:checked'),function(){
-			trade_sell_ids += $(this).attr('data-id')+',';
-		});
-		var data = {
-			trade_buy_id:$('input[name="trade_buy_id"]').val(),
-			number:$('#number').html(),
-			need_number:$('#need_number').html(),
-			trade_sell_ids:trade_sell_ids,
-		}
-		
-		$.ajax({
-			type:'post',
-			url:'{:url("do_bind")}',
-			data:data,
-			success:function(ret){
-				if(ret.code === 0){
-					layer.msg(ret.msg);
-				}else{
-					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
-						location.href = ret.url;
-					})
-				}
+		if(!lock){
+			lock = true;	// 锁定
+			var trade_sell_ids = '';
+			$.each($('input:checkbox:checked'),function(){
+				trade_sell_ids += $(this).attr('data-id')+',';
+			});
+			var data = {
+				trade_buy_id:$('input[name="trade_buy_id"]').val(),
+				number:$('#number').html(),
+				need_number:$('#need_number').html(),
+				trade_sell_ids:trade_sell_ids,
 			}
-		});
+			
+			$.ajax({
+				type:'post',
+				url:'{:url("do_bind")}',
+				data:data,
+				success:function(ret){
+					if(ret.code === 0){
+						layer.msg(ret.msg);
+					}else{
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						})
+					}
+				}
+			});
+		}
+		layer.close(myconfirm);
+	},function(){
+		layer.close(myconfirm);
 	});
 }
 </script>

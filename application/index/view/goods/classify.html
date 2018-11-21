@@ -5,18 +5,6 @@
 
     <!--分类列表-->
     <div class="headline">
-        <!--<ul class="all-sale">
-            <li><a href="#">生活/办公</a></li>
-            <li><a href="#">数码/手机</a></li>
-            <li><a href="#">食品/百货</a></li>
-            <li><a href="#" class="red">烟酒/副食</a></li>
-            <li><a href="#">鞋靴/箱包</a></li>
-            <li><a href="#">男装/女装</a></li>
-            <li><a href="#">工具/五金</a></li>
-            <li><a href="#">眼镜/手表</a></li>
-            <li><a href="#">美妆/洗护</a></li>
-            <li><a href="#" style="font-weight: 600;">...</a></li>
-        </ul>-->
     	<ul class="all-sale">
 	        {volist name="classify" id="classify" key="$key"}
 	    		<li><a href = "classify?classify={$classify.id}">{$classify.name}</a></li>
@@ -37,21 +25,11 @@
 		            <button type="button" >立即购买</button>
 		        </div>
 		    </div>
-        
+
         {/volist}
     </div>
    <center> {$pages}  </center>
-    <!--分页-->
-    <!--<ul class="page">
-        <li><a href="#"><</a></li>
-        <li><a href="#">1</a></li>
-        <li><a href="#">2</a></li>
-        <li><a href="#">3</a></li>
-        <li><a href="#">4</a></li>
-        <li><a href="#">5</a></li>
-        <li><a href="#">...</a></li>
-        <li><a href="#">></a></li>
-    </ul>-->
+
 </main>
 
 <script type="text/javascript" src="__JS__/jquery.min.js" ></script>

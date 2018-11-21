@@ -5,6 +5,7 @@ use app\common\controller\Base;
 use think\Db;
 use think\Request;
 use think\Session;
+use think\Exception;
 
 class User extends Base
 {
@@ -108,7 +109,7 @@ class User extends Base
 		];
 		$user_active = Db::name('user_vou')->where(['uid'=>$_SESSION['think']['uid'],'vid'=>4])->find();
 //		检查用户激活券状态
-		if(!($user_active && $user_active['number'] >1)){
+		if(!($user_active && $user_active['number'] >0)){
 			$r = [
 				'code'=>-1,
 				'msg'=>'用户激活券不足2张',
@@ -120,7 +121,7 @@ class User extends Base
 			$user_info = Db::name('user')->where(['id'=>$_SESSION['think']['uid']])->find();
 //		用户为三类封号
 			if($user_info['status'] != 3){
-				throw new Exception('非封号类禁用!激活失败');
+				throw new Exception('非封号类禁用!请联系上级进行激活');
 			}
 			if(!Db::name('user')->where(['id'=>$_SESSION['think']['uid']])->update(['status'=>1])){
 				throw new Exception("修改用户状态失败");
@@ -161,8 +162,6 @@ class User extends Base
 	 * controller 点击提现
 	 */
 	public function do_withdraw(){
-//		print_r($_POST);
-//		exit();
 		if(Request::instance() -> isPost()){
 			return json(model('User') -> doWithdraw(input('post.')));
 		}

@@ -169,19 +169,22 @@ class Index extends Base
 				// 判断当付款条件为 尾款 时设置条件为 首款 支付后的 3~5 天之间可付尾款
 				if($v['class'] === 2){
 					// 获取同一用户同一笔交易中关联的ID
-					$same_user_orders = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.','.$v['trade_buy_id'].','.'%') -> value('trade_buy_ids');
-					$trade_class_1_order_id = Db::name('trade_buy') -> where('id','in',$same_user_orders) -> value('order_id');	// 查询同一用户同一笔交易中 首款 的对应 order 表中的ID
+					$same_user_orders = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%,'.$v['trade_buy_id'].',%') -> value('trade_buy_ids');
+					$same_user_orders = trim($same_user_orders,',');
+					$class1_where['id'] = array('in',$same_user_orders);
+					$class1_where['class'] = 1;
+					$trade_class_1_order_id = Db::name('trade_buy') -> where($class1_where) -> value('order_id');	// 查询同一用户同一笔交易中 首款 的对应 order 表中的ID
 					$order_class_1_pay = Db::name('order') -> where('id',$trade_class_1_order_id) -> value('pay_time');	// 获取同一用户同一笔交易中 首款 支付的时间
 					// 如果用户是否已付首款
 					if($order_class_1_pay){	// 已付
 						// 判断尾款的可付款日期
 						$time = time();
-						$order[$k]['start_can_pay'] = $order_class_1_pay + 60*3;	// 3天
-						$order[$k]['end_can_pay'] = $order_class_1_pay + 60*60*5;	// 5天
+						$order[$k]['start_can_pay'] = $order_class_1_pay + 60;	// 3天
+						$order[$k]['end_can_pay'] = $order_class_1_pay + 60*30;	// 5天
 						if($time < $order[$k]['start_can_pay']){	// 判断用户付款后 3 天之内的提示(不可点击)
 							$order[$k]['detail_text'] = '未到付款时间';
 						}else{
-							if($time > $order[$k]['end_can_pay']){	// 判断用户是否已过 5 天的付款日期(不可点击)
+							if($time > $order[$k]['end_can_pay'] && $order[$k]['order_status'] === 1){	// 判断用户是否已过 5 天的付款日期(不可点击)
 								$order[$k]['detail_text'] = '已过付款时间';
 							}else{	// 可付款(可点击)
 								$order[$k]['detail_text'] = '详情';
@@ -359,7 +362,7 @@ class Index extends Base
 			}
 			$trade_burn_one_mod['one_id'] = $one_id;
 			$trade_burn_one_where['id'] = $trade_burn_id;
-			Db::name('trade_burn') -> where($trade_burn_one_where) -> update($trade_burn_one_mod);
+			Db::name('trade_burn') -> where($trade_burn_one_where) -> update($trade_burn_one_mod);	// 在烧伤表中记录上一级用户的烧伤动态奖
 			
 			// 上二级用户
 			$two_id = Db::name('user') -> where('id',$one_id) -> value('parent_id');	// 获取上二级用户ID
@@ -375,7 +378,7 @@ class Index extends Base
 				}
 				$trade_burn_two_mod['two_id'] = $two_id;
 				$trade_burn_two_where['id'] = $trade_burn_id;
-				Db::name('trade_burn') -> where($trade_burn_two_where) -> update($trade_burn_two_mod);
+				Db::name('trade_burn') -> where($trade_burn_two_where) -> update($trade_burn_two_mod);	// 在烧伤表中记录上二级用户的烧伤动态奖
 				
 				// 上三级用户
 				$three_id = Db::name('user') -> where('id',$two_id) -> value('parent_id');	// 获取上三级用户ID
@@ -391,7 +394,7 @@ class Index extends Base
 					}
 					$trade_burn_three_mod['three_id'] = $three_id;
 					$trade_burn_three_where['id'] = $trade_burn_id;
-					Db::name('trade_burn') -> where($trade_burn_three_where) -> update($trade_burn_three_mod);
+					Db::name('trade_burn') -> where($trade_burn_three_where) -> update($trade_burn_three_mod);	// 在烧伤表中记录上二级用户的烧伤动态奖
 				}
 			}
  		}
@@ -409,7 +412,7 @@ class Index extends Base
 			if($loop <= 7){
 				$invite = Db::name('user') -> where('parent_id',$user_floor['uid']) -> count();	// 计算用户邀请人数
 				if($invite != 0){
-					$frozen = $number * 0.0005;
+					$frozen = $number * 0.005;
 					$user_bouns_where['uid'] = $user_floor['uid'];
 					$user_bouns_where['bouns_type'] = 2;
 					Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$frozen);
@@ -467,7 +470,7 @@ class Index extends Base
 	 * 7人以上通过判断返见点奖
 	 */
 	public function loop($number,$uid){
-		$frozen = $number * 0.0005;
+		$frozen = $number * 0.005;
 		$user_bouns_where['uid'] = $uid;
 		$user_bouns_where['bouns_type'] = 2;
 		Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$frozen);
@@ -505,6 +508,9 @@ class Index extends Base
 		
 		// 获取匹配订单信息
 		$order = Db::name('order') -> where('id',$id) -> find();
+		if($order['buyer_id'] != session('uid')){
+			echo '<script type="text/javascript">alert("非本人信息!");window.location.href="/index"</script>';
+		}
 		
 		// 订单状态
 		$dict_where['type'] = 'trade_status';
@@ -590,6 +596,7 @@ class Index extends Base
 			$sell_mod['sell_status'] = 2;
 			$sell_mod['pay_pic'] = $data['pay_pic'];
 			$sell_mod['pay_type'] = $data['type'];
+			$sell_mod['pay_time'] = time();
 			if(!Db::name('trade_sell') -> where('id',$data['id']) -> update($sell_mod)){
 				throw new Exception('修改交易卖出信息失败!');
 			}
@@ -600,7 +607,6 @@ class Index extends Base
 			$sell_pay_count_where['id'] = array('in',$sell_ids);
 			$sell_pay_count_where['pay_type'] = array('neq',null);
 			$sell_pay_count = Db::name('trade_sell') -> where('id','in',$sell_ids) -> where('pay_type<>0') -> count();
-			
 			// 判断支付多条订单的最后一条
 			if($sell_pay_count === $sell_count){
 				// 修改 交易买入信息
@@ -626,11 +632,26 @@ class Index extends Base
 					if(!Db::name('order') -> where('trade_sell_ids',$trade_sell_ids) -> update($order_mod)){
 						throw new Exception('修改订单信息失败!');
 					}
+					
+					// 修改烧伤表中的信息
+					$trade_buy_id = Db::name('order') -> where('trade_sell_ids',$trade_sell_ids) -> value('trade_buy_id');
+					$trade_buy_id = ','.$trade_buy_id.',';
+					$pay_time = time();
+					if(!Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> update(['pay_time' => $pay_time])){
+						throw new Exception('修改烧伤表信息失败!');
+					}
+					
+					// 执行返上三级用户的 领导奖[动态奖]
+					$this -> back_up_burn($trade_buy_id);
+					
 				}else{	// 判断是否为首款
 					// 修改单条订单状态
 					$order_mod['order_status'] = 2;
 					$order_mod['pay_time'] = time();
-					if(!Db::name('order') -> where('trade_sell_ids',$trade_sell_ids) -> update($order_mod)){
+					if(!Db::name('order') -> where('trade_sell_ids',$trade_sell_ids) -> update($order_mod)){	// 出售
+						throw new Exception('修改订单信息失败!');
+					}
+					if(!Db::name('order') -> where('trade_sell_ids',','.$trade_sell_ids.',') -> update($order_mod)){	// 求购
 						throw new Exception('修改订单信息失败!');
 					}
 				}
@@ -680,6 +701,39 @@ class Index extends Base
 		}
 	}
 	
+	// 执行返上三级用户的 领导奖[动态奖]
+	public function back_up_burn($trade_buy_id){
+		$burn = Db::name('trade_burn') -> where('trade_buy_ids','LIKE','%'.$trade_buy_id.'%') -> find();
+		
+		// 上一级用户
+		$one_id = Db::name('user') -> where('id',$burn['uid']) -> value('parent_id');	// 获取上一级用户ID
+		if($one_id){
+			$one = Db::name('user') -> where('id',$one_id) -> find();	// 查询上一级用户信息
+			$one_user_where['uid'] = $one['id'];
+			$one_user_where['bouns_type'] = 2;
+			Db::name('user_bouns') -> where($one_user_where) -> setInc('frozen_bouns_number',$burn['one_number']);	// 在用户奖金表中增加上一级用户的烧伤动态奖
+			
+			// 上二级用户
+			$two_id = Db::name('user') -> where('id',$one_id) -> value('parent_id');	// 获取上二级用户ID
+			
+			if($two_id){
+				$two = Db::name('user') -> where('id',$two_id) -> find();	// 查询上二级用户信息
+				$two_user_where['uid'] = $two['id'];
+				$two_user_where['bouns_type'] = 2;
+				Db::name('user_bouns') -> where($two_user_where) -> setInc('frozen_bouns_number',$burn['two_number']);	// 在用户奖金表中增加上二级用户的烧伤动态奖
+				
+				// 上三级用户
+				$three_id = Db::name('user') -> where('id',$two_id) -> value('parent_id');	// 获取上三级用户ID
+				if($three_id){
+					$three = Db::name('user') -> where('id',$three_id) -> find();	// 查询上三级用户信息
+					$three_user_where['uid'] = $three['id'];
+					$three_user_where['bouns_type'] = 2;
+					Db::name('user_bouns') -> where($three_user_where) -> setInc('frozen_bouns_number',$burn['three_number']);	// 在用户奖金表中增加上三级用户的烧伤动态奖
+				}
+			}
+		}
+	}
+	
 	/**
 	 * 根据用户的支付时间判断奖惩
 	 */
@@ -721,6 +775,9 @@ class Index extends Base
 		
 		// 获取匹配订单信息
 		$order = Db::name('order') -> where('id',$id) -> find();
+		if(session('uid') != $order['seller_ids']){
+			echo '<script type="text/javascript">alert("非本人信息!");window.location.href="/index"</script>';
+		}
 		
 		// 订单状态
 		$dict_where['type'] = 'trade_status';

@@ -21,10 +21,13 @@ class Shop extends Base
 	 */
 	public function classList(){
 		$list = Db::name('goods_classify') -> select();
+		$count = Db::name('goods_classify') -> count();
 		foreach($list as $k => $v){
 			$list[$k]['create_time'] = date('Y-m-d H:i:s',$v['create_time']);
 		}
-		return $list;
+		$return['list'] = $list;
+		$return['count'] = $count;
+		return $return;
 	}
 	
 	/**
@@ -214,6 +217,9 @@ class Shop extends Base
 	    		$data['cid'] = $data['class_id'];
 	    		$data['gid'] = $goods_id;
 	    		$data['create_time'] = time();
+	    		if($area == 1){
+	    			$data['status'] = 3;
+			    }
 	    		if($data['picture']){
 	    			$pics_num = count($data['picture']);
 	    			for($i=0;$i<$pics_num;$i++){

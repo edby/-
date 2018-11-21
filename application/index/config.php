@@ -11,6 +11,7 @@ return array(
         '__EDITOR__' => '/static/ueditor',
         '__LAYUI__' => '/static/layui',
  		'__ICONFONT__' => '/static/ace/iconfont',
+ 		'__ZTREE__'	=> '/static/zTree_v3',
     ],
     'HUOBI' => 'https://api.huobipro.com'
 );

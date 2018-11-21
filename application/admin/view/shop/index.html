@@ -26,7 +26,7 @@
       </div>
       <div class="page-content">
         <div class="page-header">
-          <h1> {$pagename} <small> <i class="ace-icon fa fa-angle-double-right"></i> 共有{$list.count}种分类 </small></h1>
+          <h1> {$pagename} <small> <i class="ace-icon fa fa-angle-double-right"></i> 共有{$class.count}种分类 </small></h1>
         </div>
         <!-- /.page-header -->
         <div class="row">
@@ -49,7 +49,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {volist name="class" id="vo" key="k"}
+                    {volist name="class.list" id="vo" key="k"}
                       <tr>
                         <td> {$k}</td>
                         <td> {$vo.name}</td>

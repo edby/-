@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1542444874;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:71:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\detail.html";i:1542769264;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -113,11 +113,11 @@
             <input type="hidden" id="gid" value="<?php echo $goods_detail['gid']; ?>">
             <div class="goods_price">
                 售价：
-                <label class="red"><?php echo $goods_detail['price']; ?></label>
-                <small class="red">消费券</small>
+                <label class="red"><?php if($goods_detail['area_type'] == 1): ?>1<?php else: ?><?php echo $goods_detail['original_price']; endif; ?></label>
+                <small class="red"><?php if($goods_detail['area_type'] == 1): ?>张_优惠券<?php else: ?>消费券<?php endif; ?></small>
                 <s>
-                    <span><?php echo $goods_detail['original_price']; ?></span>
-                    <span>消费券</span>
+                    <span><?php if($goods_detail['area_type'] == 1): else: ?><?php echo $goods_detail['original_price']; endif; ?></span>
+                    <span><?php if($goods_detail['area_type'] == 1): else: ?>消费券<?php endif; ?></span>
                 </s>
             </div>
             <div class="goods_num">

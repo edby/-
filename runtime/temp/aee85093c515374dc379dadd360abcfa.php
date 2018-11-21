@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:77:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\preferential.html";i:1542013994;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:77:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\preferential.html";i:1542769386;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -122,13 +122,14 @@
     <div class="container">
         <?php if(is_array($preferential) || $preferential instanceof \think\Collection || $preferential instanceof \think\Paginator): $key = 0; $__LIST__ = $preferential;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$goods): $mod = ($key % 2 );++$key;?>
 		    <div class="show3 col-md-4">
-		        <a href="detail?id=<?php echo $goods['id']; ?>"><img src="<?php echo $goods['detail_pic']; ?>"></a>
+		        <a href="detail?id=<?php echo $goods['id']; ?>"><img src="<?php echo $goods['detail_pic']; ?>">
 		        <div class="buyBox">
 		            <div>
-		                <p>售价：<span><?php echo $goods['price']; ?></span> <span>消费券</span></p>
+		                <p>售价：<span style="color: red">1</span> <span>优惠券</span></p>
 		            </div>
-		            <button type="button" >立即购买</button>
+		            <button type="button"  >立即购买</button>
 		        </div>
+                </a>
 		    </div>
         <?php endforeach; endif; else: echo "" ;endif; ?>
     </div>

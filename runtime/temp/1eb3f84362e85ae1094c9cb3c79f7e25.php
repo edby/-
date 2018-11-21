@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\enter.html";i:1542599899;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542013201;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:70:"D:\phpStudy\WWW\zcgj\public/../application/index\view\goods\enter.html";i:1542788490;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\banner.html";i:1541753592;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -130,9 +130,9 @@
         <div class="ticket_price">
             <p>
                 售价：
-                <span>500 积分</span>
+                <span><?php echo $vou_price['price']; ?> 积分</span>
             </p>
-            <button type="button" onclick="javascript:layer.confirm('将消耗500静态积分兑换商城入驻券',function (){buy_tickets('buy_shop_tic')})">立即购买</button>
+            <button type="button" onclick="javascript:layer.confirm('将消耗 <?php echo $vou_price['price']; ?> 静态积分兑换商城入驻券',function (){buy_tickets('buy_shop_tic')})">立即购买</button>
         </div>
     </div>
 </main>
@@ -155,7 +155,7 @@
 		</div>
 		<div class="mask"></div>
         <?php endif; ?>
-		</body>
+	</body>
 	<script>
 		function cls(){
 			$('.coupon,.mask').hide();

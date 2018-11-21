@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542622871;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:3:{s:74:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\userCenter.html";i:1542780532;s:59:"D:\phpStudy\WWW\zcgj\application\index\view\common\top.html";i:1542416645;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -162,10 +162,26 @@
             <small class="vip_rank">
                 我的会员等级：
                 <small>
-                    省代
-                    <img src="/static/ace/img/moon.png">
-                    <img src="/static/ace/img/moon.png">
-                    <img src="/static/ace/img/moon.png">
+                    <?php switch($user_info['level']): case "1": ?>
+                            普通会员
+                        <?php break; case "2": ?>
+                            县代
+                            <img src="/static/ace/img/moon.png">
+                        <?php break; case "3": ?>
+                            市代
+                            <img src="/static/ace/img/moon.png">
+                            <img src="/static/ace/img/moon.png">
+                        <?php break; case "4": ?>
+                            省代
+                            <img src="/static/ace/img/moon.png">
+                            <img src="/static/ace/img/moon.png">
+                            <img src="/static/ace/img/moon.png">
+                        <?php break; case "5": ?>
+                            董事
+                            <img src="/static/ace/img/sun.png">
+                        <?php break; default: ?>
+                            普通会员
+                    <?php endswitch; ?>
                 </small>
             </small>
         </div>

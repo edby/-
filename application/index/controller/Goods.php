@@ -2,6 +2,7 @@
 namespace app\index\controller;
 
 use app\admin\model\Banner;
+use app\admin\model\Voucher;
 use app\common\controller\Base;
 use app\index\model\GoodsOrder;
 use app\index\model\UserBouns;
@@ -60,7 +61,6 @@ class Goods extends Base
 	 public function index(){
 		$page_size = 5;
 		//获取优惠专区图片
-
 		$preferential = Db::table("sn_goods")->alias('a')->join('goods_detail b','a.id = b.gid')->field('a.id,b.name,b.price,b.original_price,b.brand,b.detail_pic')->limit($page_size)->where(['area_type '=> 2,'status'=>3])->select();
 		//		传递优惠专区
 		$this->assign('preferential',$preferential);
@@ -512,7 +512,7 @@ class Goods extends Base
 //			exit;
 		}
 //		print_r($_GET['id']);
-		$goods_detail = Db::name('goods_detail')->where(['gid'=>$_GET['id']])->where(['status'=>3])->find();
+		$goods_detail = Db::name('goods_detail')->join('goods g','g.id = sn_goods_detail.gid')->where(['gid'=>$_GET['id']])->where(['status'=>3])->find();
 //		echo Db::name('sn_goods_detail')->getLastSql();
 //		var_dump($goods_detail);
 //		exit();
@@ -534,6 +534,8 @@ class Goods extends Base
 	public function activate(){
 		//		 传递轮播图
 		$this->assign('banner',$this->banner);
+		$vou_price = Voucher::get(['id'=>4]);
+		$this->assign('vou_price',$vou_price);
 		return $this -> fetch();
 	}
 
@@ -552,6 +554,7 @@ class Goods extends Base
 			'msg'=>$_POST
 		];
 		//				用户余额账户
+		$vou_price = Voucher::get(['id'=>4]);
 		$user_money = Db::name('user_bouns')->where(['uid'=>$_SESSION['think']['uid']])->order('bouns_type asc')->select();
 		if(!$user_money){
 			throw new Exception("用户帐户不存在");
@@ -560,7 +563,7 @@ class Goods extends Base
 		try{
 //				    遍历用户三个类型的奖金，依次扣款
 			$times = 1;
-			$item_money = 200;
+			$item_money = $vou_price['price'];
 			foreach ($user_money as $money_type){
 	//					  依次扣除静态奖金、动态奖、福利奖
 				if($money_type['bouns_number'] < $item_money){
@@ -617,6 +620,8 @@ class Goods extends Base
 	public function change(){
 		//		 传递轮播图
 		$this->assign('banner',$this->banner);
+		$vou_price = Voucher::get(['id'=>3]);
+		$this->assign('vou_price',$vou_price);
 		return $this -> fetch();
 	}
 
@@ -628,6 +633,8 @@ class Goods extends Base
 	public function tip(){
 		//		 传递轮播图
 		$this->assign('banner',$this->banner);
+		$vou_price = Voucher::get(['id'=>2]);
+		$this->assign('vou_price',$vou_price);
 		return $this -> fetch();
 	}
 
@@ -644,13 +651,16 @@ class Goods extends Base
 		}
 //		购买手续费
 		if($_POST['data'] == 'buy_tip'){
-			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,20,2,1);
+			$vou_price = Voucher::get(['id'=>2]);
+			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,$vou_price['price'],2,1);
 //		购买修改券
-			}else if($_POST['data'] == 'buy_change'){
-			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,20,3,1);
+		}else if($_POST['data'] == 'buy_change'){
+			$vou_price = Voucher::get(['id'=>3]);
+			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,$vou_price['price'],3,1);
 //		购买商城入驻券
 		}else if($_POST['data'] == 'buy_shop_tic'){
-			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,500,5,1);
+			$vou_price = Voucher::get(['id'=>5]);
+			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,$vou_price['price'],5,1);
 //		类型错误
 		}else{
 			$r = deal_json(-1,'类型错误');
@@ -665,6 +675,8 @@ class Goods extends Base
 	public function enter(){
 		//		 传递轮播图
 		$this->assign('banner',$this->banner);
+		$vou_price = Voucher::get(['id'=>5]);
+		$this->assign('vou_price',$vou_price);
 		return $this -> fetch();
 	}
 
@@ -771,9 +783,13 @@ class Goods extends Base
 			->paginate($page_size,false,$querys);
 //		echo Db::name('goods_order')->getLastSql();
 		$pages = $goods_order->render();
+		$user_info = \app\index\model\User::get(['id'=>$_SESSION['think']['uid']])->toArray();
+//		$user_info = $user_info['data'];
+//		print_r($user_info);
 		$this->assign('type',$_GET['type']);
 		$this->assign('order',$goods_order);
 		$this->assign('page',$pages);
+		$this->assign('user_info',$user_info);
 		$uid = is_login($uid);
 		$this -> assign('uid',$uid);
 		return $this->fetch('user/userCenter');

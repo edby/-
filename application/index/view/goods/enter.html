@@ -23,9 +23,9 @@
         <div class="ticket_price">
             <p>
                 售价：
-                <span>500 积分</span>
+                <span>{$vou_price.price} 积分</span>
             </p>
-            <button type="button" onclick="javascript:layer.confirm('将消耗500静态积分兑换商城入驻券',function (){buy_tickets('buy_shop_tic')})">立即购买</button>
+            <button type="button" onclick="javascript:layer.confirm('将消耗 {$vou_price.price} 静态积分兑换商城入驻券',function (){buy_tickets('buy_shop_tic')})">立即购买</button>
         </div>
     </div>
 </main>

@@ -5,6 +5,8 @@ use app\common\model\Base;
 use think\Request;
 use think\Db;
 use think\Session;
+use think\Exception;
+
 class User extends Base
 {
 
@@ -706,7 +708,7 @@ class User extends Base
 				// 判断是否超出可提现数值
 				$buy_where['uid'] = $data['uid'];
 				$buy_where['buy_status'] = 4;
-				$all_trade_num = Db::name('trade_buy') -> where($buy_where) -> whereTime('end_time','between',[$beginThismonth,$endThismonth]) -> sum('number');
+				$all_trade_num = Db::name('trade_buy') -> where($buy_where) -> whereTime('end_time','between',[$beginThismonth,$endThismonth]) -> min('number');
 				$withdraw_number = $all_trade_num * 2;
 				if($withdraw_number > $data['number']){
 					return ['code' => 0,'msg' => '您已出超本月可提现数量!'];
@@ -753,16 +755,31 @@ class User extends Base
 		$condition = 0;
 		try{
 			// 插入 用户卖出交易表 
-			Db::name('trade_sell') -> insert($in_trade_sell);
-			// 减去用户账户中相应的奖金
-			Db::name('user_bouns') -> where($user_bouns_where) -> setDec('bouns_number',$data['number']);
-			// 增加用户账户中相应的冻结奖金
-			Db::name('user_bouns') -> where($user_bouns_where) -> setInc('frozen_bouns_number',$data['number']);
+			if(!Db::name('trade_sell') -> insert($in_trade_sell)){
+				throw new Exception('插入用户卖出交易表失败!');
+			}
+			if($data['bonus_type'] != 1){
+				// 增加用户消费券
+				$vou_where['uid'] = $data['uid'];
+				$vou_where['vid'] = 6;
+				if(!Db::name('user_vou') -> where($vou_where) -> setInc('number',$in_trade_sell['vou_number'])){
+					throw new Exception('增加用户消费券失败!');
+				}
+			}
+			// 减去用户账户中相应的 奖金
+			if(!Db::name('user_bouns') -> where($user_bouns_where) -> setDec('bouns_number',$data['number'])){
+				throw new Exception('减去用户奖金失败!');
+			}
+			// 增加用户账户中相应的 卖出冻结奖金
+			if(!Db::name('user_bouns') -> where($user_bouns_where) -> setInc('sell_frozen',$data['number'])){
+				throw new Exception('增加用户卖出奖金失败!');
+			}
 			
 			$condition = 1;
 			Db::commit();
-		}catch(\exception $e){
+		}catch(\Exception $e){
 			Db::rollback();
+			return ['code' => 0,'msg' => $e -> getMessage()];
 		}
 		
 		if($condition === 1){

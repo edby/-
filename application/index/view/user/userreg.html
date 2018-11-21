@@ -9,7 +9,7 @@
 	<body class="login_bg">
 		<img src="__IMG__/logo_zc.png" class="logo"/>
 		<div class="forgot_pass regis_body" style='height:520px;'>
-			<h1>注册</h1>
+			<h1 id='uid' data-uid='{$uid}'>注册</h1>
 			<input id='account' name='account' type='text' placeholder="请输入手机号" />
 			<input id='code' name='code' placeholder="请输入验证码" class="code" />
 			<span id='get_verification'>发送验证码</span>
@@ -27,9 +27,10 @@
 </html>
 <script src="__JS__/layer/layer.js"></script>
 <script type='text/javascript'>
-	//获取短信验证码;  
+	// 获取短信验证码;  
     var validCode = true;
     $("#get_verification").click(function() {
+    	var uid = $('#uid').data('uid');
         var phone = $('#account').val();
         $(this).attr('disabled', true);
         var time = 30;
@@ -38,10 +39,16 @@
             $.ajax({
             	type:'post',
             	url:'{:url("get_verify")}',
-            	data:{account:phone,type:1},
+            	data:{uid:uid,account:phone,type:1},
             	success:function(ret){
             		if(ret.code === 0){
-                        layer.msg(ret.msg);
+                        if(ret.url){
+							layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+								location.href = ret.url;
+							});
+						}else{
+							layer.msg(ret.msg);
+						}
                     }else{
                         validCode = false;
                         var t = setInterval(function() {
@@ -65,8 +72,8 @@
     
     // 执行注册
     $('#reg').click(function(){
-    	
     	var data = {
+    		uid:$('#uid').data('uid'),
     		account:$('#account').val(),
     		code:$('#code').val(),
     		password:$('#password').val(),
@@ -80,7 +87,13 @@
     		data:data,
     		success:function(ret){
     			if(ret.code === 0){
-    				layer.msg(ret.msg);
+    				if(ret.url){
+						layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
+							location.href = ret.url;
+						});
+					}else{
+						layer.msg(ret.msg);
+					}
     			}else{
     				layer.msg(ret.msg,{icon:ret.code,time:2000},function(){
     					location.href = ret.url;
