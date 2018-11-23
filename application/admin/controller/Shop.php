@@ -348,7 +348,7 @@ class Shop extends Admin
 			$where['sell_sid'] =$_SESSION['think']['aid'];
 		}
 //		print_r($where);
-		$goods_order = Db::name('goods_order')->where($where)->field('gid,sell_sid,create_time,g_number,money,order_status,buy_uid,order_number')->order('create_time desc')->paginate($page_size,false,$page_config);
+		$goods_order = Db::name('goods_order')->where($where)->field('gid,sell_sid,create_time,g_number,money,order_status,buy_uid,order_number,addr_id')->order('create_time desc')->paginate($page_size,false,$page_config);
     	$page = $goods_order->render();
 		$goods_order = $goods_order->toArray();
 		$goods_order = $goods_order['data'];
@@ -356,12 +356,13 @@ class Shop extends Admin
 //		var_dump($goods_order);
 //		exit();
 		foreach ($goods_order as $k => $v){
+//			print_r($goods_order);
 //			$goods_order[$k]['account'] = User::get(['id'=>$goods_order[$k]['buy_uid']]);
 			$goods_order[$k]['account'] = User::get(['id'=>$goods_order[$k]['buy_uid']])['account'];
 			$goods_order[$k]['detail_name'] = GoodsDetail::get(['gid'=>$goods_order[$k]['gid']])['name'];
-			$goods_order[$k]['address'] = UserAddr::get(['uid'=>$goods_order[$k]['buy_uid']])['address'];
-			$goods_order[$k]['tel'] = UserAddr::get(['uid'=>$goods_order[$k]['buy_uid']])['tel'];
-			$goods_order[$k]['addr_name'] = UserAddr::get(['uid'=>$goods_order[$k]['buy_uid']])['username'];
+			$goods_order[$k]['address'] = UserAddr::get(['id'=>$goods_order[$k]['addr_id']])['address'];
+			$goods_order[$k]['tel'] = UserAddr::get(['id'=>$goods_order[$k]['addr_id']])['tel'];
+			$goods_order[$k]['addr_name'] = UserAddr::get(['id'=>$goods_order[$k]['addr_id']])['username'];
 //			print_r($v);
 //			echo User::getLastSql();
 		}

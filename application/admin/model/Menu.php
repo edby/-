@@ -10,7 +10,8 @@ class Menu extends Base
 {
 	const PATH_LIMIT = 10;	// 分页显示条数限制
 	const PATH_SHOW = 10;	// 分页显示页码最大数
-	
+
+
 	/**
 	 * model 网站导航列表
 	 */

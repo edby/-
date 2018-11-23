@@ -35,14 +35,18 @@ class UserVou extends Model
 			return deal_json(-1,'用户数据错误');
 		}
 		if($user_bouns['bouns_number'] < $bouns_dec_number){
+//		print_r($user_bouns);
+//		echo "bb";
 			return deal_json(-1,'积分不足');
 		}
 		Db::startTrans();
 		try{
 //			减少相应的积分
 			$UserBouns = new UserBouns();
-			if(!$UserBouns->where(['uid'=>$uid,'bouns_type'=>$bouns_type])->setDec('bouns_number',$bouns_dec_number)){
-				throw new Exception('用户积分不足');
+			if($bouns_dec_number>0){
+				if(!$UserBouns->where(['uid'=>$uid,'bouns_type'=>$bouns_type])->setDec('bouns_number',$bouns_dec_number)){
+					throw new Exception('用户积分不足');
+				}
 			}
 //			增加用户相应券的数量
 			$UserVou = new UserVou();

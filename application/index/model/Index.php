@@ -242,9 +242,9 @@ class Index extends Base
 		}
 		// 判断用户的手续费是否足够
 		$num = $data['number']/2000;
-		$vou_where['uid'] = $data['uid'];
-		$vou_where['vid'] = 2;
-		$user_vou_num = Db::name('user_vou') -> where($vou_where) -> value('number');
+		$vou_where2['uid'] = $data['uid'];
+		$vou_where2['vid'] = 2;
+		$user_vou_num = Db::name('user_vou') -> where($vou_where2) -> value('number');
 		if($user_vou_num < $num){
 			return ['code' => 0,'msg' => '您的手续费不够,请先购买!','url' => url('Goods/tip')];
 		}
@@ -310,9 +310,9 @@ class Index extends Base
 			// 判断用户交易金额，每大于10000将增加一张优惠券
 			$vou = intval($data['number']/10000);
 			if($vou != 0){
-				$vou_where['uid'] = $data['uid'];
-				$vou_where['vid'] = 1;
-				if(Db::name('user_vou') -> where($vou_where) -> setInc('number',$vou)){
+				$vou_where1['uid'] = $data['uid'];
+				$vou_where1['vid'] = 1;
+				if(!Db::name('user_vou') -> where($vou_where1) -> setInc('number',$vou)){
 					throw new Exception('赠送优惠券失败!');
 				}
 			}
@@ -321,7 +321,7 @@ class Index extends Base
 			$this -> welfare($data['uid'],$trade_burn_id);
 			
 			// 扣除用户相应的手续费券数量
-			$user_vou_num = Db::name('user_vou') -> where($vou_where) -> setDec('number',$num);
+			$user_vou_num = Db::name('user_vou') -> where($vou_where2) -> setDec('number',$num);
 			if(!$user_vou_num){
 				throw new Exception('扣除手续费失败!');
 			}

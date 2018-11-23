@@ -282,6 +282,9 @@ class Goods extends Base
 	    }
 	    $uid = $_SESSION['think']['uid'];
 	    $number = $_POST['number'];
+	    if($number < 1){
+			return json_encode(deal_json(-1,'购买数量出错！'));
+	    }
 //	    print_r($gid);
 //		print_r($uid);
 //	    print_r($number);
@@ -401,6 +404,8 @@ class Goods extends Base
 
 //	    获取用户收货地址
 	    $user_add = Db::name('user_addr')->where(['id'=>$_POST['rec_ids']])->find();
+//	    print_r($_POST);
+//	    exit();
 //	    $r['msg'] = $user_add;
 //	    return json_encode($r);
 	    if(!$user_add){
@@ -481,6 +486,8 @@ class Goods extends Base
 			    if(!(Db::name('goods_order')->where(['order_number' => $item[0]])->update(['order_status'=>2,'addr_id'=>$_POST['rec_ids']]))){
 					throw new Exception('订单付款失败');
 			    }
+//			    echo GoodsOrder::getLastSql();exit;
+//			    throw new Exception(GoodsOrder::getLastSql());
 		    }
 		    Db::commit();
 		    $r = [
@@ -656,6 +663,8 @@ class Goods extends Base
 //		购买修改券
 		}else if($_POST['data'] == 'buy_change'){
 			$vou_price = Voucher::get(['id'=>3]);
+//			print_r($vou_price['price']);
+//			echo "a";
 			$r = UserVou::buy_ticket($_SESSION['think']['uid'],1,$vou_price['price'],3,1);
 //		购买商城入驻券
 		}else if($_POST['data'] == 'buy_shop_tic'){

@@ -1,4 +1,4 @@
-<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\withdraw.html";i:1542692005;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542452401;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542452364;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
+<?php if (!defined('THINK_PATH')) exit(); /*a:4:{s:72:"D:\phpStudy\WWW\zcgj\public/../application/index\view\user\withdraw.html";i:1542764155;s:63:"D:\phpStudy\WWW\zcgj\application\index\view\common\userTop.html";i:1542452401;s:64:"D:\phpStudy\WWW\zcgj\application\index\view\common\userMenu.html";i:1542452364;s:62:"D:\phpStudy\WWW\zcgj\application\index\view\common\bottom.html";i:1542683181;}*/ ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -316,7 +316,7 @@
 	                                <span>提现金额：</span>
 	                                <small data-toggle="modal" data-target="#myModal1">了解提现规则 >></small>
 	                            </p>
-	                            <input id='number_<?php echo $vo['id']; ?>' type="number" name='bouns_number' placeholder="请输入您的提现金额" />
+	                            <input id='number_<?php echo $vo['bouns_type']; ?>' type="number" name='bouns_number' placeholder="请输入您的提现金额" />
 	                        </div>
 	                        <!--<div class="fetch_acc">
 	                            <p>
@@ -430,7 +430,6 @@ var uid = $('.user_name').attr('data-uid');
 
 // 执行提现
 function withdraw(id){
-    // console.log($("#number_1").val());
 	layer.confirm('确定要提现吗?',{
 		btn: ['确定','关闭']
 	},function(){
@@ -448,8 +447,7 @@ function withdraw(id){
 					layer.alert(ret.msg);
 				}else{
 					layer.msg(ret.msg,{icon:ret.code,time:1500},function(){
-						// return false;
-					    location.href = self.location.href;
+						location.href = self.location.href;
 					});
 				}
 			}
